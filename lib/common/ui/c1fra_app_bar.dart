@@ -8,14 +8,28 @@ class C1fraAppBar extends StatelessWidget implements PreferredSizeWidget {
   const C1fraAppBar({
     super.key,
     required this.leading,
-    required this.trailing,
+    this.trailing,
   });
 
   final Widget leading;
-  final Widget trailing;
+  final Widget? trailing;
 
   @override
   Size get preferredSize => const Size.fromHeight(60);
+
+  List<Widget> get _effectiveChildren => trailing == null
+      ? <Widget>[
+          leading,
+        ]
+      : <Widget>[
+          leading,
+          const Expanded(
+            child: SizedBox(
+              height: 0,
+            ),
+          ),
+          trailing!,
+        ];
 
   @override
   Widget build(BuildContext context) => Stack(
@@ -34,15 +48,7 @@ class C1fraAppBar extends StatelessWidget implements PreferredSizeWidget {
             child: Row(
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                leading,
-                const Expanded(
-                  child: SizedBox(
-                    height: 0,
-                  ),
-                ),
-                trailing,
-              ],
+              children: _effectiveChildren,
             ),
           ),
         ],
