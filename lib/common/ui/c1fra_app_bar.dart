@@ -15,7 +15,8 @@ class C1fraAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? trailing;
 
   @override
-  Size get preferredSize => const Size.fromHeight(60);
+  Size get preferredSize =>
+      const Size.fromHeight(NumericConstants.appBarHeight);
 
   List<Widget> get _effectiveChildren => trailing == null
       ? <Widget>[
@@ -32,26 +33,28 @@ class C1fraAppBar extends StatelessWidget implements PreferredSizeWidget {
         ];
 
   @override
-  Widget build(BuildContext context) => Stack(
-        alignment: Alignment.center,
-        children: [
-          CustomPaint(
-            painter: _C1fraAppBarPainter(
-              color: Theme.of(context).colorScheme.secondary,
+  Widget build(BuildContext context) => SafeArea(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            CustomPaint(
+              painter: _C1fraAppBarPainter(
+                color: Theme.of(context).colorScheme.secondary,
+              ),
+              size: Size.fromHeight(preferredSize.height),
             ),
-            size: Size.fromHeight(preferredSize.height),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: NumericConstants.horizontalPadding,
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: NumericConstants.horizontalPadding,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: _effectiveChildren,
+              ),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: _effectiveChildren,
-            ),
-          ),
-        ],
+          ],
+        ),
       );
 }
 
