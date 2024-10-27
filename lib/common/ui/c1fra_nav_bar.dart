@@ -1,8 +1,9 @@
+import 'package:flutter/material.dart';
+
 import 'dart:math';
 
 import 'package:cifra_app/common/constants/numeric_constants.dart';
 import 'package:cifra_app/common/icon_pack/c1fra__icons.dart';
-import 'package:flutter/material.dart';
 
 @immutable
 class C1fraNavigationBar extends StatelessWidget {
@@ -13,71 +14,81 @@ class C1fraNavigationBar extends StatelessWidget {
     required this.trailing,
     required this.onTap,
     required this.onPlusTap,
-  }) : assert(index < 1, "Index can't be higher than 1");
+  }) : assert(index <= 1, "Index can't be higher than 1");
 
   final int index;
-  final Widget leading;
-  final Widget trailing;
+  final Icon leading;
+  final Icon trailing;
 
   final void Function(int index) onTap;
   final VoidCallback onPlusTap;
 
+  Widget _buttonFromIcon(
+          {required Icon icon,
+          required int index,
+          required ColorScheme colorScheme}) =>
+      Center(
+        child: IconButton(
+          onPressed: () => onTap(index),
+          icon: icon,
+          color: index == this.index
+              ? colorScheme.onSurface
+              : colorScheme.onSecondary,
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.sizeOf(context);
+
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
 
-    final double horizontalPadding = (screenSize.width - 80) / 2;
+    final double halfNavBarSize =
+        (screenSize.width - NumericConstants.plusButtonOutlineSize) / 2;
 
     return Stack(
       alignment: Alignment.bottomCenter,
       children: <Widget>[
         CustomPaint(
-          size: const Size.fromHeight(NumericConstants.navBarHeight),
           painter: _C1fraNavBarPainter(
             color: colorScheme.secondary,
           ),
-        ),
-        SizedBox(
-          height: NumericConstants.navBarHeight,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              SizedBox(
-                width: horizontalPadding,
-                child: leading,
-              ),
-              const Expanded(
-                child: SizedBox(
-                  height: 0,
+          child: SizedBox(
+            height: NumericConstants.navBarHeight,
+            child: Row(
+              children: <Widget>[
+                SizedBox(
+                  width: halfNavBarSize,
+                  child: _buttonFromIcon(
+                    icon: leading,
+                    index: 0,
+                    colorScheme: colorScheme,
+                  ),
                 ),
-              ),
-              SizedBox(
-                width: horizontalPadding,
-                child: trailing,
-              ),
-            ],
+                const Expanded(
+                  child: SizedBox(
+                    height: 0,
+                  ),
+                ),
+                SizedBox(
+                  width: halfNavBarSize,
+                  child: _buttonFromIcon(
+                    icon: trailing,
+                    index: 1,
+                    colorScheme: colorScheme,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(bottom: 20),
-          child: Ink(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: colorScheme.primary,
-            ),
-            height: 60,
-            width: 60,
-            child: IconButton(
-              onPressed: onPlusTap,
-              icon: Icon(
-                C1fraIcons.plus,
-                color: colorScheme.surface,
-                size: 25,
-              ),
-            ),
+          padding: const EdgeInsets.only(
+            bottom: 20,
+          ),
+          child: PlusButton(
+            onTap: onPlusTap,
           ),
         ),
       ],
@@ -92,14 +103,21 @@ class _C1fraNavBarPainter extends CustomPainter {
 
   final Color color;
 
+  static const double curveD = 30;
+
   @override
   void paint(Canvas canvas, Size size) {
     final Path path = Path()
-      ..lineTo(size.width / 2 - 40, 0)
+      ..lineTo(
+          (size.width - NumericConstants.plusButtonOutlineSize - curveD) / 2, 0)
       ..arcTo(
         Rect.fromPoints(
-          Offset(size.width / 2 - 70, 0),
-          Offset(size.width / 2 - 40, 30),
+          Offset(
+              (size.width - NumericConstants.plusButtonOutlineSize) / 2 -
+                  curveD,
+              0),
+          Offset((size.width - NumericConstants.plusButtonOutlineSize) / 2,
+              curveD),
         ),
         -pi / 2,
         pi / 2,
@@ -107,17 +125,29 @@ class _C1fraNavBarPainter extends CustomPainter {
       )
       ..arcTo(
         Rect.fromPoints(
-          Offset(size.width / 2 - 40, -25),
-          Offset(size.width / 2 + 40, 55),
+          Offset(
+            (size.width - NumericConstants.plusButtonOutlineSize) / 2,
+            (curveD - NumericConstants.plusButtonOutlineSize) / 2,
+          ),
+          Offset(
+            (size.width + NumericConstants.plusButtonOutlineSize) / 2,
+            (curveD + NumericConstants.plusButtonOutlineSize) / 2,
+          ),
         ),
-        -pi,
+        pi,
         -pi,
         false,
       )
       ..arcTo(
         Rect.fromPoints(
-          Offset(size.width / 2 + 40, 0),
-          Offset(size.width / 2 + 70, 30),
+          Offset(
+            (size.width + NumericConstants.plusButtonOutlineSize) / 2,
+            0,
+          ),
+          Offset(
+            (size.width + NumericConstants.plusButtonOutlineSize) / 2 + curveD,
+            curveD,
+          ),
         ),
         -pi,
         pi / 2,
@@ -137,4 +167,40 @@ class _C1fraNavBarPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _C1fraNavBarPainter oldDelegate) =>
       oldDelegate.color != color;
+}
+
+class PlusButton extends StatelessWidget {
+  const PlusButton({
+    super.key,
+    required this.onTap,
+  });
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(
+        NumericConstants.plusButtonOutlineSize,
+      ),
+      child: Material(
+        child: Ink(
+          height: NumericConstants.plusButtonSize,
+          width: NumericConstants.plusButtonSize,
+          color: colorScheme.primary,
+          child: IconButton(
+            onPressed: onTap,
+            icon: Icon(
+              C1fraIcons.plus,
+              color: colorScheme.surface,
+              size: NumericConstants.iconSize,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

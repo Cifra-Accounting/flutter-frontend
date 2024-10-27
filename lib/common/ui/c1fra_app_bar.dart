@@ -1,7 +1,9 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'dart:math';
 
 import 'package:cifra_app/common/constants/numeric_constants.dart';
-import 'package:flutter/material.dart';
 
 @immutable
 class C1fraAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -33,27 +35,28 @@ class C1fraAppBar extends StatelessWidget implements PreferredSizeWidget {
         ];
 
   @override
-  Widget build(BuildContext context) => SafeArea(
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            CustomPaint(
-              painter: _C1fraAppBarPainter(
-                color: Theme.of(context).colorScheme.secondary,
-              ),
-              size: Size.fromHeight(preferredSize.height),
-            ),
-            Padding(
+  Widget build(BuildContext context) => CustomPaint(
+        painter: _C1fraAppBarPainter(
+          color: Theme.of(context).colorScheme.secondary,
+        ),
+        child: AnnotatedRegion<SystemUiOverlayStyle>(
+          value: const SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarBrightness: Brightness.dark,
+          ),
+          child: SafeArea(
+            child: Container(
               padding: const EdgeInsets.symmetric(
                 horizontal: NumericConstants.horizontalPadding,
               ),
+              height: preferredSize.height,
               child: Row(
                 mainAxisSize: MainAxisSize.max,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: _effectiveChildren,
               ),
             ),
-          ],
+          ),
         ),
       );
 }
@@ -65,27 +68,28 @@ class _C1fraAppBarPainter extends CustomPainter {
 
   final Color color;
 
+  static const double curveD = 120;
+
   @override
   void paint(Canvas canvas, Size size) {
-    final Size localSize = Size(size.width, size.height * 2);
-
     final Path path = Path()
-      ..lineTo(localSize.width, 0)
-      ..lineTo(localSize.width, localSize.height)
+      ..moveTo(0, 0)
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width, size.height)
       ..arcTo(
         Rect.fromPoints(
-          Offset(localSize.width - localSize.height, localSize.height / 2),
-          Offset(localSize.width, localSize.height + localSize.height / 2),
+          Offset(size.width - curveD, size.height),
+          Offset(size.width, size.height + curveD),
         ),
         0,
         -pi / 2,
         false,
       )
-      ..lineTo(localSize.width - localSize.height / 2, localSize.height / 2)
+      ..lineTo(curveD, size.height)
       ..arcTo(
         Rect.fromPoints(
-          Offset(0, localSize.height / 2),
-          Offset(localSize.height, localSize.height + localSize.height / 2),
+          Offset(0, size.height),
+          Offset(curveD, size.height + curveD),
         ),
         -pi / 2,
         -pi / 2,

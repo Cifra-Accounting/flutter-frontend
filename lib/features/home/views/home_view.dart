@@ -1,10 +1,15 @@
-import 'package:cifra_app/common/constants/numeric_constants.dart';
-import 'package:cifra_app/common/icon_pack/c1fra__icons.dart';
-import 'package:cifra_app/common/navigation/navigation.dart';
-import 'package:cifra_app/common/ui/c1fra_app_bar.dart';
-import 'package:cifra_app/common/ui/c1fra_nav_bar.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_svg/flutter_svg.dart';
+
+import 'package:cifra_app/common/ui/ui.dart';
+import 'package:cifra_app/common/icon_pack/c1fra__icons.dart';
+
+import 'package:cifra_app/features/stats/views/stats_view.dart';
+import 'package:cifra_app/features/wallet/views/wallet_view.dart';
+
+import 'package:cifra_app/common/constants/numeric_constants.dart';
+import 'package:cifra_app/common/navigation/navigation.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -14,14 +19,14 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
+  late final ColorScheme colorScheme;
+
   int _currentIndex = 0;
 
   final List<Widget> body = const <Widget>[
     WalletView(),
     StatsView(),
   ];
-
-  late final ColorScheme colorScheme;
 
   @override
   void didChangeDependencies() {
@@ -36,13 +41,13 @@ class _HomeViewState extends State<HomeView> {
         appBar: C1fraAppBar(
           leading: SvgPicture.asset(
             "assets/c1fra_logo.svg",
-            height: NumericConstants.appBarElementSize,
+            height: NumericConstants.iconSize,
             fit: BoxFit.fitHeight,
           ),
           trailing: IconButton(
             icon: Icon(
               C1fraIcons.settingsMenuIcon,
-              size: NumericConstants.appBarElementSize,
+              size: NumericConstants.iconSize,
               color: colorScheme.onPrimary,
             ),
             onPressed: () => Navigator.pushNamed(context, RouteNames.settings),
@@ -69,22 +74,4 @@ class _HomeViewState extends State<HomeView> {
           ],
         ),
       );
-}
-
-class WalletView extends StatelessWidget {
-  const WalletView({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
-  }
-}
-
-class StatsView extends StatelessWidget {
-  const StatsView({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
-  }
 }
