@@ -4,7 +4,20 @@ import 'dart:math';
 
 import 'package:cifra_app/common/constants/numeric_constants.dart';
 import 'package:cifra_app/common/icon_pack/c1fra__icons.dart';
+import 'package:flutter/services.dart';
 
+/// Custom C1fra NavigationBar compliant to the C1fra App UiKit
+/// Background color - secondary
+/// PlusButton color - primary
+///
+/// Setting [index] from 0 to 1 changes which of the two icons will be selected
+///
+/// You are required to provide two icons for the [leading] and [trailing]
+///
+/// [onTap] callback - recieves [int index] as its argument, representing which of the two
+/// icons were triggered
+///
+/// [onPlusTap] callback - triggered onTap on the centered Plus Button
 @immutable
 class C1fraNavigationBar extends StatelessWidget {
   const C1fraNavigationBar({
@@ -23,13 +36,20 @@ class C1fraNavigationBar extends StatelessWidget {
   final void Function(int index) onTap;
   final VoidCallback onPlusTap;
 
-  Widget _buttonFromIcon(
+  Widget _buttonFromIcon(BuildContext context,
           {required Icon icon,
           required int index,
           required ColorScheme colorScheme}) =>
       Center(
         child: IconButton(
-          onPressed: () => onTap(index),
+          onPressed: () {
+            if (index == this.index) {
+              PrimaryScrollController.of(context).animateTo(0.0,
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.bounceIn);
+            }
+            onTap(index);
+          },
           icon: icon,
           color: index == this.index
               ? colorScheme.onSurface
@@ -47,51 +67,71 @@ class C1fraNavigationBar extends StatelessWidget {
     final double halfNavBarSize =
         (screenSize.width - NumericConstants.plusButtonOutlineSize) / 2;
 
-    return Stack(
-      alignment: Alignment.bottomCenter,
-      children: <Widget>[
-        CustomPaint(
-          painter: _C1fraNavBarPainter(
-            color: colorScheme.secondary,
-          ),
-          child: SizedBox(
-            height: NumericConstants.navBarHeight,
-            child: Row(
-              children: <Widget>[
-                SizedBox(
-                  width: halfNavBarSize,
-                  child: _buttonFromIcon(
-                    icon: leading,
-                    index: 0,
-                    colorScheme: colorScheme,
-                  ),
-                ),
-                const Expanded(
-                  child: SizedBox(
-                    height: 0,
-                  ),
-                ),
-                SizedBox(
-                  width: halfNavBarSize,
-                  child: _buttonFromIcon(
-                    icon: trailing,
-                    index: 1,
-                    colorScheme: colorScheme,
-                  ),
-                ),
-              ],
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        systemNavigationBarColor: colorScheme.secondary.withOpacity(0.8),
+      ),
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: <Widget>[
+          Container(
+            height: NumericConstants.navBarHeight * 2,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: <Color>[
+                  Colors.black.withOpacity(0.7),
+                  Colors.transparent
+                ],
+                begin: Alignment.bottomCenter,
+                end: Alignment.topCenter,
+              ),
             ),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(
-            bottom: 20,
+          CustomPaint(
+            painter: _C1fraNavBarPainter(
+              color: colorScheme.secondary,
+            ),
+            child: SizedBox(
+              height: NumericConstants.navBarHeight,
+              child: Row(
+                children: <Widget>[
+                  SizedBox(
+                    width: halfNavBarSize,
+                    child: _buttonFromIcon(
+                      context,
+                      icon: leading,
+                      index: 0,
+                      colorScheme: colorScheme,
+                    ),
+                  ),
+                  const Expanded(
+                    child: SizedBox(
+                      height: 0,
+                    ),
+                  ),
+                  SizedBox(
+                    width: halfNavBarSize,
+                    child: _buttonFromIcon(
+                      context,
+                      icon: trailing,
+                      index: 1,
+                      colorScheme: colorScheme,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-          child: PlusButton(
-            onTap: onPlusTap,
+          Padding(
+            padding: const EdgeInsets.only(
+              bottom: 20,
+            ),
+            child: PlusButton(
+              onTap: onPlusTap,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

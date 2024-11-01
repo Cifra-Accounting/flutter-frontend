@@ -26,11 +26,6 @@ class C1fraAppBar extends StatelessWidget implements PreferredSizeWidget {
         ]
       : <Widget>[
           leading,
-          const Expanded(
-            child: SizedBox(
-              height: 0,
-            ),
-          ),
           trailing!,
         ];
 
@@ -52,7 +47,7 @@ class C1fraAppBar extends StatelessWidget implements PreferredSizeWidget {
               height: preferredSize.height,
               child: Row(
                 mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: _effectiveChildren,
               ),
             ),

@@ -19,7 +19,7 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  late final ColorScheme colorScheme;
+  late ColorScheme colorScheme;
 
   int _currentIndex = 0;
 
@@ -53,25 +53,21 @@ class _HomeViewState extends State<HomeView> {
             onPressed: () => Navigator.pushNamed(context, RouteNames.settings),
           ),
         ),
-        body: Stack(
-          alignment: Alignment.bottomCenter,
-          children: [
-            IndexedStack(
-              index: _currentIndex,
-              children: body,
-            ),
-            C1fraNavigationBar(
-              index: _currentIndex,
-              leading: const Icon(C1fraIcons.wallet, size: 25),
-              trailing: const Icon(C1fraIcons.stats, size: 25),
-              onTap: (index) {
-                setState(() {
-                  _currentIndex = index;
-                });
-              },
-              onPlusTap: () {},
-            ),
-          ],
+        extendBody: true,
+        body: IndexedStack(
+          index: _currentIndex,
+          children: body,
+        ),
+        bottomNavigationBar: C1fraNavigationBar(
+          index: _currentIndex,
+          leading: const Icon(C1fraIcons.wallet, size: 25),
+          trailing: const Icon(C1fraIcons.stats, size: 25),
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          onPlusTap: () {},
         ),
       );
 }

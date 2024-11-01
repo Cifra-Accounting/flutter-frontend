@@ -55,7 +55,7 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/c1fra_logo.svg
+    - assets/
 
   fonts:
     - family: Montserrat
