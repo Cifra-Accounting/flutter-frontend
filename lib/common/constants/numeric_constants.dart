@@ -10,9 +10,12 @@ abstract interface class NumericConstants {
 
   static const double cardHorizontalPadding = 20;
   static const double cardVerticalPadding = 25;
-  static const double periodSelectorHeight = 30;
   static const double cardBorderRadius = 30;
+
+  static const double periodSelectorHeight = 30;
 
   static const double horizontalPadding = 25;
   static const double topPadding = 25;
+
+  static const double blankSpacerSize = 10;
 }
