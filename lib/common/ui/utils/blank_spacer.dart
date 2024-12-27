@@ -1,11 +1,12 @@
-import 'package:cifra_app/common/constants/numeric_constants.dart';
 import 'package:flutter/material.dart';
+
+import 'package:cifra_app/common/constants/numeric_constants.dart';
 
 class BlankSpacer extends StatelessWidget {
   const BlankSpacer({
     super.key,
     this.multiplier = 1.0,
-    this.vertical = false,
+    this.vertical = true,
   });
 
   final double multiplier;

@@ -1,4 +1,7 @@
 abstract interface class NumericConstants {
+  static const double pixelSize = 6;
+  static const double pixelSpacerSize = pixelSize / 12;
+
   static const double appBarHeight = 60;
 
   static const double navBarHeight = 65;
@@ -12,7 +15,8 @@ abstract interface class NumericConstants {
   static const double cardVerticalPadding = 25;
   static const double cardBorderRadius = 30;
 
-  static const double periodSelectorHeight = 30;
+  static const double periodSelectorHeight =
+      5 * pixelSize + 4 * pixelSpacerSize;
 
   static const double horizontalPadding = 25;
   static const double topPadding = 25;

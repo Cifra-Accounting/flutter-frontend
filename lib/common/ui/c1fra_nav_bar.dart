@@ -69,7 +69,7 @@ class C1fraNavigationBar extends StatelessWidget {
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
-        systemNavigationBarColor: colorScheme.secondary.withOpacity(0.8),
+        systemNavigationBarColor: colorScheme.secondary.withValues(alpha: 0.8),
       ),
       child: Stack(
         alignment: Alignment.bottomCenter,
@@ -79,7 +79,7 @@ class C1fraNavigationBar extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: <Color>[
-                  Colors.black.withOpacity(0.7),
+                  Colors.black.withValues(alpha: 0.7),
                   Colors.transparent
                 ],
                 begin: Alignment.bottomCenter,
