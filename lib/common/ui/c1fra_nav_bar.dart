@@ -60,6 +60,8 @@ class C1fraNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.sizeOf(context);
+    final double additionalBottomPadding =
+        MediaQuery.viewPaddingOf(context).bottom;
 
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
@@ -92,11 +94,14 @@ class C1fraNavigationBar extends StatelessWidget {
               color: colorScheme.secondary,
             ),
             child: SizedBox(
-              height: NumericConstants.navBarHeight,
+              height: NumericConstants.navBarHeight + additionalBottomPadding,
               child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   SizedBox(
                     width: halfNavBarSize,
+                    height: NumericConstants.navBarHeight,
                     child: _buttonFromIcon(
                       context,
                       icon: leading,
@@ -104,13 +109,9 @@ class C1fraNavigationBar extends StatelessWidget {
                       colorScheme: colorScheme,
                     ),
                   ),
-                  const Expanded(
-                    child: SizedBox(
-                      height: 0,
-                    ),
-                  ),
                   SizedBox(
                     width: halfNavBarSize,
+                    height: NumericConstants.navBarHeight,
                     child: _buttonFromIcon(
                       context,
                       icon: trailing,
@@ -122,13 +123,9 @@ class C1fraNavigationBar extends StatelessWidget {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(
-              bottom: 20,
-            ),
-            child: PlusButton(
-              onTap: onPlusTap,
-            ),
+          Positioned(
+            bottom: 20 + additionalBottomPadding,
+            child: PlusButton(onTap: onPlusTap),
           ),
         ],
       ),

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
@@ -46,6 +48,9 @@ class SpendingsCard extends StatefulWidget {
 class _SpendingsCardState extends State<SpendingsCard>
     with TickerProviderStateMixin {
   late final TabController _tabController;
+  late ColorScheme _colorScheme;
+  late TextTheme _textTheme;
+
   late double _viewPortHeight;
 
   final List<Periods> _periods = const <Periods>[
@@ -69,13 +74,16 @@ class _SpendingsCardState extends State<SpendingsCard>
 
   @override
   void didChangeDependencies() {
-    final TextTheme textTheme = Theme.of(context).textTheme;
+    final ThemeData theme = Theme.of(context);
+
+    _textTheme = theme.textTheme;
+    _colorScheme = theme.colorScheme;
 
     _viewPortHeight = 15.0 * NumericConstants.pixelSize +
         14.0 * NumericConstants.pixelSpacerSize +
         5.0 * 2.0 +
-        _textSize("You have already spent", textTheme.titleSmall!).height +
-        _textSize("\$0", textTheme.titleLarge!).height;
+        _textSize("You have already spent", _textTheme.titleSmall!).height +
+        _textSize("\$0", _textTheme.titleLarge!).height;
 
     super.didChangeDependencies();
   }
@@ -103,108 +111,119 @@ class _SpendingsCardState extends State<SpendingsCard>
   }
 
   @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final ColorScheme colorScheme = theme.colorScheme;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: colorScheme.primary,
-        borderRadius: BorderRadius.circular(
-          NumericConstants.cardBorderRadius,
+  Widget build(BuildContext context) => Container(
+        decoration: BoxDecoration(
+          color: _colorScheme.primary,
+          borderRadius: BorderRadius.circular(
+            NumericConstants.cardBorderRadius,
+          ),
         ),
-      ),
-      padding: const EdgeInsets.symmetric(
-        vertical: NumericConstants.cardVerticalPadding,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: NumericConstants.blankSpacerSize * 1.5,
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: NumericConstants.cardHorizontalPadding,
+        padding: const EdgeInsets.symmetric(
+          vertical: NumericConstants.cardVerticalPadding,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: NumericConstants.blankSpacerSize * 1.5,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: NumericConstants.cardHorizontalPadding,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: NumericConstants.blankSpacerSize * 1.5,
+                children: [
+                  PeriodSelector(
+                    controller: _tabController,
+                    periods: _periods,
+                  ),
+                  Divider(
+                    height: 0,
+                    thickness: 2,
+                    color: _colorScheme.onPrimary,
+                  ),
+                ],
+              ),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: NumericConstants.blankSpacerSize * 1.5,
-              children: [
-                PeriodSelector(
-                  controller: _tabController,
-                  periods: _periods,
-                ),
-                Divider(
-                  height: 0,
-                  thickness: 2,
-                  color: colorScheme.onPrimary,
-                ),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: _viewPortHeight,
-            child: TabBarView(
-              controller: _tabController,
-              children: _periods
-                  .map(
-                    (period) => Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: NumericConstants.horizontalPadding,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: NumericConstants.blankSpacerSize * .5,
-                        children: [
-                          Text(
-                            "You already have spent:",
-                            style: theme.textTheme.titleSmall,
+            SizedBox(
+              height: _viewPortHeight,
+              child: TabBarView(
+                controller: _tabController,
+                children: _periods
+                    .map(
+                      (period) => FutureBuilder<double>(
+                          future: Future<double>.delayed(
+                            const Duration(seconds: 5),
+                            () =>
+                                (Periods.values.indexOf(period).toDouble() +
+                                    1.0) /
+                                Periods.values.length,
                           ),
-                          const SpendingsIndicator(),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text.rich(
-                                overflow: TextOverflow.fade,
-                                TextSpan(
-                                  text: "\$${(widget.spent ?? 178).toInt()}",
-                                  style: theme.textTheme.titleLarge,
-                                  children: [
-                                    TextSpan(
-                                      text:
-                                          " / ${(widget.outOf ?? 300).toInt()} \$  ",
-                                      style:
-                                          theme.textTheme.titleSmall!.copyWith(
-                                        color:
-                                            Colors.white.withValues(alpha: .75),
+                          builder: (context, snapshot) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: NumericConstants.horizontalPadding,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                spacing: NumericConstants.blankSpacerSize * .5,
+                                children: [
+                                  Text(
+                                    "You already have spent:",
+                                    style: _textTheme.titleSmall,
+                                  ),
+                                  SpendingsIndicator(
+                                    percentage: snapshot.data,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text.rich(
+                                        overflow: TextOverflow.fade,
+                                        TextSpan(
+                                          text:
+                                              "\$${(widget.spent ?? 178).toInt()}",
+                                          style: _textTheme.titleLarge,
+                                          children: [
+                                            TextSpan(
+                                              text:
+                                                  " / ${(widget.outOf ?? 300).toInt()} \$  ",
+                                              style: _textTheme.titleSmall!
+                                                  .copyWith(
+                                                color: Colors.white
+                                                    .withValues(alpha: .75),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
+                                      Text(
+                                        (widget.spent != null &&
+                                                widget.outOf != null)
+                                            ? "( ${(widget.spent! / widget.outOf!)}% )"
+                                            : "( 60% )",
+                                        style: _textTheme.titleSmall!.copyWith(
+                                          color: Colors.white
+                                              .withValues(alpha: .75),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                              Text(
-                                (widget.spent != null && widget.outOf != null)
-                                    ? "( ${(widget.spent! / widget.outOf!)}% )"
-                                    : "( 60% )",
-                                style: theme.textTheme.titleSmall!.copyWith(
-                                  color: Colors.white.withValues(alpha: .75),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                  .toList(),
+                            );
+                          }),
+                    )
+                    .toList(),
+              ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
 }
 
 enum Periods {
@@ -239,36 +258,42 @@ class SpendingsIndicatorRenderObject extends RenderBox
     implements TickerProvider {
   SpendingsIndicatorRenderObject(this._percentage);
 
-  Ticker? _ticker;
-  final ColorTween _colorTween =
-      ColorTween(begin: Colors.white, end: Colors.black);
-  late final AnimationController _idleAnimationController;
-
   double? _percentage;
 
+  Ticker? _ticker;
+
+  late final AnimationController _idleAnimationController;
+
+  late int _numOfColumns;
+  late double _horizontalColumnSpan;
+
+  final Paint _setPixelPaint = Paint()
+    ..color = Colors.white
+    ..style = PaintingStyle.fill;
+  final Paint _pixelPaint = Paint()
+    ..color = Colors.black
+    ..style = PaintingStyle.fill;
+
+  static final ColorTween _colorTween =
+      ColorTween(begin: Colors.white, end: Colors.black);
+
   set percentage(double? newPercentage) {
-    if (newPercentage == null &&
-        (_idleAnimationController.status != AnimationStatus.forward ||
-            _idleAnimationController.status != AnimationStatus.reverse)) {
+    if (newPercentage == _percentage) return;
+
+    if (newPercentage == null) {
+      _percentage = newPercentage;
       _idleAnimationController.repeat();
-      _percentage = newPercentage;
-    } else if (newPercentage != null &&
-        (_idleAnimationController.status == AnimationStatus.forward ||
-            _idleAnimationController.status == AnimationStatus.reverse)) {
-      _idleAnimationController.animateTo(1.0).then((_) {
-        _idleAnimationController.stop();
-        _percentage = newPercentage;
-        markNeedsPaint();
-      });
     } else {
-      _percentage = newPercentage;
-      markNeedsPaint();
+      _onIdleAnimationEnd().then<void>((_) {
+        _percentage = newPercentage;
+        _idleAnimationController.forward(
+          from: _idleAnimationController.lowerBound,
+        );
+      });
     }
+
     markNeedsSemanticsUpdate();
   }
-
-  late int numOfColumns;
-  late double vertivalColumnSpan;
 
   @override
   void attach(PipelineOwner owner) {
@@ -282,7 +307,13 @@ class SpendingsIndicatorRenderObject extends RenderBox
         .drive(Tween(begin: .0, end: 1.0))
         .addListener(markNeedsPaint);
 
-    if (_percentage == null) _idleAnimationController.repeat();
+    if (_percentage == null) {
+      _idleAnimationController.repeat();
+    } else {
+      _idleAnimationController.forward(
+        from: _idleAnimationController.lowerBound,
+      );
+    }
   }
 
   @override
@@ -294,24 +325,62 @@ class SpendingsIndicatorRenderObject extends RenderBox
   }
 
   @override
+  Rect get semanticBounds => (Offset.zero & size);
+
+  @override
+  void describeSemanticsConfiguration(SemanticsConfiguration config) {
+    config.hint = "Current ratio of the money spent to the money available";
+    config.value = _percentage == null
+        ? "Value is loading"
+        : "Persentage showing is $_percentage";
+
+    super.describeSemanticsConfiguration(config);
+  }
+
+  @override
   void performLayout() {
     final double width = constraints.maxWidth;
-    const double height =
-        15 * NumericConstants.pixelSize + 14 * NumericConstants.pixelSpacerSize;
+    const double height = 15.0 * NumericConstants.pixelSize +
+        14.0 * NumericConstants.pixelSpacerSize;
 
-    numOfColumns = ((width - NumericConstants.pixelSize) /
+    _numOfColumns = ((width - NumericConstants.pixelSize) /
                 (NumericConstants.pixelSize +
                     NumericConstants.pixelSpacerSize) /
-                2)
+                2.0)
             .toInt() -
         1;
 
-    vertivalColumnSpan = width / numOfColumns;
+    _horizontalColumnSpan = width / _numOfColumns;
 
     size = constraints.constrain(Size(width, height));
   }
 
-  void paintColumn(PaintingContext context, Offset offset, Paint paint) {
+  Future<void> _onIdleAnimationEnd() async {
+    if (_idleAnimationController.isAnimating) {
+      await _idleAnimationController
+          .animateTo(_idleAnimationController.upperBound);
+      _idleAnimationController.stop();
+    }
+  }
+
+  Paint _getColumnPaint(int i) {
+    final double columnPercentage = i / _numOfColumns;
+
+    if (_percentage != null) {
+      return columnPercentage <= _percentage! &&
+              columnPercentage <= _idleAnimationController.value
+          ? _setPixelPaint
+          : _pixelPaint;
+    } else {
+      return Paint()
+        ..style = PaintingStyle.fill
+        ..color = _colorTween.lerp(
+            (10.0 * (columnPercentage - _idleAnimationController.value).abs())
+                .clamp(.0, 1.0))!;
+    }
+  }
+
+  void _paintColumn(PaintingContext context, Offset offset, Paint paint) {
     for (int i = 0; i < 15; i++) {
       final Rect rect = (const Offset(
                       .0,
@@ -327,41 +396,16 @@ class SpendingsIndicatorRenderObject extends RenderBox
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    final Paint pixelPaint = Paint()
-      ..color = Colors.black
-      ..style = PaintingStyle.fill;
-    final Paint setPixelPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
+    for (int i = 0; i < _numOfColumns; i++) {
+      final Offset effectiveOffset =
+          offset + Offset(_horizontalColumnSpan, .0).scale(i.toDouble(), .0);
+      final Paint effectivePaint = _getColumnPaint(i);
 
-    if (_percentage case double _) {
-      for (int i = 0; i < numOfColumns; i++) {
-        final Paint effectivePaint =
-            i / numOfColumns > _percentage! ? pixelPaint : setPixelPaint;
-        final Offset effectiveOffset =
-            offset + Offset(vertivalColumnSpan, .0).scale(i.toDouble(), .0);
-
-        paintColumn(
-          context,
-          effectiveOffset,
-          effectivePaint,
-        );
-      }
-    } else {
-      for (int i = 0; i < numOfColumns; i++) {
-        final Paint effectivePaint = Paint()
-          ..style = PaintingStyle.fill
-          ..color = _colorTween.lerp(
-              10 * (i / numOfColumns - _idleAnimationController.value).abs())!;
-        final Offset effectiveOffset =
-            offset + Offset(vertivalColumnSpan, .0).scale(i.toDouble(), .0);
-
-        paintColumn(
-          context,
-          effectiveOffset,
-          effectivePaint,
-        );
-      }
+      _paintColumn(
+        context,
+        effectiveOffset,
+        effectivePaint,
+      );
     }
   }
 
