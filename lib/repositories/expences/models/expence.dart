@@ -1,46 +1,45 @@
-class Expence {
-  const Expence({
-    required this.title,
-    required this.category,
-    required this.amount,
-    required this.date,
-    this.description,
-  });
+import 'package:cv/cv.dart';
 
-  final String title;
-  final Category category;
-  final double amount;
-  final DateTime date;
-  final String? description;
+import 'package:cifra_app/repositories/categories/models/category.dart';
+import 'package:cifra_app/repositories/models/db_constants.dart';
+import 'package:cifra_app/repositories/models/db_record.dart';
 
-  Expence.fromJson(Map<String, dynamic> json)
-      : title = json["title"] as String,
-        category = Category.fromJson(json),
-        amount = json["amount"] as double,
-        date = DateTime.parse(json["date"] as String),
-        description = json["description"] as String?;
+class Expence extends DbRecord {
+  final CvField<String> title = CvField<String>(titleColumn);
+  final CvModelField<Category> category =
+      CvModelField<Category>(categoryIdColumn);
+  final CvField<double> amount = CvField<double>(amountColumn);
+  final CvField<DateTime> date = CvField<DateTime>(dateColumn);
+  final CvField<String?> description = CvField<String?>(descriptionColumn);
 
-  Map<String, dynamic> toJson({required int categoryId}) => <String, dynamic>{
-        "title": title,
-        "category_id": categoryId,
-        "amount": amount,
-        "date": date.toIso8601String(),
-        "description": description,
-      };
-}
+  @override
+  CvFields get fields => [id, title, category, amount, date, description];
 
-class Category {
-  const Category({required this.name, required this.icon});
+  @override
+  Map<String, Object?> toMap(
+      {List<String>? columns, bool includeMissingValue = false}) {
+    final Map<String, Object?> map =
+        super.toMap(columns: columns, includeMissingValue: includeMissingValue);
 
-  final String name;
-  final int icon;
+    if (map.containsKey(categoryIdColumn)) {
+      map[categoryIdColumn] = category.value!.id;
+    }
 
-  Category.fromJson(Map<String, dynamic> json)
-      : name = json["name"] as String,
-        icon = json["icon"] as int;
+    return map;
+  }
 
-  Map<String, dynamic> toJson() => <String, dynamic>{
-        "name": name,
-        "icon": icon,
-      };
+  @override
+  void fromMap(Map map, {List<String>? columns}) {
+    if (map.containsKey(categoryIconColumn) &&
+        map.containsKey(categoryNameColumn)) {
+      map[categoryIdColumn] = Category()
+        ..id.value = map[categoryIdColumn]
+        ..name.value = map[categoryNameColumn]
+        ..icon.value = map[categoryIconColumn];
+
+      map.removeWhere((key, value) =>
+          key == categoryNameColumn || key == categoryIconColumn);
+    }
+    super.fromMap(map, columns: columns);
+  }
 }

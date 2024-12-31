@@ -1,41 +1,47 @@
-import 'package:cifra_app/repositories/expences/models/expence.dart';
+import 'package:cv/cv.dart';
 
-class Income {
-  const Income({
-    required this.id,
-    required this.title,
-    required this.category,
-    required this.amount,
-    required this.date,
-    this.description,
-  });
+import 'package:cifra_app/repositories/categories/models/category.dart';
+import 'package:cifra_app/repositories/models/db_constants.dart';
+import 'package:cifra_app/repositories/models/db_record.dart';
 
-  final int id;
-  final String title;
-  final Category category;
-  final double amount;
-  final DateTime date;
-  final String? description;
+class Income extends DbRecord {
+  final CvField<String> title = CvField<String>(titleColumn);
+  final CvModelField<Category> category =
+      CvModelField<Category>(categoryIdColumn);
+  final CvField<double> amount = CvField<double>(amountColumn);
+  final CvField<DateTime> date = CvField<DateTime>(dateColumn);
+  final CvField<String?> description = CvField<String?>(descriptionColumn);
 
-  factory Income.fromJson(Map<String, dynamic> json) {
-    return Income(
-      id: json['id'] as int,
-      title: json['title'] as String,
-      category: Category.fromJson(json),
-      amount: json['amount'] as double,
-      date: DateTime.parse(json['date']),
-      description: json['description'] as String?,
-    );
+  @override
+  Map<String, Object?> toMap(
+      {List<String>? columns, bool includeMissingValue = false}) {
+    final Map<String, Object?> map =
+        super.toMap(columns: columns, includeMissingValue: includeMissingValue);
+
+    if (map.containsKey(categoryIdColumn)) {
+      map[categoryIdColumn] = category.value!.id;
+    }
+
+    return map;
   }
 
-  Map<String, dynamic> toJson({required int categoryId}) {
-    return <String, dynamic>{
-      'id': id,
-      'title': title,
-      'category_id': categoryId,
-      'amount': amount,
-      'date': date.toIso8601String(),
-      if (description != null) 'description': description,
-    };
+  @override
+  void fromMap(Map map, {List<String>? columns}) {
+    if (map.containsKey(categoryIdColumn) &&
+        map.containsKey(categoryIconColumn) &&
+        map.containsKey(categoryNameColumn)) {
+      map[categoryIdColumn] = {
+        categoryNameColumn: map[categoryNameColumn],
+        categoryIconColumn: map[categoryIconColumn]
+      };
+
+      map.removeWhere((key, value) =>
+          key == categoryNameColumn || key == categoryIconColumn);
+    }
+
+    super.fromMap(map, columns: columns);
   }
+
+  @override
+  CvFields get fields => [id, title, category, amount, date, description];
 }
