@@ -25,7 +25,9 @@ class CategoryRepository extends Repository<Category> {
 
   late final StreamController<List<Category>> _categoriesController =
       StreamController<List<Category>>.broadcast(
-    onListen: () => _categoriesController.sink.add(_cache.toList()),
+    onListen: () {
+      _categoriesController.sink.add(_cache.toList());
+    },
   );
 
   Stream<List<Category>> get onCategories => _categoriesController.stream;
@@ -41,8 +43,8 @@ class CategoryRepository extends Repository<Category> {
       }
 
       final List<Map<String, Object?>> list = await db.rawQuery('''
-  SELECT 
-    $idColumn,
+    SELECT 
+      $idColumn,
       $categoryNameColumn,
       $categoryIconColumn
     FROM $tableName
@@ -93,36 +95,55 @@ class CategoryRepository extends Repository<Category> {
   }
 
   @override
-  Future<void> save(Category value) async {
+  Future<Category> save(Category value) async {
     try {
       if (value.id.value == null) {
-        final int id = await db.insert(tableName, value.toMap());
+        final int id = await db.rawInsert(
+          '''
+          INSERT INTO $tableName (
+            $categoryNameColumn,
+            $categoryIconColumn
+          ) VALUES (?, ?)
+          ''',
+          [value.name.value, value.icon.value],
+        );
         value.id.value = id;
         _cache.add(value);
       } else {
-        db.update(tableName, value.toMap(),
+        await db.update(tableName, value.toMap(),
             where: '$idColumn = ?', whereArgs: [value.id.value]);
         _cache.removeWhere(
             (Category categeory) => categeory.id.value == value.id.value);
         _cache.add(value);
       }
 
-      _categoriesController.sink.add(_cache.toList());
+      _categoriesController.add(_cache.toList());
+
+      return value;
     } catch (e) {
       _categoriesController.addError(
         RepositoryException("Failed to save category: $e", runtimeType),
       );
+      return Category();
     }
   }
 
   @override
-  Future<void> saveAll(List<Category> values) async {
+  Future<List<Category>> saveAll(List<Category> values) async {
     final Batch batch = db.batch();
 
     try {
       for (final Category category in values) {
         if (category.id.value == null) {
-          batch.insert(tableName, category.toMap());
+          batch.rawInsert(
+            '''
+            INSERT INTO $tableName (
+              $categoryNameColumn,
+              $categoryIconColumn
+            ) VALUES (?, ?)
+            ''',
+            [category.name.value, category.icon.value],
+          );
         } else {
           batch.update(tableName, category.toMap(),
               where: '$idColumn = ?', whereArgs: [category.id.value]);
@@ -144,28 +165,34 @@ class CategoryRepository extends Repository<Category> {
       }
 
       _categoriesController.sink.add(_cache.toList());
+
+      return values;
     } catch (e) {
       _categoriesController.addError(
         RepositoryException(
             "Failed to save all the categories: $e", runtimeType),
       );
+      return <Category>[];
     }
   }
 
   @override
-  Future<void> delete(int id) async {
+  Future<int> delete(int id) async {
     try {
-      await db.delete(tableName, where: '$idColumn = ?', whereArgs: [id]);
+      final int result =
+          await db.delete(tableName, where: '$idColumn = ?', whereArgs: [id]);
       _cache.removeWhere((element) => element.id.value == id);
       _categoriesController.sink.add(_cache.toList());
+      return result;
     } catch (e) {
       _categoriesController.addError(
         RepositoryException("Failed to delete category: $e", runtimeType),
       );
+      return 0;
     }
   }
 
-  void dispose() {
-    _categoriesController.close();
+  Future<void> dispose() async {
+    await _categoriesController.close();
   }
 }

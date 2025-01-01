@@ -5,7 +5,7 @@ import 'package:cifra_app/repositories/models/db_record.dart';
 
 class Category extends DbRecord {
   final CvField<String> name = CvField<String>(categoryNameColumn);
-  final CvField<int> icon = CvField<int>(categoryNameColumn);
+  final CvField<int> icon = CvField<int>(categoryIconColumn);
 
   @override
   CvFields get fields => [id, name, icon];

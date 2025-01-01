@@ -7,11 +7,11 @@ abstract class Repository<T> {
   FutureOr<List<T>> getList({int? offset, int? limit, bool desc = false});
 
   /// Inserts or updates an item in the repository
-  Future<void> save(T value);
+  Future<T> save(T value);
 
   /// Inserts or updates a list of items in the repository
-  Future<void> saveAll(List<T> values);
+  Future<List<T>> saveAll(List<T> values);
 
   /// Remove an item by its id
-  Future<void> delete(int id);
+  Future<int> delete(int id);
 }

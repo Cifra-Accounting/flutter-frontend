@@ -13,33 +13,43 @@ class Income extends DbRecord {
   final CvField<String?> description = CvField<String?>(descriptionColumn);
 
   @override
+  void fromMap(Map map, {List<String>? columns}) {
+    final Map newMap = {};
+
+    for (MapEntry entry in map.entries) {
+      if (entry.key == categoryIdColumn) {
+        newMap[categoryIdColumn] = {
+          idColumn: entry.value,
+          categoryNameColumn: map[categoryNameColumn],
+          categoryIconColumn: map[categoryIconColumn],
+        };
+      } else if (entry.key != categoryNameColumn &&
+          entry.key != categoryIconColumn) {
+        newMap[entry.key] = entry.value;
+      }
+    }
+
+    super.fromMap(newMap, columns: columns);
+
+    if (newMap.containsKey(dateColumn)) {
+      date.value = DateTime.parse(map[dateColumn]);
+    }
+  }
+
+  @override
   Map<String, Object?> toMap(
       {List<String>? columns, bool includeMissingValue = false}) {
     final Map<String, Object?> map =
         super.toMap(columns: columns, includeMissingValue: includeMissingValue);
 
     if (map.containsKey(categoryIdColumn)) {
-      map[categoryIdColumn] = category.value!.id;
+      map[categoryIdColumn] = category.value!.id.value;
+    }
+    if (map.containsKey(dateColumn)) {
+      map[dateColumn] = date.value!.toIso8601String();
     }
 
     return map;
-  }
-
-  @override
-  void fromMap(Map map, {List<String>? columns}) {
-    if (map.containsKey(categoryIdColumn) &&
-        map.containsKey(categoryIconColumn) &&
-        map.containsKey(categoryNameColumn)) {
-      map[categoryIdColumn] = {
-        categoryNameColumn: map[categoryNameColumn],
-        categoryIconColumn: map[categoryIconColumn]
-      };
-
-      map.removeWhere((key, value) =>
-          key == categoryNameColumn || key == categoryIconColumn);
-    }
-
-    super.fromMap(map, columns: columns);
   }
 
   @override

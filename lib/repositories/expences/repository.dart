@@ -150,10 +150,28 @@ class ExpenceRepository implements Repository<Expence> {
   }
 
   @override
-  Future<void> save(Expence expence) async {
+  Future<Expence> save(Expence expence) async {
     try {
       if (expence.id.value == null) {
-        await db.insert(tableName, expence.toMap());
+        final int id = await db.rawInsert(
+          '''
+          INSERT INTO $tableName (
+            $categoryIdColumn,
+            $titleColumn,
+            $amountColumn,
+            $dateColumn,
+            $descriptionColumn
+          ) VALUES (?, ?, ?, ?, ?)
+          ''',
+          [
+            expence.category.value!.id.value,
+            expence.title.value,
+            expence.amount.value,
+            expence.date.value!.toIso8601String(),
+            expence.description.value,
+          ],
+        );
+        expence.id.value = id;
       } else {
         await db.update(
           tableName,
@@ -171,19 +189,39 @@ class ExpenceRepository implements Repository<Expence> {
       } else {
         await _updateCached();
       }
+      return expence;
     } catch (e) {
-      throw RepositoryException('Failed to save income: $e', runtimeType);
+      _expencesController.addError(
+          RepositoryException('Failed to save income: $e', runtimeType));
+      return Expence();
     }
   }
 
   @override
-  Future<void> saveAll(List<Expence> expences) async {
+  Future<List<Expence>> saveAll(List<Expence> expences) async {
     final Batch batch = db.batch();
 
     try {
       for (final Expence expence in expences) {
         if (expence.id.value == null) {
-          batch.insert(tableName, expence.toMap());
+          batch.rawInsert(
+            '''
+            INSERT INTO $tableName (
+              $categoryIdColumn,
+              $titleColumn,
+              $amountColumn,
+              $dateColumn,
+              $descriptionColumn
+            ) VALUES (?, ?, ?, ?, ?)
+            ''',
+            [
+              expence.category.value!.id.value,
+              expence.title.value,
+              expence.amount.value,
+              expence.date.value!.toIso8601String(),
+              expence.description.value,
+            ],
+          );
         } else {
           batch.update(
             tableName,
@@ -194,28 +232,39 @@ class ExpenceRepository implements Repository<Expence> {
         }
       }
 
-      await batch.commit(noResult: true);
+      final List<Object?> result = await batch.commit(noResult: true);
 
+      int index = 0;
+      bool needsUpdate = false;
       for (final Expence expence in expences) {
         if (_cache.containsKey(expence.id.value)) {
           _cache[expence.id.value!] = expence;
-        } else {
-          return await _updateCached();
+        } else if (expence.id.value == null) {
+          expence.id.value = result[index++] as int;
+          needsUpdate = true;
         }
       }
 
-      _expencesController.sink.add(
-        _cache.sortedValues(desc: _isDesc),
-      );
+      if (needsUpdate) {
+        await _updateCached();
+      } else {
+        _expencesController.sink.add(
+          _cache.sortedValues(desc: _isDesc),
+        );
+      }
+
+      return expences;
     } catch (e) {
-      throw RepositoryException(
-          "Failed to save all the incomes: $e", runtimeType);
+      _expencesController.addError(RepositoryException(
+          "Failed to save all the incomes: $e", runtimeType));
+      return <Expence>[];
     }
   }
 
   @override
-  Future delete(int id) async {
-    await db.delete(tableName, where: '$idColumn = ?', whereArgs: [id]);
+  Future<int> delete(int id) async {
+    final int result =
+        await db.delete(tableName, where: '$idColumn = ?', whereArgs: [id]);
     if (_cache.containsKey(id)) {
       _cache.remove(id);
       _expencesController.sink.add(
@@ -224,6 +273,8 @@ class ExpenceRepository implements Repository<Expence> {
     } else {
       await _updateCached();
     }
+
+    return result;
   }
 
   void dispose() {

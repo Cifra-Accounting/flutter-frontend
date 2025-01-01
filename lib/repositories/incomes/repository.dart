@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cv/cv.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:cifra_app/repositories/categories/repository.dart';
@@ -122,14 +121,10 @@ class IncomeRepository implements Repository<Income> {
     }
 
     final String orderBy = '$dateColumn ${desc ? 'DESC' : 'ASC'}';
-    String limitOffset = '';
-    final List<dynamic> args = [];
-
-    if (limit != null && offset != null) {
-      limitOffset = 'LIMIT ? OFFSET ?';
-      args.add(limit);
-      args.add(offset);
-    }
+    final String limitOffset =
+        (limit == null || offset == null) ? '' : 'LIMIT ? OFFSET ?';
+    final List<dynamic> args =
+        (limit == null || offset == null) ? [] : [limit, offset];
 
     final String query = '''
       SELECT
@@ -149,7 +144,9 @@ class IncomeRepository implements Repository<Income> {
 
     final List<Map<String, dynamic>> results = await db.rawQuery(query, args);
 
-    final List<Income> incomes = results.cv<Income>();
+    final List<Income> incomes = results
+        .map<Income>((Map<String, Object?> map) => Income()..fromMap(map))
+        .toList();
 
     for (final Income income in incomes) {
       _cache[income.id.value!] = income;
@@ -171,12 +168,30 @@ class IncomeRepository implements Repository<Income> {
   /// Will update if [value] already exists in the database
   /// ((provided value has id))
   /// Will insert if [value] doesn't exist in the database
-  Future<void> save(Income income) async {
+  Future<Income> save(Income income) async {
     try {
+      late final int id;
       if (income.id.value == null) {
-        await db.insert(tableName, income.toMap());
+        id = await db.rawInsert(
+          '''
+          INSERT INTO $tableName (
+            $categoryIdColumn,
+            $titleColumn,
+            $amountColumn,
+            $dateColumn,
+            $descriptionColumn
+          ) VALUES (?, ?, ?, ?, ?)
+          ''',
+          [
+            income.category.value!.id.value,
+            income.title.value,
+            income.amount.value,
+            income.date.value!.toIso8601String(),
+            income.description.value,
+          ],
+        );
       } else {
-        await db.update(
+        id = await db.update(
           tableName,
           income.toMap(),
           where: '$idColumn = ?',
@@ -192,8 +207,13 @@ class IncomeRepository implements Repository<Income> {
       } else {
         await _updateCached();
       }
+
+      income.id.value = id;
+      return income;
     } catch (e) {
-      throw RepositoryException('Failed to save income: $e', runtimeType);
+      _incomesController.addError(
+          RepositoryException('Failed to save income: $e', runtimeType));
+      return Income();
     }
   }
 
@@ -203,35 +223,61 @@ class IncomeRepository implements Repository<Income> {
   /// ((old data can be not relevant anymore))
   /// Will update if [value] already exists in the database
   /// Will insert if [value] doesn't exist in the database
-  Future saveAll(List<Income> incomes) async {
+  Future<List<Income>> saveAll(List<Income> incomes) async {
     final Batch batch = db.batch();
 
     try {
       for (final Income income in incomes) {
         if (income.id.value == null) {
-          batch.insert(tableName, income.toMap());
+          batch.rawInsert(
+            '''
+            INSERT INTO $tableName (
+              $categoryIdColumn,
+              $titleColumn,
+              $amountColumn,
+              $dateColumn,
+              $descriptionColumn
+            ) VALUES (?, ?, ?, ?, ?)
+           ''',
+            [
+              income.category.value!.id.value,
+              income.title.value,
+              income.amount.value,
+              income.date.value!.toIso8601String(),
+              income.description.value,
+            ],
+          );
         } else {
           batch.update(tableName, income.toMap(),
               where: '$idColumn = ?', whereArgs: [income.id.value]);
         }
       }
 
-      await batch.commit(noResult: true);
+      final List<Object?> result = await batch.commit();
 
+      int index = 0;
+      bool needsUpdate = false;
       for (final Income income in incomes) {
         if (_cache.containsKey(income.id.value)) {
           _cache[income.id.value!] = income;
-        } else {
-          return await _updateCached();
+        } else if (income.id.value == null) {
+          income.id.value = result[index++] as int;
+          needsUpdate = true;
         }
       }
+      if (needsUpdate) {
+        await _updateCached();
+      } else {
+        _incomesController.sink.add(
+          _cache.sortedValues(desc: _isDesc),
+        );
+      }
 
-      _incomesController.sink.add(
-        _cache.sortedValues(desc: _isDesc),
-      );
+      return incomes;
     } catch (e) {
-      throw RepositoryException(
-          "Failed to save all the incomes: $e", runtimeType);
+      _incomesController.addError(RepositoryException(
+          "Failed to save all the incomes: $e", runtimeType));
+      return <Income>[];
     }
   }
 
@@ -240,19 +286,28 @@ class IncomeRepository implements Repository<Income> {
   /// Will no matter what reset current cached data
   /// ((old data can be not relevant anymore))
   /// Will delete item with given [id]
-  Future delete(int id) async {
-    await db.delete(tableName, where: '$idColumn = ?', whereArgs: [id]);
-    if (_cache.containsKey(id)) {
-      _cache.remove(id);
-      _incomesController.sink.add(
-        _cache.sortedValues(desc: _isDesc),
+  Future<int> delete(int id) async {
+    try {
+      final int result =
+          await db.delete(tableName, where: '$idColumn = ?', whereArgs: [id]);
+      if (_cache.containsKey(id)) {
+        _cache.remove(id);
+        _incomesController.sink.add(
+          _cache.sortedValues(desc: _isDesc),
+        );
+      } else {
+        await _updateCached();
+      }
+      return result;
+    } catch (e) {
+      _incomesController.addError(
+        RepositoryException("Failed to delete income: $e", runtimeType),
       );
-    } else {
-      await _updateCached();
+      return 0;
     }
   }
 
-  void dispose() {
-    _incomesController.close();
+  Future<void> dispose() async {
+    await _incomesController.close();
   }
 }
