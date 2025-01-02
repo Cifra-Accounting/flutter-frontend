@@ -30,11 +30,11 @@ void main() {
 
       final Expence expence = Expence()..fromMap(map);
 
-      expect(expence.id.value, 1, reason: "id fromMap");
+      expect(expence.id.value, map[idColumn], reason: "id fromMap");
       expect(expence.category.value, category, reason: "category fromMap");
-      expect(expence.title.value, 'Expence 1', reason: "title fromMap");
-      expect(expence.amount.value, 100.0, reason: "amount fromMap");
-      expect(expence.date.value, DateTime.parse('2025-01-01T22:00:15.536590'),
+      expect(expence.title.value, map[titleColumn], reason: "title fromMap");
+      expect(expence.amount.value, map[amountColumn], reason: "amount fromMap");
+      expect(expence.date.value, DateTime.parse(map[dateColumn] as String),
           reason: "date fromMap");
       expect(expence.description.value, isNull, reason: "description fromMap");
     });
@@ -55,11 +55,12 @@ void main() {
 
       final Map<String, Object?> map = expence.toMap();
 
-      expect(map[idColumn], 1, reason: "id toMap");
-      expect(map[categoryIdColumn], 1, reason: "categoryId toMap");
-      expect(map[titleColumn], 'Expence 1', reason: "title toMap");
-      expect(map[amountColumn], 100.0, reason: "amount toMap");
-      expect(map[dateColumn], '2025-01-01T22:00:15.536590',
+      expect(map[idColumn], expence.id.value, reason: "id toMap");
+      expect(map[categoryIdColumn], expence.category.value!.id.value,
+          reason: "categoryId toMap");
+      expect(map[titleColumn], expence.title.value, reason: "title toMap");
+      expect(map[amountColumn], expence.amount.value, reason: "amount toMap");
+      expect(map[dateColumn], expence.date.value!.toIso8601String(),
           reason: "date toMap");
       expect(map[descriptionColumn], isNull, reason: "description toMap");
     });

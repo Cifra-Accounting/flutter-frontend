@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cv/cv.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:cifra_app/repositories/categories/repository.dart';
@@ -61,11 +62,14 @@ class IncomeRepository implements Repository<Income> {
 
   Future<void> _updateCached() async {
     _cache.clear();
+
     final List<Income> incomes =
         await getList(offset: 0, limit: 20, desc: _isDesc);
+
     for (final Income income in incomes) {
       _cache[income.id.value!] = income;
     }
+
     _incomesController.sink.add(_cache.sortedValues(desc: _isDesc));
   }
 
@@ -73,30 +77,41 @@ class IncomeRepository implements Repository<Income> {
 
   /// Will return null if item with given [id] doesn't exist
   FutureOr<Income?> getById(int id) async {
-    final Income? result = _cache[id];
-    if (result != null) {
-      return result;
-    }
+    try {
+      final Income? result = _cache[id];
+      if (result != null) {
+        return result;
+      }
 
-    final List<Map<String, Object?>> list = await db.rawQuery('''
-      SELECT
+      final List<Map<String, Object?>> list = await db.rawQuery(
+        '''
+        SELECT
         i.$idColumn as $idColumn,
-        i.$categoryIdColumn as $categoryIdColumn,
-        c.$categoryNameColumn as $categoryNameColumn,
-        c.$categoryIconColumn as $categoryIconColumn,
-        i.$titleColumn as $titleColumn,
-        i.$amountColumn as $amountColumn,
-        i.$dateColumn as $dateColumn, 
-        i.$descriptionColumn as $descriptionColumn
-      FROM $tableName i
-      JOIN ${CategoryRepository.tableName} c ON i.$categoryIdColumn = c.$idColumn
-      WHERE i.$idColumn = $id
-    ''');
+          i.$categoryIdColumn as $categoryIdColumn,
+          c.$categoryNameColumn as $categoryNameColumn,
+          c.$categoryIconColumn as $categoryIconColumn,
+          i.$titleColumn as $titleColumn,
+          i.$amountColumn as $amountColumn,
+          i.$dateColumn as $dateColumn, 
+          i.$descriptionColumn as $descriptionColumn
+        FROM $tableName i
+        JOIN ${CategoryRepository.tableName} c ON i.$categoryIdColumn = c.$idColumn
+        WHERE i.$idColumn = ?
+        ''',
+        [id],
+      );
 
-    if (list.isEmpty) {
+      if (list.isEmpty) {
+        return null;
+      }
+
+      return Income()..fromMap(list.first);
+    } catch (e) {
+      _incomesController.addError(
+        RepositoryException("Failed to get income: $e", runtimeType),
+      );
       return null;
     }
-    return Income()..fromMap(list.first);
   }
 
   @override
@@ -109,24 +124,28 @@ class IncomeRepository implements Repository<Income> {
     int? limit,
     bool desc = false,
   }) async {
-    if (_isDesc != desc) {
-      _cache.clear();
-      _isDesc = desc;
-    }
-    if (offset != null && limit != null && offset + limit < _cache.length) {
-      _incomesController.sink.add(
-        _cache.sortedValues(desc: _isDesc),
-      );
-      return _cache.sortedValues(desc: _isDesc).sublist(offset, offset + limit);
-    }
+    try {
+      if (_isDesc != desc) {
+        _cache.clear();
+        _isDesc = desc;
+      }
 
-    final String orderBy = '$dateColumn ${desc ? 'DESC' : 'ASC'}';
-    final String limitOffset =
-        (limit == null || offset == null) ? '' : 'LIMIT ? OFFSET ?';
-    final List<dynamic> args =
-        (limit == null || offset == null) ? [] : [limit, offset];
+      if (offset != null && limit != null && offset + limit < _cache.length) {
+        _incomesController.sink.add(
+          _cache.sortedValues(desc: _isDesc),
+        );
+        return _cache
+            .sortedValues(desc: _isDesc)
+            .sublist(offset, offset + limit);
+      }
 
-    final String query = '''
+      final String orderBy = '$dateColumn ${desc ? 'DESC' : 'ASC'}';
+      final String limitOffset =
+          (limit == null || offset == null) ? '' : 'LIMIT ? OFFSET ?';
+      final List<dynamic> args =
+          (limit == null || offset == null) ? [] : [limit, offset];
+
+      final String query = '''
       SELECT
         i.$idColumn as $idColumn,
         i.$categoryIdColumn as $categoryIdColumn,
@@ -140,23 +159,27 @@ class IncomeRepository implements Repository<Income> {
       JOIN ${CategoryRepository.tableName} c ON i.$categoryIdColumn = c.$idColumn
       ORDER BY $orderBy
       $limitOffset
-    ''';
+      ''';
 
-    final List<Map<String, dynamic>> results = await db.rawQuery(query, args);
+      final List<Map<String, dynamic>> results = await db.rawQuery(query, args);
 
-    final List<Income> incomes = results
-        .map<Income>((Map<String, Object?> map) => Income()..fromMap(map))
-        .toList();
+      final List<Income> incomes = results.cv<Income>();
 
-    for (final Income income in incomes) {
-      _cache[income.id.value!] = income;
+      for (final Income income in incomes) {
+        _cache[income.id.value!] = income;
+      }
+
+      _incomesController.sink.add(
+        _cache.sortedValues(desc: _isDesc),
+      );
+
+      return incomes;
+    } catch (e) {
+      _incomesController.addError(
+        RepositoryException("Failed to get incomes: $e", runtimeType),
+      );
+      return <Income>[];
     }
-
-    _incomesController.sink.add(
-      _cache.sortedValues(desc: _isDesc),
-    );
-
-    return incomes;
   }
 
   @override
@@ -170,28 +193,11 @@ class IncomeRepository implements Repository<Income> {
   /// Will insert if [value] doesn't exist in the database
   Future<Income> save(Income income) async {
     try {
-      late final int id;
       if (income.id.value == null) {
-        id = await db.rawInsert(
-          '''
-          INSERT INTO $tableName (
-            $categoryIdColumn,
-            $titleColumn,
-            $amountColumn,
-            $dateColumn,
-            $descriptionColumn
-          ) VALUES (?, ?, ?, ?, ?)
-          ''',
-          [
-            income.category.value!.id.value,
-            income.title.value,
-            income.amount.value,
-            income.date.value!.toIso8601String(),
-            income.description.value,
-          ],
-        );
+        final int id = await db.insert(tableName, income.toMap());
+        income.id.value = id;
       } else {
-        id = await db.update(
+        await db.update(
           tableName,
           income.toMap(),
           where: '$idColumn = ?',
@@ -208,7 +214,6 @@ class IncomeRepository implements Repository<Income> {
         await _updateCached();
       }
 
-      income.id.value = id;
       return income;
     } catch (e) {
       _incomesController.addError(
@@ -224,47 +229,40 @@ class IncomeRepository implements Repository<Income> {
   /// Will update if [value] already exists in the database
   /// Will insert if [value] doesn't exist in the database
   Future<List<Income>> saveAll(List<Income> incomes) async {
-    final Batch batch = db.batch();
-
     try {
+      final Batch batch = db.batch();
+
       for (final Income income in incomes) {
         if (income.id.value == null) {
-          batch.rawInsert(
-            '''
-            INSERT INTO $tableName (
-              $categoryIdColumn,
-              $titleColumn,
-              $amountColumn,
-              $dateColumn,
-              $descriptionColumn
-            ) VALUES (?, ?, ?, ?, ?)
-           ''',
-            [
-              income.category.value!.id.value,
-              income.title.value,
-              income.amount.value,
-              income.date.value!.toIso8601String(),
-              income.description.value,
-            ],
-          );
+          batch.insert(tableName, income.toMap());
         } else {
-          batch.update(tableName, income.toMap(),
-              where: '$idColumn = ?', whereArgs: [income.id.value]);
+          batch.update(
+            tableName,
+            income.toMap(),
+            where: '$idColumn = ?',
+            whereArgs: [income.id.value],
+          );
         }
       }
 
       final List<Object?> result = await batch.commit();
 
-      int index = 0;
       bool needsUpdate = false;
-      for (final Income income in incomes) {
+
+      for (int index = 0; index < incomes.length; index++) {
+        final Income income = incomes[index];
+        final int? resultItem = result[index] as int?;
+
         if (_cache.containsKey(income.id.value)) {
           _cache[income.id.value!] = income;
         } else if (income.id.value == null) {
-          income.id.value = result[index++] as int;
+          income.id.value = resultItem;
+          needsUpdate = true;
+        } else {
           needsUpdate = true;
         }
       }
+
       if (needsUpdate) {
         await _updateCached();
       } else {
@@ -288,16 +286,22 @@ class IncomeRepository implements Repository<Income> {
   /// Will delete item with given [id]
   Future<int> delete(int id) async {
     try {
-      final int result =
-          await db.delete(tableName, where: '$idColumn = ?', whereArgs: [id]);
+      final int result = await db.delete(
+        tableName,
+        where: '$idColumn = ?',
+        whereArgs: [id],
+      );
+
       if (_cache.containsKey(id)) {
         _cache.remove(id);
+
         _incomesController.sink.add(
           _cache.sortedValues(desc: _isDesc),
         );
       } else {
         await _updateCached();
       }
+
       return result;
     } catch (e) {
       _incomesController.addError(
@@ -308,6 +312,6 @@ class IncomeRepository implements Repository<Income> {
   }
 
   Future<void> dispose() async {
-    await _incomesController.close();
+    return _incomesController.close();
   }
 }

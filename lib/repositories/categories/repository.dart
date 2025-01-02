@@ -42,21 +42,27 @@ class CategoryRepository extends Repository<Category> {
         return toGet;
       }
 
-      final List<Map<String, Object?>> list = await db.rawQuery('''
-    SELECT 
-      $idColumn,
-      $categoryNameColumn,
-      $categoryIconColumn
-    FROM $tableName
-    WHERE $idColumn = ?
-    ''');
+      final List<Map<String, Object?>> list = await db.rawQuery(
+        '''
+        SELECT 
+          $idColumn,
+          $categoryNameColumn,
+          $categoryIconColumn
+        FROM $tableName
+        WHERE $idColumn = ?
+        ''',
+        [id],
+      );
 
       if (list.isEmpty) {
         return null;
       }
+
       return Category()..fromMap(list.first);
     } catch (e) {
-      throw RepositoryException("Failed to get category: $e", runtimeType);
+      _categoriesController.addError(
+          RepositoryException("Failed to get category: $e", runtimeType));
+      return null;
     }
   }
 
@@ -98,20 +104,14 @@ class CategoryRepository extends Repository<Category> {
   Future<Category> save(Category value) async {
     try {
       if (value.id.value == null) {
-        final int id = await db.rawInsert(
-          '''
-          INSERT INTO $tableName (
-            $categoryNameColumn,
-            $categoryIconColumn
-          ) VALUES (?, ?)
-          ''',
-          [value.name.value, value.icon.value],
-        );
+        final int id = await db.insert(tableName, value.toMap());
+
         value.id.value = id;
         _cache.add(value);
       } else {
         await db.update(tableName, value.toMap(),
             where: '$idColumn = ?', whereArgs: [value.id.value]);
+
         _cache.removeWhere(
             (Category categeory) => categeory.id.value == value.id.value);
         _cache.add(value);
@@ -135,27 +135,25 @@ class CategoryRepository extends Repository<Category> {
     try {
       for (final Category category in values) {
         if (category.id.value == null) {
-          batch.rawInsert(
-            '''
-            INSERT INTO $tableName (
-              $categoryNameColumn,
-              $categoryIconColumn
-            ) VALUES (?, ?)
-            ''',
-            [category.name.value, category.icon.value],
-          );
+          batch.insert(tableName, category.toMap());
         } else {
-          batch.update(tableName, category.toMap(),
-              where: '$idColumn = ?', whereArgs: [category.id.value]);
+          batch.update(
+            tableName,
+            category.toMap(),
+            where: '$idColumn = ?',
+            whereArgs: [category.id.value],
+          );
         }
       }
 
-      final List<Object?> ids = await batch.commit(noResult: true);
+      final List<Object?> result = await batch.commit();
 
-      int index = 0;
-      for (final Category category in values) {
+      for (int index = 0; index < values.length; index++) {
+        final Category category = values[index];
+        final int? resultItem = result[index] as int?;
+
         if (category.id.value == null) {
-          category.id.value = ids[index++] as int;
+          category.id.value = resultItem;
           _cache.add(category);
         } else {
           _cache.removeWhere(
