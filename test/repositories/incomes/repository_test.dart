@@ -115,7 +115,7 @@ void main() {
     });
 
     test('saveAll and update ', () async {
-      List<Income> incomes = <Income>[
+      final List<Income> incomes = <Income>[
         Income()
           ..category.value = category1
           ..title.value = 'Income 1'
@@ -165,6 +165,73 @@ void main() {
       incomeSubscription = incomeRepository!.onIncomes.listen((newIncomes) {
         expect(newIncomes.length, incomes.length);
       });
+    });
+
+    test("sumByTime", () async {
+      final List<Income> incomes = <Income>[
+        Income()
+          ..category.value = category1
+          ..title.value = 'Income 1'
+          ..amount.value = 100.0
+          ..date.value = DateTime.now().subtract(Durations.medium2),
+        Income()
+          ..category.value = category2
+          ..title.value = 'Income 2'
+          ..amount.value = 200.0
+          ..date.value = DateTime.now().subtract(Durations.medium1),
+        Income()
+          ..category.value = category1
+          ..title.value = 'Income 3'
+          ..amount.value = 400.0
+          ..date.value = DateTime.now(),
+      ];
+
+      await incomeRepository!.saveAll(incomes);
+
+      final double result = await incomeRepository!.sumByTime(
+        duration: Durations.medium1 + Durations.short1,
+      );
+
+      expect(result, 600.0);
+
+      final double result2 = await incomeRepository!.sumByTime();
+
+      expect(result2, 700.0);
+    });
+
+    test("sumByCategoryAndTime", () async {
+      final List<Income> incomes = <Income>[
+        Income()
+          ..category.value = category1
+          ..title.value = 'Income 1'
+          ..amount.value = 100.0
+          ..date.value = DateTime.now().subtract(Durations.medium2),
+        Income()
+          ..category.value = category2
+          ..title.value = 'Income 2'
+          ..amount.value = 200.0
+          ..date.value = DateTime.now().subtract(Durations.medium1),
+        Income()
+          ..category.value = category1
+          ..title.value = 'Income 3'
+          ..amount.value = 400.0
+          ..date.value = DateTime.now(),
+      ];
+
+      await incomeRepository!.saveAll(incomes);
+
+      final double result = await incomeRepository!.sumByCategoryAndTime(
+        category: category1,
+      );
+
+      expect(result, 500.0);
+
+      final double result2 = await incomeRepository!.sumByCategoryAndTime(
+        category: category1,
+        duration: Durations.medium1 + Durations.short1,
+      );
+
+      expect(result2, 400.0);
     });
 
     test('getById', () async {

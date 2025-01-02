@@ -4,6 +4,7 @@ import 'package:cv/cv.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:cifra_app/repositories/categories/repository.dart';
+import 'package:cifra_app/repositories/categories/models/category.dart';
 import 'package:cifra_app/repositories/incomes/models/income.dart';
 
 import 'package:cifra_app/repositories/models/db_constants.dart';
@@ -71,6 +72,72 @@ class IncomeRepository implements Repository<Income> {
     }
 
     _incomesController.sink.add(_cache.sortedValues(desc: _isDesc));
+  }
+
+  /// Return the sum of all the incomes in the [duration] period,
+  /// if [duration] is null, will return the sum of all the incomes
+  Future<double> sumByTime({Duration? duration}) async {
+    try {
+      final String where = duration != null ? 'WHERE $dateColumn >= ?' : '';
+      final List<Object?> whereArgs = duration != null
+          ? [DateTime.now().subtract(duration).toIso8601String()]
+          : [];
+
+      final List<Map<String, Object?>> list = await db.rawQuery(
+        '''
+        SELECT 
+          SUM($amountColumn) as sum
+        FROM $tableName
+        $where
+        ''',
+        whereArgs,
+      );
+
+      return list.first['sum'] as double? ?? 0;
+    } catch (e) {
+      _incomesController.addError(RepositoryException(
+          "Failed to get sum by category: $e", runtimeType));
+      return 0;
+    }
+  }
+
+  /// Return the sum of all the incomes in the [duration] period,
+  /// if [duration] is null, will return the sum of all the incomes
+  /// for the given [category]
+  /// if [category] is null, will return the sum of all the incomes
+  Future<double> sumByCategoryAndTime(
+      {Category? category, Duration? duration}) async {
+    try {
+      String where = "";
+      final List<Object?> whereArgs = [];
+
+      if (duration != null) {
+        where += 'WHERE $dateColumn >= ?';
+        whereArgs.add(DateTime.now().subtract(duration).toIso8601String());
+      }
+      if (category != null) {
+        where += where.isNotEmpty ? ' AND ' : 'WHERE ';
+        where += '$categoryIdColumn = ?';
+        whereArgs.add(category.id.value);
+      }
+
+      final List<Map<String, Object?>> list = await db.rawQuery(
+        '''
+        SELECT 
+          SUM($amountColumn) as sum
+        FROM $tableName
+        $where
+        GROUP BY $categoryIdColumn
+        ''',
+        whereArgs,
+      );
+
+      return list.first['sum'] as double? ?? 0;
+    } catch (e) {
+      _incomesController.addError(RepositoryException(
+          "Failed to get sum by category: $e", runtimeType));
+      return 0;
+    }
   }
 
   @override

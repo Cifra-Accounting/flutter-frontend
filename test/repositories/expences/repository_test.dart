@@ -167,6 +167,73 @@ void main() {
       });
     });
 
+    test("sumByTime", () async {
+      final List<Expence> incomes = <Expence>[
+        Expence()
+          ..category.value = category1
+          ..title.value = 'Expence 1'
+          ..amount.value = 100.0
+          ..date.value = DateTime.now().subtract(Durations.medium2),
+        Expence()
+          ..category.value = category2
+          ..title.value = 'Expence 2'
+          ..amount.value = 200.0
+          ..date.value = DateTime.now().subtract(Durations.medium1),
+        Expence()
+          ..category.value = category1
+          ..title.value = 'Expence 3'
+          ..amount.value = 400.0
+          ..date.value = DateTime.now(),
+      ];
+
+      await expenceRepository!.saveAll(incomes);
+
+      final double result = await expenceRepository!.sumByTime(
+        duration: Durations.medium1 + Durations.short1,
+      );
+
+      expect(result, 600.0);
+
+      final double result2 = await expenceRepository!.sumByTime();
+
+      expect(result2, 700.0);
+    });
+
+    test("sumByCategoryAndTime", () async {
+      final List<Expence> incomes = <Expence>[
+        Expence()
+          ..category.value = category1
+          ..title.value = 'Expence 1'
+          ..amount.value = 100.0
+          ..date.value = DateTime.now().subtract(Durations.medium2),
+        Expence()
+          ..category.value = category2
+          ..title.value = 'Expence 2'
+          ..amount.value = 200.0
+          ..date.value = DateTime.now().subtract(Durations.medium1),
+        Expence()
+          ..category.value = category1
+          ..title.value = 'Expence 3'
+          ..amount.value = 400.0
+          ..date.value = DateTime.now(),
+      ];
+
+      await expenceRepository!.saveAll(incomes);
+
+      final double result = await expenceRepository!.sumByCategoryAndTime(
+        category: category1,
+      );
+
+      expect(result, 500.0);
+
+      final double result2 = await expenceRepository!.sumByCategoryAndTime(
+        category: category1,
+        duration: Durations.medium1 + Durations.short1,
+      );
+
+      expect(result2, 400.0);
+    });
+
     test('getById', () async {
       final Expence expence = await expenceRepository!.save(
         Expence()
