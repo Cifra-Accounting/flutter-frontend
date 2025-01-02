@@ -14,7 +14,7 @@ class BlankSpacer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-        height: vertical ? NumericConstants.blankSpacerSize * multiplier : null,
-        width: !vertical ? NumericConstants.blankSpacerSize * multiplier : null,
+        height: vertical ? blankSpacerSize * multiplier : null,
+        width: !vertical ? blankSpacerSize * multiplier : null,
       );
 }

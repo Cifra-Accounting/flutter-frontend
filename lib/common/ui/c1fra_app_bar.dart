@@ -17,8 +17,7 @@ class C1fraAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget? trailing;
 
   @override
-  Size get preferredSize =>
-      const Size.fromHeight(NumericConstants.appBarHeight);
+  Size get preferredSize => const Size.fromHeight(appBarHeight);
 
   List<Widget> get _effectiveChildren => trailing == null
       ? <Widget>[
@@ -42,7 +41,7 @@ class C1fraAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: SafeArea(
             child: Container(
               padding: const EdgeInsets.symmetric(
-                horizontal: NumericConstants.horizontalPadding,
+                horizontal: horizontalPadding,
               ),
               height: preferredSize.height,
               child: Row(

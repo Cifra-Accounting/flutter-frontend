@@ -41,13 +41,13 @@ class _HomeViewState extends State<HomeView> {
         appBar: C1fraAppBar(
           leading: SvgPicture.asset(
             "assets/c1fra_logo.svg",
-            height: NumericConstants.iconSize,
+            height: iconSize,
             fit: BoxFit.fitHeight,
           ),
           trailing: IconButton(
             icon: Icon(
               C1fraIcons.settingsMenuIcon,
-              size: NumericConstants.iconSize,
+              size: iconSize,
               color: colorScheme.onPrimary,
             ),
             onPressed: () => Navigator.pushNamed(context, RouteNames.settings),

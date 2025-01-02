@@ -67,7 +67,7 @@ class C1fraNavigationBar extends StatelessWidget {
     final ColorScheme colorScheme = theme.colorScheme;
 
     final double halfNavBarSize =
-        (screenSize.width - NumericConstants.plusButtonOutlineSize) / 2;
+        (screenSize.width - plusButtonOutlineSize) / 2;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
@@ -77,7 +77,7 @@ class C1fraNavigationBar extends StatelessWidget {
         alignment: Alignment.bottomCenter,
         children: <Widget>[
           Container(
-            height: NumericConstants.navBarHeight * 2,
+            height: navBarHeight * 2,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: <Color>[
@@ -94,14 +94,14 @@ class C1fraNavigationBar extends StatelessWidget {
               color: colorScheme.secondary,
             ),
             child: SizedBox(
-              height: NumericConstants.navBarHeight + additionalBottomPadding,
+              height: navBarHeight + additionalBottomPadding,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   SizedBox(
                     width: halfNavBarSize,
-                    height: NumericConstants.navBarHeight,
+                    height: navBarHeight,
                     child: _buttonFromIcon(
                       context,
                       icon: leading,
@@ -111,7 +111,7 @@ class C1fraNavigationBar extends StatelessWidget {
                   ),
                   SizedBox(
                     width: halfNavBarSize,
-                    height: NumericConstants.navBarHeight,
+                    height: navBarHeight,
                     child: _buttonFromIcon(
                       context,
                       icon: trailing,
@@ -145,16 +145,11 @@ class _C1fraNavBarPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final Path path = Path()
-      ..lineTo(
-          (size.width - NumericConstants.plusButtonOutlineSize - curveD) / 2, 0)
+      ..lineTo((size.width - plusButtonOutlineSize - curveD) / 2, 0)
       ..arcTo(
         Rect.fromPoints(
-          Offset(
-              (size.width - NumericConstants.plusButtonOutlineSize) / 2 -
-                  curveD,
-              0),
-          Offset((size.width - NumericConstants.plusButtonOutlineSize) / 2,
-              curveD),
+          Offset((size.width - plusButtonOutlineSize) / 2 - curveD, 0),
+          Offset((size.width - plusButtonOutlineSize) / 2, curveD),
         ),
         -pi / 2,
         pi / 2,
@@ -163,12 +158,12 @@ class _C1fraNavBarPainter extends CustomPainter {
       ..arcTo(
         Rect.fromPoints(
           Offset(
-            (size.width - NumericConstants.plusButtonOutlineSize) / 2,
-            (curveD - NumericConstants.plusButtonOutlineSize) / 2,
+            (size.width - plusButtonOutlineSize) / 2,
+            (curveD - plusButtonOutlineSize) / 2,
           ),
           Offset(
-            (size.width + NumericConstants.plusButtonOutlineSize) / 2,
-            (curveD + NumericConstants.plusButtonOutlineSize) / 2,
+            (size.width + plusButtonOutlineSize) / 2,
+            (curveD + plusButtonOutlineSize) / 2,
           ),
         ),
         pi,
@@ -178,11 +173,11 @@ class _C1fraNavBarPainter extends CustomPainter {
       ..arcTo(
         Rect.fromPoints(
           Offset(
-            (size.width + NumericConstants.plusButtonOutlineSize) / 2,
+            (size.width + plusButtonOutlineSize) / 2,
             0,
           ),
           Offset(
-            (size.width + NumericConstants.plusButtonOutlineSize) / 2 + curveD,
+            (size.width + plusButtonOutlineSize) / 2 + curveD,
             curveD,
           ),
         ),
@@ -221,19 +216,19 @@ class PlusButton extends StatelessWidget {
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(
-        NumericConstants.plusButtonOutlineSize,
+        plusButtonOutlineSize,
       ),
       child: Material(
         child: Ink(
-          height: NumericConstants.plusButtonSize,
-          width: NumericConstants.plusButtonSize,
+          height: plusButtonSize,
+          width: plusButtonSize,
           color: colorScheme.primary,
           child: IconButton(
             onPressed: onTap,
             icon: Icon(
               C1fraIcons.plus,
               color: colorScheme.surface,
-              size: NumericConstants.iconSize,
+              size: iconSize,
             ),
           ),
         ),

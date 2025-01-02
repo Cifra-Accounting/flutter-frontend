@@ -17,13 +17,12 @@ class TabSvgPicture extends StatelessWidget {
   Color get _effectiveIconColor =>
       selected ? Colors.white : Colors.white.withValues(alpha: 0.75);
 
-  double get _effectiveIconSize => selected
-      ? NumericConstants.periodSelectorHeight
-      : NumericConstants.periodSelectorHeight * 0.75;
+  double get _effectiveIconSize =>
+      selected ? periodSelectorHeight : periodSelectorHeight * 0.75;
 
   @override
   Widget build(BuildContext context) => Tab(
-        height: NumericConstants.periodSelectorHeight,
+        height: periodSelectorHeight,
         child: Align(
           alignment: Alignment.bottomCenter,
           child: AnimatedSvgPicture(

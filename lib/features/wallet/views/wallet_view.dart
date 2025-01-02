@@ -13,9 +13,9 @@ class WalletView extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SingleChildScrollView(
         padding: const EdgeInsets.only(
-          top: NumericConstants.topPadding,
-          left: NumericConstants.horizontalPadding,
-          right: NumericConstants.horizontalPadding,
+          top: topPadding,
+          left: horizontalPadding,
+          right: horizontalPadding,
         ),
         primary: true,
         child: Column(
@@ -79,8 +79,8 @@ class _SpendingsCardState extends State<SpendingsCard>
     _textTheme = theme.textTheme;
     _colorScheme = theme.colorScheme;
 
-    _viewPortHeight = 15.0 * NumericConstants.pixelSize +
-        14.0 * NumericConstants.pixelSpacerSize +
+    _viewPortHeight = 15.0 * pixelSize +
+        14.0 * pixelSpacerSize +
         5.0 * 2.0 +
         _textSize("You have already spent", _textTheme.titleSmall!).height +
         _textSize("\$0", _textTheme.titleLarge!).height;
@@ -115,25 +115,25 @@ class _SpendingsCardState extends State<SpendingsCard>
         decoration: BoxDecoration(
           color: _colorScheme.primary,
           borderRadius: BorderRadius.circular(
-            NumericConstants.cardBorderRadius,
+            cardBorderRadius,
           ),
         ),
         padding: const EdgeInsets.symmetric(
-          vertical: NumericConstants.cardVerticalPadding,
+          vertical: cardVerticalPadding,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: NumericConstants.blankSpacerSize * 1.5,
+          spacing: blankSpacerSize * 1.5,
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: NumericConstants.cardHorizontalPadding,
+                horizontal: cardHorizontalPadding,
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: NumericConstants.blankSpacerSize * 1.5,
+                spacing: blankSpacerSize * 1.5,
                 children: [
                   PeriodSelector(
                     controller: _tabController,
@@ -164,11 +164,11 @@ class _SpendingsCardState extends State<SpendingsCard>
                           builder: (context, snapshot) {
                             return Padding(
                               padding: const EdgeInsets.symmetric(
-                                horizontal: NumericConstants.horizontalPadding,
+                                horizontal: horizontalPadding,
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                spacing: NumericConstants.blankSpacerSize * .5,
+                                spacing: blankSpacerSize * .5,
                                 children: [
                                   Text(
                                     "You already have spent:",
@@ -340,15 +340,10 @@ class SpendingsIndicatorRenderObject extends RenderBox
   @override
   void performLayout() {
     final double width = constraints.maxWidth;
-    const double height = 15.0 * NumericConstants.pixelSize +
-        14.0 * NumericConstants.pixelSpacerSize;
+    const double height = 15.0 * pixelSize + 14.0 * pixelSpacerSize;
 
-    _numOfColumns = ((width - NumericConstants.pixelSize) /
-                (NumericConstants.pixelSize +
-                    NumericConstants.pixelSpacerSize) /
-                2.0)
-            .toInt() -
-        1;
+    _numOfColumns =
+        ((width - pixelSize) / (pixelSize + pixelSpacerSize) / 2.0).toInt() - 1;
 
     _horizontalColumnSpan = width / _numOfColumns;
 
@@ -382,13 +377,10 @@ class SpendingsIndicatorRenderObject extends RenderBox
 
   void _paintColumn(PaintingContext context, Offset offset, Paint paint) {
     for (int i = 0; i < 15; i++) {
-      final Rect rect = (const Offset(
-                      .0,
-                      NumericConstants.pixelSize +
-                          NumericConstants.pixelSpacerSize)
+      final Rect rect = (const Offset(.0, pixelSize + pixelSpacerSize)
                   .scale(.0, i.toDouble()) +
               offset) &
-          const Size.square(NumericConstants.pixelSize);
+          const Size.square(pixelSize);
 
       context.canvas.drawRect(rect, paint);
     }

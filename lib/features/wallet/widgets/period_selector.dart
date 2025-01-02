@@ -57,7 +57,7 @@ class _PeriodSelectorState extends State<PeriodSelector> {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-        height: NumericConstants.periodSelectorHeight,
+        height: periodSelectorHeight,
         child: TabBar.secondary(
           controller: widget.controller,
           padding: EdgeInsets.zero,
@@ -73,7 +73,7 @@ class _PeriodSelectorState extends State<PeriodSelector> {
           dividerHeight: 0.0,
           overlayColor: const WidgetStatePropertyAll<Color>(Colors.transparent),
           labelPadding: const EdgeInsets.only(
-            right: NumericConstants.cardHorizontalPadding * 1.5,
+            right: cardHorizontalPadding * 1.5,
           ),
         ),
       );
