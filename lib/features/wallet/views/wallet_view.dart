@@ -79,11 +79,11 @@ class _SpendingsCardState extends State<SpendingsCard>
     _textTheme = theme.textTheme;
     _colorScheme = theme.colorScheme;
 
-    _viewPortHeight = 15.0 * pixelSize +
-        14.0 * pixelSpacerSize +
-        5.0 * 2.0 +
+    _viewPortHeight = _indicatorSize().height +
         _textSize("You have already spent", _textTheme.titleSmall!).height +
-        _textSize("\$0", _textTheme.titleLarge!).height;
+        _textSize("\$${(widget.spent ?? 178).toInt()}", _textTheme.titleLarge!)
+            .height +
+        blankSpacerSize;
 
     super.didChangeDependencies();
   }
@@ -108,6 +108,13 @@ class _SpendingsCardState extends State<SpendingsCard>
       textDirection: TextDirection.ltr,
     )..layout(minWidth: 0, maxWidth: double.infinity);
     return textPainter.size;
+  }
+
+  Size _indicatorSize() {
+    final SpendingsIndicatorRenderObject indicatorRenderObject =
+        SpendingsIndicatorRenderObject(.0)
+          ..layout(const BoxConstraints().loosen());
+    return indicatorRenderObject.size;
   }
 
   @override
@@ -154,69 +161,72 @@ class _SpendingsCardState extends State<SpendingsCard>
                 children: _periods
                     .map(
                       (period) => FutureBuilder<double>(
-                          future: Future<double>.delayed(
-                            const Duration(seconds: 5),
-                            () =>
-                                (Periods.values.indexOf(period).toDouble() +
-                                    1.0) /
-                                Periods.values.length,
-                          ),
-                          builder: (context, snapshot) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: horizontalPadding,
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                spacing: blankSpacerSize * .5,
-                                children: [
-                                  Text(
-                                    "You already have spent:",
-                                    style: _textTheme.titleSmall,
-                                  ),
-                                  SpendingsIndicator(
-                                    percentage: snapshot.data,
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text.rich(
-                                        overflow: TextOverflow.fade,
-                                        TextSpan(
-                                          text:
-                                              "\$${(widget.spent ?? 178).toInt()}",
-                                          style: _textTheme.titleLarge,
-                                          children: [
-                                            TextSpan(
-                                              text:
-                                                  " / ${(widget.outOf ?? 300).toInt()} \$  ",
-                                              style: _textTheme.titleSmall!
-                                                  .copyWith(
-                                                color: Colors.white
-                                                    .withValues(alpha: .75),
-                                              ),
+                        future: Future<double>.delayed(
+                          const Duration(seconds: 5),
+                          () =>
+                              (Periods.values.indexOf(period).toDouble() +
+                                  1.0) /
+                              Periods.values.length,
+                        ),
+                        builder: (context, snapshot) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: horizontalPadding,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              spacing: blankSpacerSize * .5,
+                              children: [
+                                Text(
+                                  "You already have spent:",
+                                  style: _textTheme.titleSmall,
+                                ),
+                                SpendingsIndicator(percentage: snapshot.data),
+                                Row(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.baseline,
+                                  textBaseline: TextBaseline.alphabetic,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text.rich(
+                                      overflow: TextOverflow.fade,
+                                      TextSpan(
+                                        children: [
+                                          TextSpan(
+                                            text:
+                                                "\$${(widget.spent ?? 178).toInt()}",
+                                            style: _textTheme.titleLarge,
+                                          ),
+                                          TextSpan(
+                                            text:
+                                                " / ${(widget.outOf ?? 300).toInt()} \$  ",
+                                            style:
+                                                _textTheme.titleSmall!.copyWith(
+                                              color: Colors.white
+                                                  .withValues(alpha: .75),
                                             ),
-                                          ],
-                                        ),
+                                          ),
+                                        ],
                                       ),
-                                      Text(
-                                        (widget.spent != null &&
-                                                widget.outOf != null)
-                                            ? "( ${(widget.spent! / widget.outOf!)}% )"
-                                            : "( 60% )",
-                                        style: _textTheme.titleSmall!.copyWith(
-                                          color: Colors.white
-                                              .withValues(alpha: .75),
-                                        ),
+                                    ),
+                                    Text(
+                                      (widget.spent != null &&
+                                              widget.outOf != null)
+                                          ? "( ${(widget.spent! / widget.outOf!)}% )"
+                                          : "( 60% )",
+                                      style: _textTheme.titleSmall!.copyWith(
+                                        color:
+                                            Colors.white.withValues(alpha: .75),
                                       ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            );
-                          }),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
                     )
                     .toList(),
               ),
@@ -301,7 +311,7 @@ class SpendingsIndicatorRenderObject extends RenderBox
 
     _idleAnimationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2500),
+      duration: Durations.extralong4,
     );
     _idleAnimationController
         .drive(Tween(begin: .0, end: 1.0))
@@ -339,7 +349,9 @@ class SpendingsIndicatorRenderObject extends RenderBox
 
   @override
   void performLayout() {
-    final double width = constraints.maxWidth;
+    final double width = constraints.maxWidth.isInfinite
+        ? double.maxFinite
+        : constraints.maxWidth;
     const double height = 15.0 * pixelSize + 14.0 * pixelSpacerSize;
 
     _numOfColumns =
