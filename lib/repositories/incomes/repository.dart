@@ -198,12 +198,10 @@ class IncomeRepository implements Repository<Income> {
       }
 
       if (offset != null && limit != null && offset + limit < _cache.length) {
-        _incomesController.sink.add(
-          _cache.sortedValues(desc: _isDesc),
-        );
-        return _cache
-            .sortedValues(desc: _isDesc)
-            .sublist(offset, offset + limit);
+        final List<Income> values = _cache.sortedValues(desc: _isDesc);
+
+        _incomesController.sink.add(values);
+        return values.sublist(offset, offset + limit);
       }
 
       final String orderBy = '$dateColumn ${desc ? 'DESC' : 'ASC'}';
