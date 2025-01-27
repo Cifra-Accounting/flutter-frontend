@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'package:cifra_app/common/constants/enums.dart';
 import 'package:cifra_app/common/constants/numeric_constants.dart';
+
 import 'package:cifra_app/common/ui/utils/animated_svg_picture.dart';
-import 'package:cifra_app/features/wallet/views/wallet_view.dart';
 
 class TabSvgPicture extends StatelessWidget {
   const TabSvgPicture({
@@ -29,7 +30,7 @@ class TabSvgPicture extends StatelessWidget {
             'assets/${period.name}.svg',
             color: _effectiveIconColor,
             height: _effectiveIconSize,
-            duration: const Duration(milliseconds: 100),
+            duration: Durations.short2,
           ),
         ),
       );

@@ -1,6 +1,6 @@
+import 'package:cifra_app/common/constants/enums.dart';
 import 'package:flutter/material.dart';
 
-import 'package:cifra_app/features/wallet/views/wallet_view.dart';
 import 'package:cifra_app/features/wallet/widgets/tab_svg_picture.dart';
 
 import 'package:cifra_app/common/constants/numeric_constants.dart';
@@ -12,7 +12,7 @@ class PeriodSelector extends StatefulWidget {
     required this.controller,
   }) : assert(
           periods.length == controller.length,
-          "List of periods must be equal to the list period screens",
+          "Periods list's length must be equal to the controller's length",
         );
 
   final List<Periods> periods;
