@@ -33,7 +33,7 @@ class SpendingsIndicatorRenderObject extends RenderBox
 
   Ticker? _ticker;
 
-  late final AnimationController _idleAnimationController;
+  AnimationController? _idleAnimationController;
 
   late int _numOfColumns;
   late double _horizontalColumnSpan;
@@ -53,12 +53,12 @@ class SpendingsIndicatorRenderObject extends RenderBox
 
     if (newPercentage == null) {
       _percentage = newPercentage;
-      _idleAnimationController.repeat();
+      _idleAnimationController?.repeat();
     } else {
       _onIdleAnimationEnd().then<void>((_) {
         _percentage = newPercentage;
-        _idleAnimationController.forward(
-          from: _idleAnimationController.lowerBound,
+        _idleAnimationController?.forward(
+          from: _idleAnimationController!.lowerBound,
         );
       });
     }
@@ -74,23 +74,23 @@ class SpendingsIndicatorRenderObject extends RenderBox
       vsync: this,
       duration: Durations.extralong4,
     );
-    _idleAnimationController
+    _idleAnimationController!
         .drive(Tween(begin: .0, end: 1.0))
         .addListener(markNeedsPaint);
 
     if (_percentage == null) {
-      _idleAnimationController.repeat();
+      _idleAnimationController!.repeat();
     } else {
-      _idleAnimationController.forward(
-        from: _idleAnimationController.lowerBound,
+      _idleAnimationController!.forward(
+        from: _idleAnimationController!.lowerBound,
       );
     }
   }
 
   @override
   void detach() {
-    _idleAnimationController.removeListener(markNeedsPaint);
-    _idleAnimationController.dispose();
+    _idleAnimationController?.removeListener(markNeedsPaint);
+    _idleAnimationController?.dispose();
 
     super.detach();
   }
@@ -124,10 +124,10 @@ class SpendingsIndicatorRenderObject extends RenderBox
   }
 
   Future<void> _onIdleAnimationEnd() async {
-    if (_idleAnimationController.isAnimating) {
-      await _idleAnimationController
-          .animateTo(_idleAnimationController.upperBound);
-      _idleAnimationController.stop();
+    if (_idleAnimationController?.isAnimating ?? false) {
+      await _idleAnimationController!
+          .animateTo(_idleAnimationController!.upperBound);
+      _idleAnimationController!.stop();
     }
   }
 
@@ -136,22 +136,27 @@ class SpendingsIndicatorRenderObject extends RenderBox
 
     if (_percentage != null) {
       return columnPercentage <= _percentage! &&
-              columnPercentage <= _idleAnimationController.value
+              columnPercentage <=
+                  (_idleAnimationController?.value ?? double.infinity)
           ? _setPixelPaint
           : _pixelPaint;
     } else {
       return Paint()
         ..style = PaintingStyle.fill
-        ..color = _colorTween.lerp(
-            (10.0 * (columnPercentage - _idleAnimationController.value).abs())
-                .clamp(.0, 1.0))!;
+        ..color = _colorTween.lerp((10.0 *
+                (columnPercentage -
+                        (_idleAnimationController?.value ?? columnPercentage))
+                    .abs())
+            .clamp(.0, 1.0))!;
     }
   }
 
   void _paintColumn(PaintingContext context, Offset offset, Paint paint) {
     for (int i = 0; i < 15; i++) {
-      final Rect rect = (const Offset(.0, pixelSize + pixelSpacerSize)
-                  .scale(.0, i.toDouble()) +
+      final Rect rect = (const Offset(.0, pixelSize + pixelSpacerSize).scale(
+                .0,
+                i.toDouble(),
+              ) +
               offset) &
           const Size.square(pixelSize);
 
@@ -176,7 +181,7 @@ class SpendingsIndicatorRenderObject extends RenderBox
 
   @override
   Ticker createTicker(TickerCallback onTick) {
-    _ticker ??= Ticker(onTick);
+    _ticker = Ticker(onTick, debugLabel: "SpendingsIndicator Ticker");
     return _ticker!;
   }
 }
