@@ -99,13 +99,9 @@ class _SpendingsCardState extends State<SpendingsCard>
   Widget build(BuildContext context) => Container(
         decoration: BoxDecoration(
           color: _colorScheme.primary,
-          borderRadius: BorderRadius.circular(
-            cardBorderRadius,
-          ),
+          borderRadius: BorderRadius.circular(cardBorderRadius),
         ),
-        padding: const EdgeInsets.symmetric(
-          vertical: cardVerticalPadding,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: cardVerticalPadding),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
