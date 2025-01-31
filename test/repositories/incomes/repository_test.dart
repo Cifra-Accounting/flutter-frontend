@@ -320,7 +320,7 @@ void main() {
           ..date.value = DateTime.now(),
       );
 
-      final int deleted = await incomeRepository!.delete(income.id.value!);
+      final int deleted = await incomeRepository!.delete(income);
 
       expect(deleted, 1);
 

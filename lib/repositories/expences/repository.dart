@@ -4,6 +4,7 @@ import 'package:cv/cv.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:cifra_app/repositories/categories/repository.dart';
+import 'package:cifra_app/repositories/models/get_filter.dart';
 import 'package:cifra_app/repositories/categories/models/category.dart';
 import 'package:cifra_app/repositories/expences/models/expence.dart';
 
@@ -64,11 +65,8 @@ class ExpenceRepository implements Repository<Expence> {
     _cache.clear();
 
     final List<Expence> expences =
-        await getList(offset: 0, limit: 20, desc: _isDesc);
-
-    for (final Expence expence in expences) {
-      _cache[expence.id.value!] = expence;
-    }
+        await getList(offset: 0, limit: 20, desc: _isDesc)
+          ..forEach((Expence expence) => _cache[expence.id.value!] = expence);
 
     _expencesController.sink.add(expences);
   }
@@ -176,6 +174,7 @@ class ExpenceRepository implements Repository<Expence> {
     int? offset,
     int? limit,
     bool desc = false,
+    GetFilter? filter,
   }) async {
     try {
       if (_isDesc != desc) {
@@ -319,17 +318,15 @@ class ExpenceRepository implements Repository<Expence> {
   }
 
   @override
-  Future<int> delete(int id) async {
+  Future<int> delete(Expence expence) async {
     try {
       final int result = await db.delete(
         tableName,
         where: '$idColumn = ?',
-        whereArgs: [id],
+        whereArgs: [expence.id.value],
       );
 
-      if (_cache.containsKey(id)) {
-        _cache.remove(id);
-
+      if (_cache.remove(expence.id.value!) != null) {
         _expencesController.sink.add(
           _cache.sortedValues(desc: _isDesc),
         );

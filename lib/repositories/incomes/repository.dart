@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cv/cv.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import 'package:cifra_app/repositories/models/get_filter.dart';
 import 'package:cifra_app/repositories/categories/repository.dart';
 import 'package:cifra_app/repositories/categories/models/category.dart';
 import 'package:cifra_app/repositories/incomes/models/income.dart';
@@ -48,10 +49,16 @@ class IncomeRepository implements Repository<Income> {
     required this.db,
   });
 
+  // DataBase access object
   final Database db;
+  // Cached values to avoid unnecessary queries
   final Map<int, Income> _cache = <int, Income>{};
+  // Last sorting order applied to getList method
   bool _isDesc = false;
+  // Last filter applied to getList method
+  GetFilter? _filter;
 
+  // Stream controller to emit incomes to the listeners
   late final StreamController<List<Income>> _incomesController =
       StreamController<List<Income>>.broadcast(
     onListen: () => _incomesController.sink.add(
@@ -59,13 +66,16 @@ class IncomeRepository implements Repository<Income> {
     ),
   );
 
+  // Stream to listen for incomes changes
   Stream<List<Income>> get onIncomes => _incomesController.stream;
 
+  /// Update the [_cache] with the latest incomes
+  /// according to the new [_isDesc] and [_filter]
   Future<void> _updateCached() async {
     _cache.clear();
 
     final List<Income> incomes =
-        await getList(offset: 0, limit: 20, desc: _isDesc);
+        await getList(offset: 0, limit: 20, desc: _isDesc, filter: _filter);
 
     for (final Income income in incomes) {
       _cache[income.id.value!] = income;
@@ -190,11 +200,13 @@ class IncomeRepository implements Repository<Income> {
     int? offset,
     int? limit,
     bool desc = false,
+    GetFilter? filter,
   }) async {
     try {
-      if (_isDesc != desc) {
+      if (_isDesc != desc || _filter != filter) {
         _cache.clear();
         _isDesc = desc;
+        _filter = filter;
       }
 
       if (offset != null && limit != null && offset + limit < _cache.length) {
@@ -207,8 +219,10 @@ class IncomeRepository implements Repository<Income> {
       final String orderBy = '$dateColumn ${desc ? 'DESC' : 'ASC'}';
       final String limitOffset =
           (limit == null || offset == null) ? '' : 'LIMIT ? OFFSET ?';
-      final List<dynamic> args =
-          (limit == null || offset == null) ? [] : [limit, offset];
+      final List<dynamic> args = [
+        ...(filter?.whereArgs ?? []),
+        ...((limit == null || offset == null) ? [] : [limit, offset])
+      ];
 
       final String query = '''
       SELECT
@@ -222,6 +236,7 @@ class IncomeRepository implements Repository<Income> {
         i.$descriptionColumn as $descriptionColumn
       FROM $tableName i
       JOIN ${CategoryRepository.tableName} c ON i.$categoryIdColumn = c.$idColumn
+      ${filter?.where ?? ''}
       ORDER BY $orderBy
       $limitOffset
       ''';
@@ -349,17 +364,15 @@ class IncomeRepository implements Repository<Income> {
   /// Will no matter what reset current cached data
   /// ((old data can be not relevant anymore))
   /// Will delete item with given [id]
-  Future<int> delete(int id) async {
+  Future<int> delete(Income income) async {
     try {
       final int result = await db.delete(
         tableName,
         where: '$idColumn = ?',
-        whereArgs: [id],
+        whereArgs: [income.id.value],
       );
 
-      if (_cache.containsKey(id)) {
-        _cache.remove(id);
-
+      if (_cache.remove(income.id.value) != null) {
         _incomesController.sink.add(
           _cache.sortedValues(desc: _isDesc),
         );

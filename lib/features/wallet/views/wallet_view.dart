@@ -31,7 +31,7 @@ class WalletView extends StatelessWidget {
             threshhold: .7,
             children: <Widget>[
               Container(
-                height: 1500,
+                height: MediaQuery.of(context).size.height,
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.vertical(

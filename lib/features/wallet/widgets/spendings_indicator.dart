@@ -14,20 +14,20 @@ class SpendingsIndicator extends LeafRenderObjectWidget {
 
   @override
   RenderObject createRenderObject(BuildContext context) =>
-      SpendingsIndicatorRenderObject(percentage);
+      _SpendingsIndicatorRenderObject(percentage);
 
   @override
   void updateRenderObject(
       BuildContext context, covariant RenderObject renderObject) {
-    final SpendingsIndicatorRenderObject indicatorRenderObject =
-        renderObject as SpendingsIndicatorRenderObject;
+    final _SpendingsIndicatorRenderObject indicatorRenderObject =
+        renderObject as _SpendingsIndicatorRenderObject;
     indicatorRenderObject.percentage = percentage;
   }
 }
 
-class SpendingsIndicatorRenderObject extends RenderBox
+class _SpendingsIndicatorRenderObject extends RenderBox
     implements TickerProvider {
-  SpendingsIndicatorRenderObject(this._percentage);
+  _SpendingsIndicatorRenderObject(this._percentage);
 
   double? _percentage;
 

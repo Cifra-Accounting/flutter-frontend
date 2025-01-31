@@ -91,7 +91,7 @@ void main() {
           reason: "icon");
     });
 
-    test("getList", () async {
+    test("getAll", () async {
       final List<Category> categories = [
         Category()
           ..name.value = 'Category 1'
@@ -105,7 +105,7 @@ void main() {
           await categoryRepository!.saveAll(categories);
 
       final List<Category> loadedCategories =
-          await categoryRepository!.getList();
+          await categoryRepository!.getAll();
 
       expect(loadedCategories.length, 2, reason: "categories length");
 
@@ -133,12 +133,12 @@ void main() {
           await categoryRepository!.saveAll(categories);
 
       final int deleted =
-          await categoryRepository!.delete(savedCategories.last.id.value!);
+          await categoryRepository!.delete(savedCategories.last);
 
       expect(deleted, 1, reason: "deleted");
 
       final List<Category> loadedCategories =
-          await categoryRepository!.getList();
+          await categoryRepository!.getAll();
 
       expect(loadedCategories.length, 1, reason: "categories length");
       expect(loadedCategories.first.id.value, savedCategories.first.id.value,

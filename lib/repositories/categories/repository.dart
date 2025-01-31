@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:cifra_app/repositories/models/get_filter.dart';
 import 'package:cv/cv.dart';
+import 'package:flutter/material.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:cifra_app/repositories/categories/models/category.dart';
@@ -66,9 +68,16 @@ class CategoryRepository extends Repository<Category> {
     }
   }
 
+  FutureOr<List<Category>> getAll() => getList();
+
   @override
-  FutureOr<List<Category>> getList(
-      {int? offset, int? limit, bool desc = false}) async {
+  @protected
+  FutureOr<List<Category>> getList({
+    int? offset,
+    int? limit,
+    bool desc = false,
+    GetFilter? filter,
+  }) async {
     try {
       if (_cache.isNotEmpty) {
         _categoriesController.sink.add(_cache.toList());
@@ -175,11 +184,15 @@ class CategoryRepository extends Repository<Category> {
   }
 
   @override
-  Future<int> delete(int id) async {
+  Future<int> delete(Category value) async {
     try {
-      final int result =
-          await db.delete(tableName, where: '$idColumn = ?', whereArgs: [id]);
-      _cache.removeWhere((element) => element.id.value == id);
+      final int result = await db.delete(
+        tableName,
+        where: '$idColumn = ?',
+        whereArgs: [value.id.value],
+      );
+
+      _cache.remove(value);
       _categoriesController.sink.add(_cache.toList());
       return result;
     } catch (e) {

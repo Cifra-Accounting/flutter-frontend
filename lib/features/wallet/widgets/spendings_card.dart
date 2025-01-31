@@ -59,8 +59,7 @@ class _SpendingsCardState extends State<SpendingsCard>
 
     _viewPortHeight = _indicatorSize().height +
         _textSize("You have already spent", _textTheme.titleSmall!).height +
-        _textSize("\$${(widget.spent ?? 178).toInt()}", _textTheme.titleLarge!)
-            .height +
+        _textSize("\$${(widget.spent ?? 0.0)}", _textTheme.titleLarge!).height +
         blankSpacerSize;
 
     super.didChangeDependencies();
@@ -89,9 +88,10 @@ class _SpendingsCardState extends State<SpendingsCard>
   }
 
   Size _indicatorSize() {
-    final SpendingsIndicatorRenderObject indicatorRenderObject =
-        SpendingsIndicatorRenderObject(.0)
-          ..layout(const BoxConstraints().loosen());
+    final RenderBox indicatorRenderObject = (const SpendingsIndicator(
+      percentage: .0,
+    ).createRenderObject(context) as RenderBox)
+      ..layout(const BoxConstraints().loosen());
     return indicatorRenderObject.size;
   }
 
@@ -168,13 +168,12 @@ class _SpendingsCardState extends State<SpendingsCard>
                                       TextSpan(
                                         children: [
                                           TextSpan(
-                                            text:
-                                                "\$${(widget.spent ?? 178).toInt()}",
+                                            text: "\$${widget.spent ?? .0}",
                                             style: _textTheme.titleLarge,
                                           ),
                                           TextSpan(
                                             text:
-                                                " / ${(widget.outOf ?? 300).toInt()} \$  ",
+                                                " / ${(widget.outOf ?? .0)} \$  ",
                                             style:
                                                 _textTheme.titleSmall!.copyWith(
                                               color: Colors.white
@@ -187,8 +186,8 @@ class _SpendingsCardState extends State<SpendingsCard>
                                     Text(
                                       (widget.spent != null &&
                                               widget.outOf != null)
-                                          ? "( ${(widget.spent! / widget.outOf!)}% )"
-                                          : "( 60% )",
+                                          ? "( ${(widget.spent! / widget.outOf!).toInt()}% )"
+                                          : "( 0% )",
                                       style: _textTheme.titleSmall!.copyWith(
                                         color:
                                             Colors.white.withValues(alpha: .75),
