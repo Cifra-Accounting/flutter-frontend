@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cifra_app/repositories/models/money.dart';
 import 'package:cifra_app/repositories/utils/db_init.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -21,6 +22,10 @@ void main() {
     Category? category1;
     Category? category2;
 
+    Money? transaction1;
+    Money? transaction2;
+    Money? transaction3;
+
     Future<void> setUpCategories() async {
       category1 = await categoryRepository!.save(
         Category()
@@ -34,6 +39,21 @@ void main() {
       );
     }
 
+    void setUpTransactions() {
+      transaction1 = const Money(
+        currency: Currency.usd,
+        amountInSmallestUnits: 10000,
+      );
+      transaction2 = const Money(
+        currency: Currency.eur,
+        amountInSmallestUnits: 100000,
+      );
+      transaction3 = const Money(
+        currency: Currency.rub,
+        amountInSmallestUnits: 10000000,
+      );
+    }
+
     setUp(() async {
       db = await testInitialize();
 
@@ -41,6 +61,7 @@ void main() {
       expenceRepository = ExpenceRepository(db: db!);
 
       await setUpCategories();
+      setUpTransactions();
     });
 
     test('save', () async {
@@ -48,190 +69,129 @@ void main() {
         Expence()
           ..category.value = category1
           ..title.value = 'Expence 1'
-          ..amount.value = 100.0
+          ..transaction.value = transaction1
           ..date.value = DateTime.now(),
       );
 
-      expect(expence.id.value, isNotNull);
+      expect(expence.id.value, isNotNull, reason: 'Expence id is not null');
 
       expenceSubscription = expenceRepository!.onExpences.listen(
-        (incomes) {
-          expect(incomes.length, 1);
-
-          expect(incomes.first.id.value, isNotNull);
-          expect(incomes.first.category.value, category1);
-          expect(incomes.first.title.value, 'Expence 1');
-          expect(incomes.first.amount.value, 100.0);
-          expect(incomes.first.date.value, isNotNull);
+        (expences) {
+          expect(expences.length, 1, reason: 'Expences length');
+          expect(expences.first.id.value, isNotNull, reason: 'Expence id');
+          expect(expences.first.category.value, category1,
+              reason: 'Category 1');
+          expect(expences.first.title.value, 'Expence 1', reason: 'Expence 1');
+          expect(expences.first.transaction.value, transaction1,
+              reason: 'Transaction 1');
+          expect(expences.first.date.value, isNotNull,
+              reason: 'Date is not null');
         },
       );
     });
 
     test('saveAll', () async {
-      final List<Expence> incomes = await expenceRepository!.saveAll([
+      final List<Expence> expences = await expenceRepository!.saveAll([
         Expence()
           ..category.value = category1
           ..title.value = 'Expence 1'
-          ..amount.value = 100.0
+          ..transaction.value = transaction1
           ..date.value = DateTime.now(),
         Expence()
           ..category.value = category2
           ..title.value = 'Expence 2'
-          ..amount.value = 200.0
+          ..transaction.value = transaction2
           ..date.value = DateTime.now(),
       ]);
 
-      expect(incomes.length, 2);
+      expect(expences.length, 2);
 
-      expect(incomes.length, 2);
+      expect(expences.length, 2);
 
-      expect(incomes.first.id.value, isNotNull);
-      expect(incomes.first.category.value, category1);
-      expect(incomes.first.title.value, 'Expence 1');
-      expect(incomes.first.amount.value, 100.0);
-      expect(incomes.first.date.value, isNotNull);
+      expect(expences.first.id.value, isNotNull);
+      expect(expences.first.category.value, category1);
+      expect(expences.first.title.value, 'Expence 1');
+      expect(expences.first.transaction.value, transaction1);
+      expect(expences.first.date.value, isNotNull);
 
-      expect(incomes.last.id.value, isNotNull);
-      expect(incomes.last.category.value, category2);
-      expect(incomes.last.title.value, 'Expence 2');
-      expect(incomes.last.amount.value, 200.0);
-      expect(incomes.last.date.value, isNotNull);
+      expect(expences.last.id.value, isNotNull);
+      expect(expences.last.category.value, category2);
+      expect(expences.last.title.value, 'Expence 2');
+      expect(expences.last.transaction.value, transaction2);
+      expect(expences.last.date.value, isNotNull);
 
-      expenceSubscription = expenceRepository!.onExpences.listen((incomes) {
-        expect(incomes.length, 2);
+      expenceSubscription = expenceRepository!.onExpences.listen((expences) {
+        expect(expences.length, 2);
 
-        expect(incomes.first.id.value, isNotNull);
-        expect(incomes.first.category.value, category1);
-        expect(incomes.first.title.value, 'Expence 1');
-        expect(incomes.first.amount.value, 100.0);
-        expect(incomes.first.date.value, isNotNull);
+        expect(expences.first.id.value, isNotNull);
+        expect(expences.first.category.value, category1);
+        expect(expences.first.title.value, 'Expence 1');
+        expect(expences.first.transaction.value, transaction1);
+        expect(expences.first.date.value, isNotNull);
 
-        expect(incomes.last.id.value, isNotNull);
-        expect(incomes.last.category.value, category2);
-        expect(incomes.last.title.value, 'Expence 2');
-        expect(incomes.last.amount.value, 200.0);
-        expect(incomes.last.date.value, isNotNull);
+        expect(expences.last.id.value, isNotNull);
+        expect(expences.last.category.value, category2);
+        expect(expences.last.title.value, 'Expence 2');
+        expect(expences.last.transaction.value, transaction2);
+        expect(expences.last.date.value, isNotNull);
       });
     });
 
     test('saveAll and update ', () async {
-      List<Expence> incomes = <Expence>[
+      List<Expence> expences = <Expence>[
         Expence()
           ..category.value = category1
           ..title.value = 'Expence 1'
-          ..amount.value = 100.0
+          ..transaction.value = transaction1
           ..date.value = DateTime.now().subtract(Durations.medium2),
         Expence()
           ..category.value = category2
           ..title.value = 'Expence 2'
-          ..amount.value = 200.0
+          ..transaction.value = transaction2
           ..date.value = DateTime.now().subtract(Durations.medium1),
         Expence()
           ..category.value = category1
           ..title.value = 'Expence 3'
-          ..amount.value = 400.0
+          ..transaction.value = transaction3
           ..date.value = DateTime.now(),
       ];
 
-      incomes[0] = await expenceRepository!.save(incomes[0]);
-      incomes[2] = await expenceRepository!.save(incomes[2]);
+      expences[0] = await expenceRepository!.save(expences[0]);
+      expences[2] = await expenceRepository!.save(expences[2]);
 
-      incomes[0].amount.value = 200.0;
-      incomes[2].amount.value = 800.0;
+      expences[0].transaction.value = transaction1!.copyWith(
+        amountInSmallestUnits: 20000,
+      );
+      expences[2].transaction.value = transaction3!.copyWith(
+        amountInSmallestUnits: 800000,
+      );
 
-      final List<Expence> result = await expenceRepository!.saveAll(incomes);
+      final List<Expence> result = await expenceRepository!.saveAll(expences);
 
       expect(result.length, 3, reason: 'saveAll and update result list length');
 
-      expect(result[0].id.value, incomes[0].id.value);
+      expect(result[0].id.value, expences[0].id.value);
       expect(result[0].category.value, category1);
       expect(result[0].title.value, 'Expence 1');
-      expect(result[0].amount.value, 200.0);
+      expect(result[0].transaction.value, expences[0].transaction.value);
       expect(result[0].date.value, isNotNull);
 
       expect(result[1].id.value, 3);
       expect(result[1].category.value, category2);
       expect(result[1].title.value, 'Expence 2');
-      expect(result[1].amount.value, 200.0);
+      expect(result[1].transaction.value, expences[1].transaction.value);
       expect(result[1].date.value, isNotNull);
 
-      expect(result[2].id.value, incomes[2].id.value);
+      expect(result[2].id.value, expences[2].id.value);
       expect(result[2].category.value, category1);
       expect(result[2].title.value, 'Expence 3');
-      expect(result[2].amount.value, 800.0);
+      expect(result[2].transaction.value, expences[2].transaction.value);
       expect(result[2].date.value, isNotNull);
       expect(result.last.id.value, isNotNull);
 
       expenceSubscription = expenceRepository!.onExpences.listen((newIncomes) {
-        expect(newIncomes.length, incomes.length);
+        expect(newIncomes.length, expences.length);
       });
-    });
-
-    test("sumByTime", () async {
-      final List<Expence> incomes = <Expence>[
-        Expence()
-          ..category.value = category1
-          ..title.value = 'Expence 1'
-          ..amount.value = 100.0
-          ..date.value = DateTime.now().subtract(Durations.medium2),
-        Expence()
-          ..category.value = category2
-          ..title.value = 'Expence 2'
-          ..amount.value = 200.0
-          ..date.value = DateTime.now().subtract(Durations.medium1),
-        Expence()
-          ..category.value = category1
-          ..title.value = 'Expence 3'
-          ..amount.value = 400.0
-          ..date.value = DateTime.now(),
-      ];
-
-      await expenceRepository!.saveAll(incomes);
-
-      final double result = await expenceRepository!.sumByTime(
-        duration: Durations.medium1 + Durations.short1,
-      );
-
-      expect(result, 600.0);
-
-      final double result2 = await expenceRepository!.sumByTime();
-
-      expect(result2, 700.0);
-    });
-
-    test("sumByCategoryAndTime", () async {
-      final List<Expence> incomes = <Expence>[
-        Expence()
-          ..category.value = category1
-          ..title.value = 'Expence 1'
-          ..amount.value = 100.0
-          ..date.value = DateTime.now().subtract(Durations.medium2),
-        Expence()
-          ..category.value = category2
-          ..title.value = 'Expence 2'
-          ..amount.value = 200.0
-          ..date.value = DateTime.now().subtract(Durations.medium1),
-        Expence()
-          ..category.value = category1
-          ..title.value = 'Expence 3'
-          ..amount.value = 400.0
-          ..date.value = DateTime.now(),
-      ];
-
-      await expenceRepository!.saveAll(incomes);
-
-      final double result = await expenceRepository!.sumByCategoryAndTime(
-        category: category1,
-      );
-
-      expect(result, 500.0);
-
-      final double result2 = await expenceRepository!.sumByCategoryAndTime(
-        category: category1,
-        duration: Durations.medium1 + Durations.short1,
-      );
-
-      expect(result2, 400.0);
     });
 
     test('getById', () async {
@@ -239,17 +199,19 @@ void main() {
         Expence()
           ..category.value = category1
           ..title.value = 'Expence 1'
-          ..amount.value = 100.0
+          ..transaction.value = transaction1
           ..date.value = DateTime.now(),
       );
 
-      final Expence? incomeById =
+      final Expence? expenceById =
           await expenceRepository!.getById(expence.id.value!);
 
-      expect(incomeById, isNotNull);
-      expect(incomeById!.id.value, expence.id.value);
-      expect(incomeById.category.value, category1);
-      expect(incomeById.title.value, 'Expence 1');
+      expect(expenceById, isNotNull);
+      expect(expenceById!.id.value, expence.id.value);
+      expect(expenceById.category.value, category1);
+      expect(expenceById.title.value, 'Expence 1');
+      expect(expenceById.transaction.value, transaction1);
+      expect(expenceById.date.value, isNotNull);
     });
 
     test('getList', () async {
@@ -261,12 +223,12 @@ void main() {
         Expence()
           ..category.value = category1
           ..title.value = 'Expence 1'
-          ..amount.value = 100.0
+          ..transaction.value = transaction1
           ..date.value = DateTime.now(),
         Expence()
           ..category.value = category2
           ..title.value = 'Expence 2'
-          ..amount.value = 200.0
+          ..transaction.value = transaction2
           ..date.value = DateTime.now(),
       ]);
 
@@ -280,22 +242,22 @@ void main() {
         Expence()
           ..category.value = category1
           ..title.value = 'Expence 1'
-          ..amount.value = 100.0
+          ..transaction.value = transaction1
           ..date.value = DateTime.now(),
         Expence()
           ..category.value = category2
           ..title.value = 'Expence 2'
-          ..amount.value = 200.0
+          ..transaction.value = transaction2
           ..date.value = DateTime.now().subtract(Durations.medium1),
         Expence()
           ..category.value = category1
           ..title.value = 'Expence 3'
-          ..amount.value = 300.0
+          ..transaction.value = transaction3
           ..date.value = DateTime.now().subtract(Durations.medium2),
         Expence()
           ..category.value = category2
           ..title.value = 'Expence 4'
-          ..amount.value = 400.0
+          ..transaction.value = transaction2
           ..date.value = DateTime.now().subtract(Durations.medium3),
       ]);
 
@@ -316,7 +278,7 @@ void main() {
         Expence()
           ..category.value = category1
           ..title.value = 'Expence 1'
-          ..amount.value = 100.0
+          ..transaction.value = transaction1
           ..date.value = DateTime.now(),
       );
 
@@ -336,6 +298,10 @@ void main() {
       await categoryRepository?.dispose();
 
       await db?.close();
+
+      transaction1 = null;
+      transaction2 = null;
+      transaction3 = null;
     });
   });
 }

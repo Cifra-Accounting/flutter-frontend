@@ -5,7 +5,6 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:cifra_app/repositories/models/get_filter.dart';
 import 'package:cifra_app/repositories/categories/repository.dart';
-import 'package:cifra_app/repositories/categories/models/category.dart';
 import 'package:cifra_app/repositories/incomes/models/income.dart';
 
 import 'package:cifra_app/repositories/models/db_constants.dart';
@@ -30,7 +29,8 @@ class IncomeRepository implements Repository<Income> {
       $idColumn INTEGER PRIMARY KEY AUTOINCREMENT,
       $categoryIdColumn INTEGER NOT NULL,
       $titleColumn TEXT NOT NULL,
-      $amountColumn REAL NOT NULL,
+      $amountColumn INTEGER NOT NULL,
+      $currencyColumn TEXT NOT NULL,
       $dateColumn DATETIME NOT NULL,
       $descriptionColumn TEXT DEFAULT '',
       CONSTRAINT category_idx
@@ -74,80 +74,13 @@ class IncomeRepository implements Repository<Income> {
   Future<void> _updateCached() async {
     _cache.clear();
 
-    final List<Income> incomes =
-        await getList(offset: 0, limit: 20, desc: _isDesc, filter: _filter);
+    final List<Income> expences =
+        await getList(offset: 0, limit: 20, desc: _isDesc)
+          ..forEach(
+            (Income expence) => _cache[expence.id.value!] = expence,
+          );
 
-    for (final Income income in incomes) {
-      _cache[income.id.value!] = income;
-    }
-
-    _incomesController.sink.add(_cache.sortedValues(desc: _isDesc));
-  }
-
-  /// Return the sum of all the incomes in the [duration] period,
-  /// if [duration] is null, will return the sum of all the incomes
-  Future<double> sumByTime({Duration? duration}) async {
-    try {
-      final String where = duration != null ? 'WHERE $dateColumn >= ?' : '';
-      final List<Object?> whereArgs = duration != null
-          ? [DateTime.now().subtract(duration).toIso8601String()]
-          : [];
-
-      final List<Map<String, Object?>> list = await db.rawQuery(
-        '''
-        SELECT 
-          SUM($amountColumn) as sum
-        FROM $tableName
-        $where
-        ''',
-        whereArgs,
-      );
-
-      return list.first['sum'] as double? ?? 0;
-    } catch (e) {
-      _incomesController.addError(RepositoryException(
-          "Failed to get sum by category: $e", runtimeType));
-      return 0;
-    }
-  }
-
-  /// Return the sum of all the incomes in the [duration] period,
-  /// if [duration] is null, will return the sum of all the incomes
-  /// for the given [category]
-  /// if [category] is null, will return the sum of all the incomes
-  Future<double> sumByCategoryAndTime(
-      {Category? category, Duration? duration}) async {
-    try {
-      String where = "";
-      final List<Object?> whereArgs = [];
-
-      if (duration != null) {
-        where += 'WHERE $dateColumn >= ?';
-        whereArgs.add(DateTime.now().subtract(duration).toIso8601String());
-      }
-      if (category != null) {
-        where += where.isNotEmpty ? ' AND ' : 'WHERE ';
-        where += '$categoryIdColumn = ?';
-        whereArgs.add(category.id.value);
-      }
-
-      final List<Map<String, Object?>> list = await db.rawQuery(
-        '''
-        SELECT 
-          SUM($amountColumn) as sum
-        FROM $tableName
-        $where
-        GROUP BY $categoryIdColumn
-        ''',
-        whereArgs,
-      );
-
-      return list.first['sum'] as double? ?? 0;
-    } catch (e) {
-      _incomesController.addError(RepositoryException(
-          "Failed to get sum by category: $e", runtimeType));
-      return 0;
-    }
+    _incomesController.sink.add(expences);
   }
 
   @override
@@ -169,6 +102,7 @@ class IncomeRepository implements Repository<Income> {
           c.$categoryIconColumn as $categoryIconColumn,
           i.$titleColumn as $titleColumn,
           i.$amountColumn as $amountColumn,
+          i.$currencyColumn as $currencyColumn,
           i.$dateColumn as $dateColumn, 
           i.$descriptionColumn as $descriptionColumn
         FROM $tableName i
@@ -232,6 +166,7 @@ class IncomeRepository implements Repository<Income> {
         c.$categoryIconColumn as $categoryIconColumn,
         i.$titleColumn as $titleColumn,
         i.$amountColumn as $amountColumn,
+        i.$currencyColumn as $currencyColumn,
         i.$dateColumn as $dateColumn,
         i.$descriptionColumn as $descriptionColumn
       FROM $tableName i

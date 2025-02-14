@@ -1,4 +1,6 @@
 import 'package:cifra_app/repositories/categories/models/category.dart';
+import 'package:cifra_app/repositories/expences/repository.dart';
+import 'package:cifra_app/repositories/incomes/repository.dart';
 import 'package:cifra_app/repositories/models/db_constants.dart';
 import 'package:cifra_app/repositories/models/get_filter.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -56,5 +58,11 @@ class UpdatedRepositoryHistoryEvent extends HistoryEvent {
 class HistoryState {}
 
 class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
-  HistoryBloc(super.initialState);
+  HistoryBloc({
+    required this.incomeRepository,
+    required this.expenceRepository,
+  }) : super(HistoryState());
+
+  final IncomeRepository incomeRepository;
+  final ExpenceRepository expenceRepository;
 }

@@ -5,7 +5,6 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:cifra_app/repositories/categories/repository.dart';
 import 'package:cifra_app/repositories/models/get_filter.dart';
-import 'package:cifra_app/repositories/categories/models/category.dart';
 import 'package:cifra_app/repositories/expences/models/expence.dart';
 
 import 'package:cifra_app/repositories/models/db_constants.dart';
@@ -30,7 +29,8 @@ class ExpenceRepository implements Repository<Expence> {
       $idColumn INTEGER PRIMARY KEY AUTOINCREMENT,
       $categoryIdColumn INTEGER NOT NULL,
       $titleColumn TEXT NOT NULL,
-      $amountColumn REAL NOT NULL,
+      $amountColumn INTEGER NOT NULL,
+      $currencyColumn TEXT NOT NULL,
       $dateColumn DATETIME NOT NULL,
       $descriptionColumn TEXT DEFAULT '',
       CONSTRAINT category_idx
@@ -54,9 +54,11 @@ class ExpenceRepository implements Repository<Expence> {
 
   late final StreamController<List<Expence>> _expencesController =
       StreamController<List<Expence>>.broadcast(
-    onListen: () => _expencesController.sink.add(
-      _cache.sortedValues(desc: _isDesc),
-    ),
+    onListen: () {
+      _expencesController.sink.add(
+        _cache.sortedValues(desc: _isDesc),
+      );
+    },
   );
 
   Stream<List<Expence>> get onExpences => _expencesController.stream;
@@ -66,69 +68,11 @@ class ExpenceRepository implements Repository<Expence> {
 
     final List<Expence> expences =
         await getList(offset: 0, limit: 20, desc: _isDesc)
-          ..forEach((Expence expence) => _cache[expence.id.value!] = expence);
+          ..forEach(
+            (Expence expence) => _cache[expence.id.value!] = expence,
+          );
 
     _expencesController.sink.add(expences);
-  }
-
-  Future<double> sumByTime({Duration? duration}) async {
-    try {
-      final String where = duration != null ? 'WHERE $dateColumn >= ?' : '';
-      final List<Object?> whereArgs = duration != null
-          ? [DateTime.now().subtract(duration).toIso8601String()]
-          : [];
-
-      final List<Map<String, Object?>> list = await db.rawQuery(
-        '''
-        SELECT 
-          SUM($amountColumn) as sum
-        FROM $tableName
-        $where
-        ''',
-        whereArgs,
-      );
-
-      return list.first['sum'] as double? ?? 0;
-    } catch (e) {
-      _expencesController.addError(RepositoryException(
-          "Failed to get sum by category: $e", runtimeType));
-      return 0;
-    }
-  }
-
-  Future<double> sumByCategoryAndTime(
-      {Category? category, Duration? duration}) async {
-    try {
-      String where = "";
-      final List<Object?> whereArgs = [];
-
-      if (duration != null) {
-        where += 'WHERE $dateColumn >= ?';
-        whereArgs.add(DateTime.now().subtract(duration).toIso8601String());
-      }
-      if (category != null) {
-        where += where.isNotEmpty ? ' AND ' : 'WHERE ';
-        where += '$categoryIdColumn = ?';
-        whereArgs.add(category.id.value);
-      }
-
-      final List<Map<String, Object?>> list = await db.rawQuery(
-        '''
-        SELECT 
-          SUM($amountColumn) as sum
-        FROM $tableName
-        $where
-        GROUP BY $categoryIdColumn
-        ''',
-        whereArgs,
-      );
-
-      return list.first['sum'] as double? ?? 0;
-    } catch (e) {
-      _expencesController.addError(RepositoryException(
-          "Failed to get sum by category: $e", runtimeType));
-      return 0;
-    }
   }
 
   @override
@@ -148,6 +92,7 @@ class ExpenceRepository implements Repository<Expence> {
           c.$categoryIconColumn as $categoryIconColumn,
           i.$titleColumn as $titleColumn,
           i.$amountColumn as $amountColumn,
+          i.$currencyColumn as $currencyColumn,
           i.$dateColumn as $dateColumn, 
           i.$descriptionColumn as $descriptionColumn
         FROM $tableName i
@@ -204,6 +149,7 @@ class ExpenceRepository implements Repository<Expence> {
         c.$categoryIconColumn as $categoryIconColumn,
         i.$titleColumn as $titleColumn,
         i.$amountColumn as $amountColumn,
+        i.$currencyColumn as $currencyColumn,
         i.$dateColumn as $dateColumn,
         i.$descriptionColumn as $descriptionColumn
       FROM $tableName i

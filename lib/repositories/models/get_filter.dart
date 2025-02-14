@@ -22,7 +22,7 @@ abstract class GetFilter {
 }
 
 class AndFilter extends GetFilter {
-  AndFilter(this._first, this._second);
+  const AndFilter(this._first, this._second);
 
   final GetFilter _first;
   final GetFilter _second;

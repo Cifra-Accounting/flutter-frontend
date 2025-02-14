@@ -1,6 +1,7 @@
 import 'package:cifra_app/repositories/categories/models/category.dart';
 import 'package:cifra_app/repositories/expences/models/expence.dart';
 import 'package:cifra_app/repositories/models/db_constants.dart';
+import 'package:cifra_app/repositories/models/money.dart';
 import 'package:cv/cv.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -18,7 +19,8 @@ void main() {
         categoryNameColumn: 'Category 1',
         categoryIconColumn: 1,
         titleColumn: 'Expence 1',
-        amountColumn: 100.0,
+        amountColumn: 100,
+        currencyColumn: 'usd',
         dateColumn: '2025-01-01T22:00:15.536590',
         descriptionColumn: null,
       };
@@ -28,12 +30,18 @@ void main() {
         ..name.value = 'Category 1'
         ..icon.value = 1;
 
+      const Money transaction = Money(
+        amountInSmallestUnits: 100,
+        currency: Currency.usd,
+      );
+
       final Expence expence = Expence()..fromMap(map);
 
       expect(expence.id.value, map[idColumn], reason: "id fromMap");
       expect(expence.category.value, category, reason: "category fromMap");
       expect(expence.title.value, map[titleColumn], reason: "title fromMap");
-      expect(expence.amount.value, map[amountColumn], reason: "amount fromMap");
+      expect(expence.transaction.value, transaction,
+          reason: "transaction fromMap");
       expect(expence.date.value, DateTime.parse(map[dateColumn] as String),
           reason: "date fromMap");
       expect(expence.description.value, isNull, reason: "description fromMap");
@@ -45,11 +53,16 @@ void main() {
         ..name.value = 'Category 1'
         ..icon.value = 1;
 
+      const Money transaction = Money(
+        amountInSmallestUnits: 100,
+        currency: Currency.usd,
+      );
+
       final Expence expence = Expence()
         ..id.value = 1
         ..category.value = category
         ..title.value = 'Expence 1'
-        ..amount.value = 100.0
+        ..transaction.value = transaction
         ..date.value = DateTime.parse('2025-01-01T22:00:15.536590')
         ..description.value = null;
 
@@ -59,7 +72,11 @@ void main() {
       expect(map[categoryIdColumn], expence.category.value!.id.value,
           reason: "categoryId toMap");
       expect(map[titleColumn], expence.title.value, reason: "title toMap");
-      expect(map[amountColumn], expence.amount.value, reason: "amount toMap");
+      expect(
+          map[amountColumn], expence.transaction.value!.toMap()[amountColumn],
+          reason: "amount toMap");
+      expect(map[currencyColumn], expence.transaction.value!.currency.name,
+          reason: "currency toMap");
       expect(map[dateColumn], expence.date.value!.toIso8601String(),
           reason: "date toMap");
       expect(map[descriptionColumn], isNull, reason: "description toMap");

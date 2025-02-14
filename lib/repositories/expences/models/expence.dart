@@ -1,3 +1,4 @@
+import 'package:cifra_app/repositories/models/money.dart';
 import 'package:cv/cv.dart';
 
 import 'package:cifra_app/repositories/categories/models/category.dart';
@@ -8,7 +9,7 @@ class Expence extends DbRecord {
   final CvField<String> title = CvField<String>(titleColumn);
   final CvModelField<Category> category =
       CvModelField<Category>(categoryIdColumn);
-  final CvField<double> amount = CvField<double>(amountColumn);
+  final CvField<Money> transaction = CvField<Money>(amountColumn);
   final CvField<DateTime> date = CvField<DateTime>(dateColumn);
   final CvField<String?> description = CvField<String?>(descriptionColumn);
 
@@ -16,15 +17,21 @@ class Expence extends DbRecord {
   void fromMap(Map map, {List<String>? columns}) {
     final Map newMap = {};
 
-    for (MapEntry entry in map.entries) {
+    for (final MapEntry entry in map.entries) {
       if (entry.key == categoryIdColumn) {
         newMap[categoryIdColumn] = {
           idColumn: entry.value,
           categoryNameColumn: map[categoryNameColumn],
           categoryIconColumn: map[categoryIconColumn],
         };
+      } else if (entry.key == amountColumn) {
+        newMap[amountColumn] = {
+          amountColumn: entry.value,
+          currencyColumn: map[currencyColumn]
+        };
       } else if (entry.key != categoryNameColumn &&
-          entry.key != categoryIconColumn) {
+          entry.key != categoryIconColumn &&
+          entry.key != currencyColumn) {
         newMap[entry.key] = entry.value;
       }
     }
@@ -33,6 +40,9 @@ class Expence extends DbRecord {
 
     if (newMap.containsKey(dateColumn)) {
       date.value = DateTime.parse(map[dateColumn]);
+    }
+    if (newMap.containsKey(amountColumn)) {
+      transaction.value = Money.fromMap(newMap[amountColumn]);
     }
   }
 
@@ -48,10 +58,14 @@ class Expence extends DbRecord {
     if (map.containsKey(dateColumn)) {
       map[dateColumn] = date.value!.toIso8601String();
     }
+    if (map.containsKey(amountColumn)) {
+      map[amountColumn] = transaction.value!.toMap()[amountColumn];
+      map[currencyColumn] = transaction.value!.currency.name;
+    }
 
     return map;
   }
 
   @override
-  CvFields get fields => [id, title, category, amount, date, description];
+  CvFields get fields => [id, title, category, transaction, date, description];
 }
