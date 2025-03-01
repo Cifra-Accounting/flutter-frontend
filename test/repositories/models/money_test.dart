@@ -1,4 +1,4 @@
-import 'package:cifra_app/repositories/models/money.dart';
+import 'package:cifra_app/common/models/money.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

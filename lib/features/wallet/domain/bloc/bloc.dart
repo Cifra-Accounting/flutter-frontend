@@ -1,68 +1,157 @@
-import 'package:cifra_app/repositories/categories/models/category.dart';
-import 'package:cifra_app/repositories/expences/repository.dart';
-import 'package:cifra_app/repositories/incomes/repository.dart';
-import 'package:cifra_app/repositories/models/db_constants.dart';
-import 'package:cifra_app/repositories/models/get_filter.dart';
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:equatable/equatable.dart';
+
+import 'package:cifra_app/common/models/get_filter.dart';
+import 'package:cifra_app/repositories/utils/repository_exception.dart';
+import 'package:cifra_app/repositories/transactions/models/transaction.dart';
+import 'package:cifra_app/repositories/transactions/repository.dart';
 
 part 'event.dart';
 part 'state.dart';
-
-class CategoryFilter extends GetFilter {
-  const CategoryFilter({List<Category>? categories})
-      : categories = categories ?? const [];
-
-  final List<Category> categories;
-
-  @override
-  String get whereRaw =>
-      "$categoryIdColumn IN (${categories.map((e) => '?').join(",")})";
-
-  @override
-  List<int> get whereRawArgs => categories.map((e) => e.id.value!).toList();
-}
-
-class DateTimeFilter extends GetFilter {
-  const DateTimeFilter({required this.from, required this.to});
-
-  final DateTime from;
-  final DateTime to;
-
-  @override
-  String get whereRaw => "$dateColumn BETWEEN ? AND ?";
-
-  @override
-  List get whereRawArgs => [from.toIso8601String(), to.toIso8601String()];
-}
-
-sealed class HistoryEvent {
-  const HistoryEvent();
-}
-
-class InitialHistoryEvent extends HistoryEvent {
-  const InitialHistoryEvent();
-}
-
-class HitBottomHistoryEvent extends HistoryEvent {
-  const HitBottomHistoryEvent();
-}
-
-class ChangeFiltersHistoryEvent<T extends GetFilter> extends HistoryEvent {
-  const ChangeFiltersHistoryEvent();
-}
-
-class UpdatedRepositoryHistoryEvent extends HistoryEvent {
-  const UpdatedRepositoryHistoryEvent();
-}
-
-class HistoryState {}
+part 'error.dart';
 
 class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
-  HistoryBloc({
-    required this.incomeRepository,
-    required this.expenceRepository,
-  }) : super(HistoryState());
+  HistoryBloc({required this.transactionRepository})
+      : super(const HistoryState.initial()) {
+    on<InitialHistoryEvent>(_onInitailHistoryEvent);
+    on<ShouldUpdateRepositoryHistoryEvent>(
+        _onShouldUpdateRepositoryHistoryEvent);
+    on<AddedFiltersHistoryEvent>(_onAddedFilterHistoryEvent);
+    on<RemovedFilterHistoryEvent>(_onRemovedFilterHistoryEvent);
+    on<ChangedOrderHistoryEvent>(_onChangedOrderHistoryEvent);
+    on<HitBottomHistoryEvent>(_onHitBottomHistoryEvent);
+  }
 
-  final IncomeRepository incomeRepository;
-  final ExpenceRepository expenceRepository;
+  final TransactionRepository transactionRepository;
+  late final StreamSubscription transactionsUpdate;
+
+  /// Creates subscription to the [transactionRepository]
+  /// in order to react accordingly to the repository updates
+  void _onInitailHistoryEvent(
+    InitialHistoryEvent event,
+    Emitter<HistoryState> emit,
+  ) {
+    transactionsUpdate = transactionRepository.shouldUpdateTransactions.listen(
+      (event) => add(const ShouldUpdateRepositoryHistoryEvent()),
+      onError: (e, st) => addError(
+        BlocError((e as RepositoryException).message),
+        st,
+      ),
+    );
+  }
+
+  /// Simply clears [state]'s history in case
+  /// [transactionRepository] updates affected the state
+  /// we have at the moment
+  void _onShouldUpdateRepositoryHistoryEvent(
+    ShouldUpdateRepositoryHistoryEvent event,
+    Emitter<HistoryState> emit,
+  ) {
+    emit(state.resetHistory());
+  }
+
+  /// Adds required by the [event] filter to the [state]
+  /// and clears history in case new filter affects the current history
+  ///
+  ///  Might [addError] in case filter of the same type already exists
+  ///  in the [state]'s [currentFilters] set
+  void _onAddedFilterHistoryEvent(
+    AddedFiltersHistoryEvent event,
+    Emitter<HistoryState> emit,
+  ) {
+    if (!checkFilter(event.filter)) {
+      addError(BlocError("You can't add two filters of the same type"));
+      return;
+    }
+
+    final Set<GetFilter> currentFilters = state.currentFilters
+      ..add(event.filter);
+
+    emit(state.copyWith(currentFilters: currentFilters).resetHistory());
+  }
+
+  /// Removes required by the [event] filter from the [state]
+  /// and clears history in case new filters affect the current history
+  void _onRemovedFilterHistoryEvent(
+    RemovedFilterHistoryEvent event,
+    Emitter<HistoryState> emit,
+  ) {
+    final Set<GetFilter> currentFilters = state.currentFilters
+      ..removeWhere((GetFilter filter) => filter.where == event.filter.where);
+
+    emit(state.copyWith(currentFilters: currentFilters).resetHistory());
+  }
+
+  /// Changes [desc] flag in the [state] and
+  /// resets [history]
+  void _onChangedOrderHistoryEvent(
+    ChangedOrderHistoryEvent event,
+    Emitter<HistoryState> emit,
+  ) {
+    emit(state.copyWith(desc: event.desc).resetHistory());
+  }
+
+  /// Prompts the [transactionRepository] to return the new set
+  /// of transactions (number of returned transactions is determined
+  /// by the [_currentLimit] in the [state] property), calculates currentOffset
+  /// and updates the [state]
+  ///
+  /// [reachedEnd] flag will be set to true if fetched list is empty indicating
+  /// either an error on the repository side or the end of the data in the repository
+  ///
+  void _onHitBottomHistoryEvent(
+    HitBottomHistoryEvent event,
+    Emitter<HistoryState> emit,
+  ) async {
+    final List<Transaction> history = state.history
+      ..addAll(
+        await transactionRepository.getList(
+          offset: state._currentOffset,
+          limit: state._currentLimit,
+          desc: state.desc,
+          filter: state.currentFilter,
+        ),
+      );
+
+    final int currentOffset = state._currentOffset + state._currentLimit;
+
+    if (history.isNotEmpty) {
+      emit(state.copyWith(
+        history: history,
+        offset: currentOffset,
+        reachedEnd: false,
+      ));
+    } else {
+      emit(state.copyWith(
+        history: history,
+        offset: currentOffset,
+        reachedEnd: true,
+      ));
+    }
+  }
+
+  /// Checks whether [state] already has filter of the same type
+  /// pushing two filters of the type to the repository might be
+  /// not optimal ot all
+  ///
+  /// returns [false] if [filter] is not eligible
+  ///
+  /// otherwise returns [true]
+  bool checkFilter(GetFilter filter) {
+    for (final GetFilter currentFilter in state.currentFilters) {
+      if (currentFilter.runtimeType == filter.runtimeType) return false;
+    }
+    return true;
+  }
+
+  @override
+  Future<void> close() {
+    transactionsUpdate.cancel();
+
+    return super.close();
+  }
 }

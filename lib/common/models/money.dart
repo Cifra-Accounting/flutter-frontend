@@ -1,40 +1,6 @@
-import 'dart:math';
-
 import 'package:cifra_app/repositories/models/db_constants.dart';
 
-enum Currency {
-  usd(symbol: r'$', fractionDigits: 2),
-  eur(symbol: '€', fractionDigits: 2),
-  jpy(symbol: '¥', fractionDigits: 0),
-  aud(symbol: r'A$', fractionDigits: 2),
-  cad(symbol: r'C$', fractionDigits: 2),
-  gbp(symbol: '£', fractionDigits: 2),
-  rub(symbol: '₽', fractionDigits: 2),
-  chf(symbol: 'CHF', fractionDigits: 2),
-  cny(symbol: '¥', fractionDigits: 2),
-  inr(symbol: '₹', fractionDigits: 2),
-  brl(symbol: r'R$', fractionDigits: 2),
-  nzd(symbol: r'N$', fractionDigits: 2);
-
-  const Currency({
-    required this.symbol,
-    required this.fractionDigits,
-  });
-
-  final String symbol;
-  final int fractionDigits;
-
-  // Format an integer amount (in smallest units) into a string.
-  String format(int smallestUnits) {
-    final double decimalValue = smallestUnits / _scale;
-    return '$symbol${decimalValue.toStringAsFixed(fractionDigits)}';
-  }
-
-  // Convert, for example, 1.23 into 123 if fractionDigits == 2
-  int parseAmount(double value) => (value * _scale).round();
-
-  int get _scale => (pow(10, fractionDigits)).clamp(1, 1000000).toInt();
-}
+import 'dart:math';
 
 class Money {
   const Money({
@@ -86,4 +52,38 @@ class Money {
 
   @override
   int get hashCode => currency.hashCode ^ _amountInSmallestUnits.hashCode;
+}
+
+enum Currency {
+  usd(symbol: r'$', fractionDigits: 2),
+  eur(symbol: '€', fractionDigits: 2),
+  jpy(symbol: '¥', fractionDigits: 0),
+  aud(symbol: r'A$', fractionDigits: 2),
+  cad(symbol: r'C$', fractionDigits: 2),
+  gbp(symbol: '£', fractionDigits: 2),
+  rub(symbol: '₽', fractionDigits: 2),
+  chf(symbol: 'CHF', fractionDigits: 2),
+  cny(symbol: '¥', fractionDigits: 2),
+  inr(symbol: '₹', fractionDigits: 2),
+  brl(symbol: r'R$', fractionDigits: 2),
+  nzd(symbol: r'N$', fractionDigits: 2);
+
+  const Currency({
+    required this.symbol,
+    required this.fractionDigits,
+  });
+
+  final String symbol;
+  final int fractionDigits;
+
+  // Format an integer amount (in smallest units) into a string.
+  String format(int smallestUnits) {
+    final double decimalValue = smallestUnits / _scale;
+    return '$symbol${decimalValue.toStringAsFixed(fractionDigits)}';
+  }
+
+  // Convert, for example, 1.23 into 123 if fractionDigits == 2
+  int parseAmount(double value) => (value * _scale).round();
+
+  int get _scale => (pow(10, fractionDigits)).clamp(1, 1000000).toInt();
 }

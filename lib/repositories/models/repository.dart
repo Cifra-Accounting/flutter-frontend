@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:cifra_app/repositories/models/get_filter.dart';
+import 'package:cifra_app/common/models/get_filter.dart';
 
 abstract class Repository<T> {
   FutureOr<T?> getById(int id);

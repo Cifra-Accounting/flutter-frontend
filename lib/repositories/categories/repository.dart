@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:cifra_app/repositories/models/get_filter.dart';
+import 'package:cifra_app/common/models/get_filter.dart';
 import 'package:cv/cv.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -23,37 +23,19 @@ class CategoryRepository extends Repository<Category> {
   CategoryRepository({required this.db});
 
   final Database db;
-  final Set<Category> _cache = <Category>{};
 
-  late final StreamController<List<Category>> _categoriesController =
-      StreamController<List<Category>>.broadcast(
-    onListen: () {
-      _categoriesController.sink.add(_cache.toList());
-    },
-  );
+  late final StreamController<bool> _updateController =
+      StreamController<bool>.broadcast();
 
-  Stream<List<Category>> get onCategories => _categoriesController.stream;
+  Stream<bool> get shouldUpdateCategories => _updateController.stream;
 
   @override
-  FutureOr<Category?> getById(int id) async {
+  Future<Category?> getById(int id) async {
     try {
-      final Category toGet = _cache.firstWhere(
-          (element) => element.id.value == id,
-          orElse: () => Category());
-      if (toGet.id.value != null) {
-        return toGet;
-      }
-
-      final List<Map<String, Object?>> list = await db.rawQuery(
-        '''
-        SELECT 
-          $idColumn,
-          $categoryNameColumn,
-          $categoryIconColumn
-        FROM $tableName
-        WHERE $idColumn = ?
-        ''',
-        [id],
+      final List<Map<String, Object?>> list = await db.query(
+        tableName,
+        where: '$idColumn = ?',
+        whereArgs: [id],
       );
 
       if (list.isEmpty) {
@@ -62,7 +44,7 @@ class CategoryRepository extends Repository<Category> {
 
       return Category()..fromMap(list.first);
     } catch (e) {
-      _categoriesController.addError(
+      _updateController.addError(
           RepositoryException("Failed to get category: $e", runtimeType));
       return null;
     }
@@ -79,30 +61,18 @@ class CategoryRepository extends Repository<Category> {
     GetFilter? filter,
   }) async {
     try {
-      if (_cache.isNotEmpty) {
-        _categoriesController.sink.add(_cache.toList());
-        return _cache.toList();
-      }
-
-      const String querry = '''
-      SELECT 
-        $idColumn,
-        $categoryNameColumn,
-        $categoryIconColumn
-      FROM $tableName
-      ''';
-
-      final List<Map<String, Object?>> list = await db.rawQuery(querry);
-
-      final List<Category> categories = list.cv<Category>();
-
-      _cache.addAll(categories);
-
-      _categoriesController.sink.add(_cache.toList());
+      final List<Category> categories = (await db.query(
+        tableName,
+        where: filter?.where,
+        whereArgs: filter?.whereArgs,
+        limit: limit,
+        offset: offset,
+      ))
+          .cv<Category>();
 
       return categories;
     } catch (e) {
-      _categoriesController.addError(
+      _updateController.addError(
         RepositoryException("Failed to get categories: $e", runtimeType),
       );
       return <Category>[];
@@ -113,24 +83,24 @@ class CategoryRepository extends Repository<Category> {
   Future<Category> save(Category value) async {
     try {
       if (value.id.value == null) {
-        final int id = await db.insert(tableName, value.toMap());
-
-        value.id.value = id;
-        _cache.add(value);
+        value.id.value = await db.insert(
+          tableName,
+          value.toMap(),
+        );
       } else {
-        await db.update(tableName, value.toMap(),
-            where: '$idColumn = ?', whereArgs: [value.id.value]);
-
-        _cache.removeWhere(
-            (Category categeory) => categeory.id.value == value.id.value);
-        _cache.add(value);
+        await db.update(
+          tableName,
+          value.toMap(),
+          where: '$idColumn = ?',
+          whereArgs: [value.id.value],
+        );
       }
 
-      _categoriesController.add(_cache.toList());
+      _notifyListeners();
 
       return value;
     } catch (e) {
-      _categoriesController.addError(
+      _updateController.addError(
         RepositoryException("Failed to save category: $e", runtimeType),
       );
       return Category();
@@ -144,7 +114,10 @@ class CategoryRepository extends Repository<Category> {
     try {
       for (final Category category in values) {
         if (category.id.value == null) {
-          batch.insert(tableName, category.toMap());
+          batch.insert(
+            tableName,
+            category.toMap(),
+          );
         } else {
           batch.update(
             tableName,
@@ -161,23 +134,18 @@ class CategoryRepository extends Repository<Category> {
         final Category category = values[index];
         final int? resultItem = result[index] as int?;
 
-        if (category.id.value == null) {
-          category.id.value = resultItem;
-          _cache.add(category);
-        } else {
-          _cache.removeWhere(
-              (Category categeory) => categeory.id.value == category.id.value);
-          _cache.add(category);
-        }
+        category.id.value ??= resultItem;
       }
 
-      _categoriesController.sink.add(_cache.toList());
+      _notifyListeners();
 
       return values;
     } catch (e) {
-      _categoriesController.addError(
+      _updateController.addError(
         RepositoryException(
-            "Failed to save all the categories: $e", runtimeType),
+          "Failed to save all the categories: $e",
+          runtimeType,
+        ),
       );
       return <Category>[];
     }
@@ -192,18 +160,17 @@ class CategoryRepository extends Repository<Category> {
         whereArgs: [value.id.value],
       );
 
-      _cache.remove(value);
-      _categoriesController.sink.add(_cache.toList());
+      _notifyListeners();
+
       return result;
     } catch (e) {
-      _categoriesController.addError(
+      _updateController.addError(
         RepositoryException("Failed to delete category: $e", runtimeType),
       );
       return 0;
     }
   }
 
-  Future<void> dispose() async {
-    await _categoriesController.close();
-  }
+  Future dispose() async => _updateController.close();
+  void _notifyListeners() => _updateController.sink.add(true);
 }

@@ -4,8 +4,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:cifra_app/repositories/categories/repository.dart';
-import 'package:cifra_app/repositories/expences/repository.dart';
-import 'package:cifra_app/repositories/incomes/repository.dart';
+import 'package:cifra_app/repositories/transactions/repository.dart';
 
 class RepositoriesProvider extends StatefulWidget {
   const RepositoriesProvider(
@@ -21,14 +20,12 @@ class RepositoriesProvider extends StatefulWidget {
 class _RepositoryProviderState extends State<RepositoriesProvider> {
   CategoryRepository? _categoryRepository;
 
-  IncomeRepository? _incomeRepository;
-  ExpenceRepository? _expenceRepository;
+  TransactionRepository? _transactionRepository;
 
   @override
   void dispose() {
     _categoryRepository?.dispose();
-    _incomeRepository?.dispose();
-    _expenceRepository?.dispose();
+    _transactionRepository?.dispose();
 
     super.dispose();
   }
@@ -42,16 +39,10 @@ class _RepositoryProviderState extends State<RepositoriesProvider> {
               return _categoryRepository!;
             },
           ),
-          RepositoryProvider<IncomeRepository>(
+          RepositoryProvider<TransactionRepository>(
             create: (context) {
-              _incomeRepository = IncomeRepository(db: widget.db);
-              return _incomeRepository!;
-            },
-          ),
-          RepositoryProvider<ExpenceRepository>(
-            create: (context) {
-              _expenceRepository = ExpenceRepository(db: widget.db);
-              return _expenceRepository!;
+              _transactionRepository = TransactionRepository(db: widget.db);
+              return _transactionRepository!;
             },
           ),
         ],

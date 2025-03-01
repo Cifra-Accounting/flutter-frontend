@@ -8,15 +8,13 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:cifra_app/repositories/categories/models/category.dart';
 import 'package:cifra_app/repositories/categories/repository.dart';
-import 'package:cifra_app/repositories/expences/models/expence.dart';
-import 'package:cifra_app/repositories/expences/repository.dart';
-import 'package:cifra_app/repositories/incomes/models/income.dart';
-import 'package:cifra_app/repositories/incomes/repository.dart';
+import 'package:cifra_app/repositories/transactions/models/transaction.dart'
+    as models;
+import 'package:cifra_app/repositories/transactions/repository.dart';
 
 Future<Database> initialize({required String dbName}) async {
-  cvAddConstructor<Income>(Income.new);
+  cvAddConstructor<models.Transaction>(models.Transaction.new);
   cvAddConstructor<Category>(Category.new);
-  cvAddConstructor<Expence>(Expence.new);
 
   sqfliteFfiInit();
 
@@ -32,11 +30,8 @@ Future<Database> initialize({required String dbName}) async {
         onCreate: (db, version) async {
           await db.execute(CategoryRepository.createQuery);
 
-          await db.execute(ExpenceRepository.createQuery);
-          await db.execute(ExpenceRepository.indexQuery);
-
-          await db.execute(IncomeRepository.createQuery);
-          await db.execute(IncomeRepository.indexQuery);
+          await db.execute(TransactionRepository.createQuery);
+          await db.execute(TransactionRepository.indexQuery);
         },
       ));
 
@@ -44,9 +39,8 @@ Future<Database> initialize({required String dbName}) async {
 }
 
 Future<Database> testInitialize() async {
-  cvAddConstructor<Income>(Income.new);
+  cvAddConstructor<models.Transaction>(models.Transaction.new);
   cvAddConstructor<Category>(Category.new);
-  cvAddConstructor<Expence>(Expence.new);
 
   sqfliteFfiInit();
 
@@ -60,11 +54,8 @@ Future<Database> testInitialize() async {
             onCreate: (db, version) async {
               await db.execute(CategoryRepository.createQuery);
 
-              await db.execute(ExpenceRepository.createQuery);
-              await db.execute(ExpenceRepository.indexQuery);
-
-              await db.execute(IncomeRepository.createQuery);
-              await db.execute(IncomeRepository.indexQuery);
+              await db.execute(TransactionRepository.createQuery);
+              await db.execute(TransactionRepository.indexQuery);
             },
           ));
 

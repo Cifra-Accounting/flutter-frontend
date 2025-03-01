@@ -3,6 +3,7 @@ const int kDbVersion = 1;
 
 const String idColumn = "_id";
 const String titleColumn = "title";
+const String typeColumn = "type";
 const String categoryIdColumn = "category_id";
 const String amountColumn = "amount";
 const String currencyColumn = "currency";

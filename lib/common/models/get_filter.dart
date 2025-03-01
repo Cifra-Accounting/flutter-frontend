@@ -5,6 +5,14 @@ abstract class GetFilter {
 
   /// The raw SQL WHERE clause
   /// override to define what filter will do
+  /// doesn't include 'WHERE' statement
+  ///
+  /// [whereRaw] = '$idColuumn = ? and $dateColumn like "%d.%m.%m"'
+  ///
+  /// and
+  ///
+  /// [where] = 'WHERE $[whereRaw]'
+  ///
   String get whereRaw =>
       throw (UnimplementedError("Extending classes should implement this"));
 
