@@ -41,6 +41,17 @@ class Money {
         amountInSmallestUnits: amountInSmallestUnits ?? _amountInSmallestUnits,
       );
 
+  Money operator +(Object other) {
+    if (other is Money && currency == other.currency) {
+      return Money(
+        currency: currency,
+        amountInSmallestUnits:
+            _amountInSmallestUnits + other._amountInSmallestUnits,
+      );
+    }
+    throw TypeError();
+  }
+
   @override
   String toString() => formattedAmount;
 
