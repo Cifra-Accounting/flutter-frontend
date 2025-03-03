@@ -14,7 +14,8 @@ class UserRepository {
   void save(User user) async {
     await Future.wait([
       _prefs.setString(languageColumn, user.language ?? ''),
-      _prefs.setString(currencyColumn, user.currency?.name ?? '')
+      _prefs.setString(currencyColumn, user.currency?.name ?? ''),
+      _prefs.setInt(dailyLimitColumn, user.dailyLimit ?? 0),
     ]);
   }
 
@@ -22,6 +23,7 @@ class UserRepository {
     final Map<String, dynamic> map = <String, dynamic>{
       currencyColumn: _prefs.get(currencyColumn),
       languageColumn: _prefs.get(languageColumn),
+      dailyLimitColumn: _prefs.get(dailyLimitColumn),
     };
 
     return User.fromMap(map);
@@ -30,5 +32,6 @@ class UserRepository {
   void reset() async => Future.wait([
         _prefs.remove(currencyColumn),
         _prefs.remove(languageColumn),
+        _prefs.remove(dailyLimitColumn),
       ]);
 }

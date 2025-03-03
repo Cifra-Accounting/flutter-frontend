@@ -14,3 +14,4 @@ const String categoryNameColumn = "name";
 const String categoryIconColumn = "icon";
 
 const String languageColumn = 'language';
+const String dailyLimitColumn = 'dailyLimit';

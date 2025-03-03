@@ -49,6 +49,12 @@ class Money {
             _amountInSmallestUnits + other._amountInSmallestUnits,
       );
     }
+    if (other is num) {
+      return Money(
+        currency: currency,
+        amountInSmallestUnits: _amountInSmallestUnits + other as int,
+      );
+    }
     throw TypeError();
   }
 
