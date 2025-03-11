@@ -1,5 +1,5 @@
-import 'package:cifra_app/repositories/models/db_constants.dart';
 import 'package:cifra_app/repositories/user/models/user.dart';
+import 'package:cifra_app/repositories/user/utils/extensions.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserRepository {
@@ -11,27 +11,16 @@ class UserRepository {
     );
   }
 
-  void save(User user) async {
-    await Future.wait([
-      _prefs.setString(languageColumn, user.language ?? ''),
-      _prefs.setString(currencyColumn, user.currency?.name ?? ''),
-      _prefs.setInt(dailyLimitColumn, user.dailyLimit ?? 0),
-    ]);
-  }
+  Future save(User user) => Future.wait(user.toMap().entries.map<Future>(
+        (MapEntry<String, dynamic> entry) => _prefs.set(entry.key, entry.value),
+      ));
 
-  User get() {
-    final Map<String, dynamic> map = <String, dynamic>{
-      currencyColumn: _prefs.get(currencyColumn),
-      languageColumn: _prefs.get(languageColumn),
-      dailyLimitColumn: _prefs.get(dailyLimitColumn),
-    };
+  User get() =>
+      User.fromMap(Map.fromEntries(User.columns.map<MapEntry<String, dynamic>>(
+        (String columnName) => MapEntry(columnName, _prefs.get(columnName)),
+      )));
 
-    return User.fromMap(map);
-  }
-
-  void reset() async => Future.wait([
-        _prefs.remove(currencyColumn),
-        _prefs.remove(languageColumn),
-        _prefs.remove(dailyLimitColumn),
-      ]);
+  Future reset() => Future.wait(User.columns.map<Future>(
+        (String columnName) => _prefs.remove(columnName),
+      ));
 }
