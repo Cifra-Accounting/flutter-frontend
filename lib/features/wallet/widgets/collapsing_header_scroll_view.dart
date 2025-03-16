@@ -56,54 +56,54 @@ class _CollapsingHeaderScrollViewState
   }
 
   void _animateTo(ScrollController controller, double offset) {
-    Future.delayed(Duration.zero, () {
-      controller.animateTo(
-        offset,
-        duration: Durations.medium2,
-        curve: Curves.easeIn,
-      );
-    });
+    controller.animateTo(
+      offset,
+      duration: Durations.medium2,
+      curve: Curves.easeIn,
+    );
+  }
+
+  bool _scrollNotificationListener(ScrollNotification notification) {
+    //check whether this notification is coming directly
+    //from the scrollable widget or not
+    if (notification.depth > 0) return false;
+
+    //check whether the scroll is vertical or not
+    if (notification.metrics.axis != Axis.vertical) return false;
+
+    if (notification is ScrollEndNotification) {
+      final scrollController = PrimaryScrollController.of(context);
+
+      final double barrier =
+          (_headerSize?.height ?? double.maxFinite) * widget.threshhold;
+
+      //check whether the child is visible or not
+      if (notification.metrics.pixels > (_headerSize?.height ?? 0)) {
+        return false;
+      }
+
+      if (notification.metrics.pixels > barrier) {
+        _animateTo(
+          scrollController,
+          _headerSize!.height + widget.headerPadding,
+        );
+      } else if (notification.metrics.pixels < barrier) {
+        _animateTo(
+          scrollController,
+          scrollController.initialScrollOffset,
+        );
+      }
+      return true;
+    }
+
+    return false;
   }
 
   @override
   Widget build(BuildContext context) => GestureDetector(
         onTapDown: (_) {},
         child: NotificationListener<ScrollNotification>(
-          onNotification: (notification) {
-            //check whether this notification is coming directly
-            //from the scrollable widget or not
-            if (notification.depth > 0) return false;
-
-            //check whether the scroll is vertical or not
-            if (notification.metrics.axis != Axis.vertical) return false;
-
-            if (notification is ScrollEndNotification) {
-              final scrollController = PrimaryScrollController.of(context);
-
-              final double barrier =
-                  (_headerSize?.height ?? double.maxFinite) * widget.threshhold;
-
-              //check whether the child is visible or not
-              if (notification.metrics.pixels > (_headerSize?.height ?? 0)) {
-                return false;
-              }
-
-              if (notification.metrics.pixels > barrier) {
-                _animateTo(
-                  scrollController,
-                  _headerSize!.height + widget.headerPadding,
-                );
-              } else if (notification.metrics.pixels < barrier) {
-                _animateTo(
-                  scrollController,
-                  scrollController.initialScrollOffset,
-                );
-              }
-              return true;
-            }
-
-            return false;
-          },
+          onNotification: _scrollNotificationListener,
           child: CustomScrollView(
             primary: true,
             slivers: [

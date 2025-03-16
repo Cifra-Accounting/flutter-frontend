@@ -32,7 +32,10 @@ class WalletView extends StatelessWidget {
             children: <Widget>[
               SizedBox.square(
                 dimension: 40,
-                child: C1fraIcon(icon: 33553759, color: Colors.black),
+                child: C1fraIcon(
+                  icon: 33553759,
+                  color: Colors.black,
+                ),
               )
             ],
           ),
@@ -47,7 +50,14 @@ class C1fraIcon extends LeafRenderObjectWidget {
     required this.color,
   });
 
+  /// Binary representation of the [icon]
+  ///
+  /// Starting with top-left corner of the icon,
+  /// each next bit after least significant bit represent
+  /// whether the corresponding pixel is drawn or not
   final int icon;
+
+  /// Color assigned to each drawn pixel
   final Color color;
 
   @override
