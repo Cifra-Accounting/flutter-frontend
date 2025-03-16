@@ -1,3 +1,4 @@
+import 'package:cifra_app/common/constants/numeric_constants.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cifra_app/features/wallet/widgets/fading_sliver.dart';
@@ -113,8 +114,14 @@ class _CollapsingHeaderScrollViewState
                 SliverToBoxAdapter(
                   child: SizedBox(height: widget.headerPadding),
                 ),
-              SliverList(
-                delegate: SliverChildListDelegate(widget.children),
+              DecoratedSliver(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(cardBorderRadius),
+                ),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate(widget.children),
+                ),
               ),
             ],
           ),

@@ -16,7 +16,7 @@ class C1fraNavigationBar extends StatelessWidget {
   ///
   /// You are required to provide two icons for the [leading] and [trailing]
   ///
-  /// [onTap] callback - recieves [int index] as its argument, representing which of the two
+  /// [onTap] callback - recieves [index] as its argument, representing which of the two
   /// icons were triggered
   ///
   /// [onPlusTap] callback - triggered onTap on the centered Plus Button
@@ -36,20 +36,15 @@ class C1fraNavigationBar extends StatelessWidget {
   final void Function(int index) onTap;
   final VoidCallback onPlusTap;
 
-  Widget _buttonFromIcon(BuildContext context,
-          {required Icon icon,
-          required int index,
-          required ColorScheme colorScheme}) =>
+  Widget _buttonFromIcon(
+    BuildContext context, {
+    required Icon icon,
+    required int index,
+    required ColorScheme colorScheme,
+  }) =>
       Center(
         child: IconButton(
-          onPressed: () {
-            if (index == this.index) {
-              PrimaryScrollController.of(context).animateTo(0.0,
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.bounceIn);
-            }
-            onTap(index);
-          },
+          onPressed: () => _onButtonTap(context, index),
           icon: icon,
           color: index == this.index
               ? colorScheme.onSurface
@@ -57,9 +52,22 @@ class C1fraNavigationBar extends StatelessWidget {
         ),
       );
 
+  void _onButtonTap(BuildContext context, int index) {
+    if (index == this.index) {
+      PrimaryScrollController.of(context).animateTo(
+        0.0,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.bounceIn,
+      );
+      return;
+    }
+    onTap(index);
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.sizeOf(context);
+    // padding to avoid system overlay
     final double additionalBottomPadding =
         MediaQuery.viewPaddingOf(context).bottom;
 
@@ -74,11 +82,12 @@ class C1fraNavigationBar extends StatelessWidget {
         systemNavigationBarColor: colorScheme.secondary.withValues(alpha: 0.8),
       ),
       child: Stack(
+        fit: StackFit.passthrough,
         alignment: Alignment.bottomCenter,
         children: <Widget>[
           IgnorePointer(
             child: Container(
-              height: navBarHeight * 2,
+              height: 20 + additionalBottomPadding + plusButtonSize,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: <Color>[
@@ -99,11 +108,10 @@ class C1fraNavigationBar extends StatelessWidget {
               height: navBarHeight + additionalBottomPadding,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
                   SizedBox(
                     width: halfNavBarSize,
-                    height: navBarHeight,
                     child: _buttonFromIcon(
                       context,
                       icon: leading,
@@ -113,7 +121,6 @@ class C1fraNavigationBar extends StatelessWidget {
                   ),
                   SizedBox(
                     width: halfNavBarSize,
-                    height: navBarHeight,
                     child: _buttonFromIcon(
                       context,
                       icon: trailing,

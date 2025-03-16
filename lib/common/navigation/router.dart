@@ -13,7 +13,9 @@ final GoRouter router = GoRouter(
       ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(
       content: Text(
-        kDebugMode ? 'Что-то пошло не так' : router.state.error!.message,
+        kDebugMode
+            ? state.error?.message ?? 'Что-то пошло не так'
+            : 'Что-то пошло не так',
       ),
       showCloseIcon: true,
       behavior: SnackBarBehavior.floating,
@@ -26,7 +28,7 @@ final GoRouter router = GoRouter(
       builder: (context, state, navigationShell) =>
           HomeView(navigationShell: navigationShell),
       redirect: (context, state) =>
-          !context.read<UserRepository>().get().isIntroduced ? null : null,
+          context.read<UserRepository>().get().isIntroduced ? null : null,
       branches: <StatefulShellBranch>[
         StatefulShellBranch(
           routes: <RouteBase>[
