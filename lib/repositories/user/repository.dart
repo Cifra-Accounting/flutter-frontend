@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class UserRepository {
   late final SharedPreferencesWithCache _prefs;
 
-  void init() async {
+  Future init() async {
     _prefs = await SharedPreferencesWithCache.create(
       cacheOptions: SharedPreferencesWithCacheOptions(allowList: User.columns),
     );

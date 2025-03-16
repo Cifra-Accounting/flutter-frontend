@@ -6,20 +6,20 @@ import 'package:cifra_app/common/constants/numeric_constants.dart';
 import 'package:cifra_app/common/icon_pack/c1fra__icons.dart';
 import 'package:flutter/services.dart';
 
-/// Custom C1fra NavigationBar compliant to the C1fra App UiKit
-/// Background color - secondary
-/// PlusButton color - primary
-///
-/// Setting [index] from 0 to 1 changes which of the two icons will be selected
-///
-/// You are required to provide two icons for the [leading] and [trailing]
-///
-/// [onTap] callback - recieves [int index] as its argument, representing which of the two
-/// icons were triggered
-///
-/// [onPlusTap] callback - triggered onTap on the centered Plus Button
 @immutable
 class C1fraNavigationBar extends StatelessWidget {
+  /// Custom C1fra NavigationBar compliant to the C1fra App UiKit
+  /// Background color - secondary
+  /// PlusButton color - primary
+  ///
+  /// Setting [index] from 0 to 1 changes which of the two icons will be selected
+  ///
+  /// You are required to provide two icons for the [leading] and [trailing]
+  ///
+  /// [onTap] callback - recieves [int index] as its argument, representing which of the two
+  /// icons were triggered
+  ///
+  /// [onPlusTap] callback - triggered onTap on the centered Plus Button
   const C1fraNavigationBar({
     super.key,
     required this.index,
@@ -76,16 +76,18 @@ class C1fraNavigationBar extends StatelessWidget {
       child: Stack(
         alignment: Alignment.bottomCenter,
         children: <Widget>[
-          Container(
-            height: navBarHeight * 2,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: <Color>[
-                  Colors.black.withValues(alpha: 0.7),
-                  Colors.transparent
-                ],
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
+          IgnorePointer(
+            child: Container(
+              height: navBarHeight * 2,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: <Color>[
+                    Colors.black.withValues(alpha: 0.7),
+                    Colors.transparent
+                  ],
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                ),
               ),
             ),
           ),

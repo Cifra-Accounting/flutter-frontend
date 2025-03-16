@@ -1,5 +1,10 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
+import 'package:equatable/equatable.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:cifra_app/common/constants/enums.dart';
 import 'package:cifra_app/common/get_filters/datetime_filter.dart';
 import 'package:cifra_app/common/models/money.dart';
@@ -8,9 +13,6 @@ import 'package:cifra_app/features/wallet/domain/bloc/stats_bloc.dart/utils/exte
 import 'package:cifra_app/repositories/transactions/repository.dart';
 import 'package:cifra_app/repositories/user/repository.dart';
 import 'package:cifra_app/repositories/utils/repository_exception.dart';
-import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'event.dart';
 part 'state.dart';
