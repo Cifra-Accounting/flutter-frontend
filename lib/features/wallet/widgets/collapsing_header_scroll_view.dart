@@ -9,7 +9,7 @@ class CollapsingHeaderScrollView extends StatefulWidget {
     required this.headerWidget,
     required this.headerKey,
     this.headerPadding = 0,
-    this.threshhold = .5,
+    this.threshold = .5,
     required this.children,
   });
 
@@ -25,9 +25,9 @@ class CollapsingHeaderScrollView extends StatefulWidget {
   /// before the [children] of the ScrollView
   final double headerPadding;
 
-  /// The threshhold at which the [headerWidget]
+  /// The threshold in percents at which the [headerWidget]
   /// will start collapsing
-  final double threshhold;
+  final double threshold;
 
   /// The children of the ScrollView
   /// coming after the [headerWidget]
@@ -41,6 +41,7 @@ class CollapsingHeaderScrollView extends StatefulWidget {
 class _CollapsingHeaderScrollViewState
     extends State<CollapsingHeaderScrollView> {
   Size? _headerSize;
+  bool _animationEnded = true;
 
   @override
   void initState() {
@@ -56,11 +57,12 @@ class _CollapsingHeaderScrollViewState
   }
 
   void _animateTo(ScrollController controller, double offset) {
-    controller.animateTo(
-      offset,
-      duration: Durations.medium2,
-      curve: Curves.easeIn,
-    );
+    _animationEnded = false;
+    controller
+        .animateTo(offset, duration: Durations.medium2, curve: Curves.easeIn)
+        .then((_) {
+      _animationEnded = true;
+    });
   }
 
   bool _scrollNotificationListener(ScrollNotification notification) {
@@ -71,11 +73,11 @@ class _CollapsingHeaderScrollViewState
     //check whether the scroll is vertical or not
     if (notification.metrics.axis != Axis.vertical) return false;
 
-    if (notification is ScrollEndNotification) {
+    if (notification is ScrollEndNotification && _animationEnded) {
       final scrollController = PrimaryScrollController.of(context);
 
       final double barrier =
-          (_headerSize?.height ?? double.maxFinite) * widget.threshhold;
+          (_headerSize?.height ?? double.maxFinite) * widget.threshold;
 
       //check whether the child is visible or not
       if (notification.metrics.pixels > (_headerSize?.height ?? 0)) {
@@ -100,31 +102,29 @@ class _CollapsingHeaderScrollViewState
   }
 
   @override
-  Widget build(BuildContext context) => GestureDetector(
-        onTapDown: (_) {},
-        child: NotificationListener<ScrollNotification>(
-          onNotification: _scrollNotificationListener,
-          child: CustomScrollView(
-            primary: true,
-            slivers: [
-              FadingSliver(
-                child: widget.headerWidget,
+  Widget build(BuildContext context) =>
+      NotificationListener<ScrollNotification>(
+        onNotification: _scrollNotificationListener,
+        child: CustomScrollView(
+          primary: true,
+          slivers: [
+            FadingSliver(
+              child: widget.headerWidget,
+            ),
+            if (widget.headerPadding > 0)
+              SliverToBoxAdapter(
+                child: SizedBox(height: widget.headerPadding),
               ),
-              if (widget.headerPadding > 0)
-                SliverToBoxAdapter(
-                  child: SizedBox(height: widget.headerPadding),
-                ),
-              DecoratedSliver(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(cardBorderRadius),
-                ),
-                sliver: SliverList(
-                  delegate: SliverChildListDelegate(widget.children),
-                ),
+            DecoratedSliver(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(cardBorderRadius),
               ),
-            ],
-          ),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate(widget.children),
+              ),
+            ),
+          ],
         ),
       );
 }
