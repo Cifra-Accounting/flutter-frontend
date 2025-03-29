@@ -65,6 +65,9 @@ flutter:
     - assets/
 
   fonts:
+    - family: C1fra
+      fonts:
+        - asset: fonts/C1fra-Regular.otf
     - family: Montserrat
       fonts:
         - asset: fonts/Montserrat-VariableFont_wght.ttf

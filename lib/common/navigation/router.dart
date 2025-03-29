@@ -1,7 +1,11 @@
+import 'package:cifra_app/common/constants/enums.dart';
 import 'package:cifra_app/common/navigation/routing_constants.dart';
 import 'package:cifra_app/features/home/views/home_view.dart';
 import 'package:cifra_app/features/stats/views/stats_view.dart';
+import 'package:cifra_app/features/wallet/domain/bloc/history_bloc.dart/bloc.dart';
+import 'package:cifra_app/features/wallet/domain/bloc/stats_bloc.dart/bloc.dart';
 import 'package:cifra_app/features/wallet/views/wallet_view.dart';
+import 'package:cifra_app/repositories/transactions/repository.dart';
 import 'package:cifra_app/repositories/user/repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +38,24 @@ final GoRouter router = GoRouter(
           routes: <RouteBase>[
             GoRoute(
               path: walletPath,
-              builder: (context, state) => WalletView(),
+              builder: (context, state) => MultiBlocProvider(
+                providers: <BlocProvider>[
+                  BlocProvider<HistoryBloc>(
+                    create: (context) => HistoryBloc(
+                      transactionRepository:
+                          context.read<TransactionRepository>(),
+                    ),
+                  ),
+                  BlocProvider<StatsBloc>(
+                    create: (context) => StatsBloc(
+                      transactionRepository:
+                          context.read<TransactionRepository>(),
+                      userRepository: context.read<UserRepository>(),
+                    )..add(PeriodPromptedStatsEvent(period: Periods.day)),
+                  ),
+                ],
+                child: WalletView(),
+              ),
             )
           ],
         ),

@@ -104,8 +104,13 @@ class StatsBloc extends Bloc<StatsEvent, StatsState> {
 
       final Money? outOf = userRepository.get().dailyLimit;
 
-      state.spendings[event.period] = (spent, outOf);
-      emit(state);
+      final MapEntry<Periods, (Money?, Money?)> newEntry =
+          MapEntry(event.period, (spent, outOf));
+
+      Map<Periods, (Money?, Money?)> newSpendings = {}
+        ..addEntries([...state.spendings.entries, newEntry]);
+
+      emit(state.copyWith(spendings: newSpendings));
     }
 
     emit(state);

@@ -134,71 +134,59 @@ class _SpendingsCardState extends State<SpendingsCard>
                 controller: _tabController,
                 children: _periods
                     .map(
-                      (period) => FutureBuilder<double>(
-                        future: Future<double>.delayed(
-                          const Duration(seconds: 5),
-                          () =>
-                              (Periods.values.indexOf(period).toDouble() +
-                                  1.0) /
-                              Periods.values.length,
+                      (period) => Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: horizontalPadding,
                         ),
-                        builder: (context, snapshot) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: horizontalPadding,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: blankSpacerSize * .5,
+                          children: [
+                            Text(
+                              "You already have spent:",
+                              style: _textTheme.titleSmall,
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              spacing: blankSpacerSize * .5,
+                            SpendingsIndicator(
+                              percentage:
+                                  widget.spent != null && widget.outOf != null
+                                      ? widget.spent! / widget.outOf!
+                                      : null,
+                            ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.baseline,
+                              textBaseline: TextBaseline.alphabetic,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
-                                  "You already have spent:",
-                                  style: _textTheme.titleSmall,
-                                ),
-                                SpendingsIndicator(percentage: snapshot.data),
-                                Row(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.baseline,
-                                  textBaseline: TextBaseline.alphabetic,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text.rich(
-                                      overflow: TextOverflow.fade,
+                                Text.rich(
+                                  overflow: TextOverflow.fade,
+                                  TextSpan(
+                                    children: [
                                       TextSpan(
-                                        children: [
-                                          TextSpan(
-                                            text: "\$${widget.spent ?? .0}",
-                                            style: _textTheme.titleLarge,
-                                          ),
-                                          TextSpan(
-                                            text:
-                                                " / ${(widget.outOf ?? .0)} \$  ",
-                                            style:
-                                                _textTheme.titleSmall!.copyWith(
-                                              color: Colors.white
-                                                  .withValues(alpha: .75),
-                                            ),
-                                          ),
-                                        ],
+                                        text: "\$${widget.spent ?? .0}",
+                                        style: _textTheme.titleLarge,
                                       ),
-                                    ),
-                                    Text(
-                                      (widget.spent != null &&
-                                              widget.outOf != null)
-                                          ? "( ${(widget.spent! / widget.outOf!).toInt()}% )"
-                                          : "( 0% )",
-                                      style: _textTheme.titleSmall!.copyWith(
-                                        color:
-                                            Colors.white.withValues(alpha: .75),
+                                      TextSpan(
+                                        text: " / ${(widget.outOf ?? .0)} \$  ",
+                                        style: _textTheme.titleSmall!.copyWith(
+                                          color: Colors.white
+                                              .withValues(alpha: .75),
+                                        ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
+                                ),
+                                Text(
+                                  (widget.spent != null && widget.outOf != null)
+                                      ? "( ${(widget.spent! / widget.outOf!).toInt()}% )"
+                                      : "( 0% )",
+                                  style: _textTheme.titleSmall!.copyWith(
+                                    color: Colors.white.withValues(alpha: .75),
+                                  ),
                                 ),
                               ],
                             ),
-                          );
-                        },
+                          ],
+                        ),
                       ),
                     )
                     .toList(),
