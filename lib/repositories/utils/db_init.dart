@@ -21,19 +21,29 @@ Future<Database> initialize({required String dbName}) async {
   final Directory path = await getApplicationDocumentsDirectory();
   final String dbPath = join(path.path, "databases", dbName);
 
-  final Database db = await databaseFactoryFfi.openDatabase(dbPath,
-      options: OpenDatabaseOptions(
-        version: kDbVersion,
-        onConfigure: (db) async {
-          await db.execute('PRAGMA foreign_keys = ON');
-        },
-        onCreate: (db, version) async {
-          await db.execute(CategoryRepository.createQuery);
+  final Database db = await databaseFactoryFfi.openDatabase(
+    dbPath,
+    options: OpenDatabaseOptions(
+      version: kDbVersion,
+      onConfigure: (db) async {
+        await db.execute('PRAGMA foreign_keys = ON');
+      },
+      onCreate: (db, version) async {
+        await db.execute(CategoryRepository.createQuery);
 
+        await db.execute(TransactionRepository.createQuery);
+        await db.execute(TransactionRepository.indexQuery);
+      },
+      onUpgrade: (db, oldVersion, newVersion) async {
+        if (newVersion == 2) {
           await db.execute(TransactionRepository.createQuery);
           await db.execute(TransactionRepository.indexQuery);
-        },
-      ));
+          await db.delete('incomes');
+          await db.delete('expences');
+        }
+      },
+    ),
+  );
 
   return db;
 }

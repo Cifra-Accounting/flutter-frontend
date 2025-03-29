@@ -8,10 +8,9 @@ class HistoryState extends Equatable {
     required this.history,
     int limit = 20,
     int offset = 0,
-    bool reachedEnd = false,
+    this.reachedEnd = false,
   })  : _currentLimit = limit,
-        _currentOffset = offset,
-        _reachedEnd = reachedEnd;
+        _currentOffset = offset;
 
   final List<Transaction> history;
   final Set<GetFilter> currentFilters;
@@ -19,7 +18,7 @@ class HistoryState extends Equatable {
 
   final int _currentLimit;
   final int _currentOffset;
-  final bool _reachedEnd;
+  final bool reachedEnd;
 
   GetFilter? get currentFilter {
     if (currentFilters.isNotEmpty) {
@@ -34,7 +33,7 @@ class HistoryState extends Equatable {
         desc = true,
         _currentLimit = 20,
         _currentOffset = 0,
-        _reachedEnd = false;
+        reachedEnd = false;
 
   HistoryState copyWith({
     List<Transaction>? history,
@@ -50,7 +49,7 @@ class HistoryState extends Equatable {
         desc: desc ?? this.desc,
         limit: limit ?? _currentLimit,
         offset: offset ?? _currentOffset,
-        reachedEnd: reachedEnd ?? _reachedEnd,
+        reachedEnd: reachedEnd ?? this.reachedEnd,
       );
 
   HistoryState resetHistory() => HistoryState(
@@ -64,7 +63,7 @@ class HistoryState extends Equatable {
         desc,
         _currentLimit,
         _currentOffset,
-        _reachedEnd,
+        reachedEnd,
         ...currentFilters,
         ...history,
       ];

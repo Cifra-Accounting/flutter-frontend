@@ -243,5 +243,7 @@ class TransactionRepository implements Repository<models.Transaction> {
 
   Future dispose() async => _updateController.close();
 
-  void _notifyListeners() => _updateController.sink.add(true);
+  void _notifyListeners() {
+    _updateController.sink.add(true);
+  }
 }

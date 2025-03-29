@@ -1,5 +1,5 @@
 const String dbName = "cifra.db";
-const int kDbVersion = 1;
+const int kDbVersion = 2;
 
 const String idColumn = "_id";
 const String titleColumn = "title";

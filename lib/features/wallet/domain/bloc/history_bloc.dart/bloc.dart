@@ -107,15 +107,15 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
     HitBottomHistoryEvent event,
     Emitter<HistoryState> emit,
   ) async {
-    final List<Transaction> history = state.history
-      ..addAll(
-        await transactionRepository.getList(
-          offset: state._currentOffset,
-          limit: state._currentLimit,
-          desc: state.desc,
-          filter: state.currentFilter,
-        ),
-      );
+    final List<Transaction> history = [
+      ...await transactionRepository.getList(
+        offset: state._currentOffset,
+        limit: state._currentLimit,
+        desc: state.desc,
+        filter: state.currentFilter,
+      ),
+      ...state.history,
+    ];
 
     final int currentOffset = state._currentOffset + state._currentLimit;
 
