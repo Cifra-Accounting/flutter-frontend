@@ -57,7 +57,7 @@ class C1fraNavigationBar extends StatelessWidget {
       PrimaryScrollController.of(context).animateTo(
         0.0,
         duration: const Duration(milliseconds: 200),
-        curve: Curves.bounceIn,
+        curve: Curves.easeIn,
       );
       return;
     }

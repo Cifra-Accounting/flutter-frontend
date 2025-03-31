@@ -75,4 +75,4 @@ flutter:
           style: italic
     - family: C1fra_Icons
       fonts:
-        - asset: fonts/C1fra_Icons.ttf
+        - asset: fonts/C1fra-Icons.ttf

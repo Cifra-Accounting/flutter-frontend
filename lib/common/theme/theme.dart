@@ -26,5 +26,25 @@ ThemeData theme = ThemeData(
       fontWeight: FontWeight.w800,
       color: Color(0xFFFFFFFF),
     ),
+    labelLarge: TextStyle(
+      fontFamily: "C1fra",
+      fontSize: 50,
+      height: 0.7,
+      color: Color(0xFFFFFFFF),
+    ),
+    labelMedium: TextStyle(
+      fontFamily: "Montserrat",
+      fontSize: 25,
+      height: 0.7,
+      fontWeight: FontWeight.w900,
+      color: Color(0xFFFFFFFF),
+    ),
+    labelSmall: TextStyle(
+      fontFamily: "Montserrat",
+      fontSize: 15,
+      height: 0.7,
+      fontWeight: FontWeight.w800,
+      color: Color(0xB3FFFFFF),
+    ),
   ),
 );

@@ -35,7 +35,7 @@ Future<Database> initialize({required String dbName}) async {
         await db.execute(TransactionRepository.indexQuery);
       },
       onUpgrade: (db, oldVersion, newVersion) async {
-        if (newVersion == 2) {
+        if (newVersion == 2 && oldVersion == 1) {
           await db.execute(TransactionRepository.createQuery);
           await db.execute(TransactionRepository.indexQuery);
           await db.delete('incomes');

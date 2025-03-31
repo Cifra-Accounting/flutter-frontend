@@ -72,10 +72,10 @@ class _SwipableRenderObject extends RenderBox
 
   Ticker? _ticker;
 
-  late final AnimationController _controller;
-  late final Animation _animation;
+  AnimationController? _controller;
+  Animation? _animation;
 
-  late final HorizontalDragGestureRecognizer _recognizer;
+  HorizontalDragGestureRecognizer? _recognizer;
 
   final LayerHandle<ClipRRectLayer> _clipRRectLayer =
       LayerHandle<ClipRRectLayer>();
@@ -89,11 +89,11 @@ class _SwipableRenderObject extends RenderBox
       duration: Durations.medium1,
     );
 
-    _animation = _controller.drive(
+    _animation = _controller?.drive(
       Tween(begin: 1.0, end: 0.0).chain(
         CurveTween(curve: Curves.easeIn),
       ),
-    )..addListener(_animationListener);
+    )?..addListener(_animationListener);
 
     _recognizer = HorizontalDragGestureRecognizer()
       ..onStart = _handleDragStart
@@ -102,14 +102,14 @@ class _SwipableRenderObject extends RenderBox
   }
 
   void _animationListener() {
-    _offset *= _animation.value;
+    _offset *= _animation?.value;
 
     layoutChildren();
     markNeedsPaint();
   }
 
   void _handleDragStart(DragStartDetails detailts) {
-    _controller.reset();
+    _controller?.reset();
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
@@ -124,14 +124,14 @@ class _SwipableRenderObject extends RenderBox
   void _handleDragEnd(DragEndDetails details) {
     if (_offset.abs() > size.width * threshold) onSwiped.call(key);
 
-    _controller.forward();
+    _controller?.forward();
   }
 
   @override
   void detach() {
-    _animation.removeListener(_animationListener);
-    _controller.dispose();
-    _recognizer.dispose();
+    _animation?.removeListener(_animationListener);
+    _controller?.dispose();
+    _recognizer?.dispose();
 
     super.detach();
   }
@@ -183,7 +183,7 @@ class _SwipableRenderObject extends RenderBox
     covariant HitTestEntry<HitTestTarget> entry,
   ) {
     if (entry.target == this && event is PointerDownEvent) {
-      _recognizer.addPointer(event);
+      _recognizer?.addPointer(event);
     }
   }
 
