@@ -17,7 +17,7 @@ ThemeData theme = ThemeData(
     titleLarge: TextStyle(
       fontFamily: "Montserrat",
       fontSize: 40,
-      fontWeight: FontWeight.w800,
+      fontWeight: FontWeight.w900,
       color: Color(0xFFFFFFFF),
     ),
     titleSmall: TextStyle(

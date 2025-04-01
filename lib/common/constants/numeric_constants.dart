@@ -20,3 +20,6 @@ const double horizontalPadding = 25;
 const double topPadding = 25;
 
 const double blankSpacerSize = 10;
+
+const int arrowDown = 4674692;
+const int arrowUp = 1086833;
