@@ -1,4 +1,4 @@
-import 'package:cifra_app/repositories/models/db_constants.dart';
+import 'package:cifra_app/repositories/utils/db_constants.dart';
 
 import 'dart:math';
 

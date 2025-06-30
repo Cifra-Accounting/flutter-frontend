@@ -117,9 +117,5 @@ class StatsBloc extends Bloc<StatsEvent, StatsState> {
   }
 
   @override
-  Future<void> close() {
-    updateSub.cancel();
-
-    return super.close();
-  }
+  Future<void> close() => Future.wait([updateSub.cancel(), super.close()]);
 }

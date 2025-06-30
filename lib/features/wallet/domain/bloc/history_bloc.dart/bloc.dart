@@ -119,19 +119,11 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
 
     final int currentOffset = state._currentOffset + state._currentLimit;
 
-    if (history.isNotEmpty) {
-      emit(state.copyWith(
-        history: history,
-        offset: currentOffset,
-        reachedEnd: false,
-      ));
-    } else {
-      emit(state.copyWith(
-        history: history,
-        offset: currentOffset,
-        reachedEnd: true,
-      ));
-    }
+    emit(state.copyWith(
+      history: history,
+      offset: currentOffset,
+      reachedEnd: history.length == state.history.length,
+    ));
   }
 
   /// Checks whether [state] already has filter of the same type

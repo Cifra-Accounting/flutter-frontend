@@ -1,3 +1,4 @@
+import 'package:cifra_app/common/models/money.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cifra_app/common/constants/enums.dart';
@@ -14,8 +15,8 @@ class SpendingsCard extends StatefulWidget {
     required this.onChanged,
   });
 
-  final double? spent;
-  final double? outOf;
+  final Money? spent;
+  final Money? outOf;
 
   final void Function(Periods) onChanged;
 
@@ -58,8 +59,9 @@ class _SpendingsCardState extends State<SpendingsCard>
     _colorScheme = theme.colorScheme;
 
     _viewPortHeight = _indicatorSize().height +
-        _textSize("You have already spent", _textTheme.titleSmall!).height +
-        _textSize("\$${(widget.spent ?? 0.0)}", _textTheme.titleLarge!).height +
+        _textSize("You have already spent", _textTheme.displaySmall!).height +
+        _textSize(widget.spent?.toString() ?? "\$0.0", _textTheme.displayLarge!)
+            .height +
         blankSpacerSize;
 
     super.didChangeDependencies();
@@ -74,9 +76,7 @@ class _SpendingsCardState extends State<SpendingsCard>
     super.dispose();
   }
 
-  void _tabListener() {
-    widget.onChanged(_periods[_tabController.index]);
-  }
+  void _tabListener() => widget.onChanged(_periods[_tabController.index]);
 
   Size _textSize(String text, TextStyle style) {
     final TextPainter textPainter = TextPainter(
@@ -98,7 +98,7 @@ class _SpendingsCardState extends State<SpendingsCard>
   @override
   Widget build(BuildContext context) => Container(
         decoration: BoxDecoration(
-          color: _colorScheme.primary,
+          color: _colorScheme.primaryContainer,
           borderRadius: BorderRadius.circular(cardBorderRadius),
         ),
         padding: const EdgeInsets.symmetric(vertical: cardVerticalPadding),
@@ -144,13 +144,13 @@ class _SpendingsCardState extends State<SpendingsCard>
                           children: [
                             Text(
                               "You already have spent:",
-                              style: _textTheme.titleSmall,
+                              style: _textTheme.displaySmall,
                             ),
                             SpendingsIndicator(
-                              percentage:
-                                  widget.spent != null && widget.outOf != null
-                                      ? widget.spent! / widget.outOf!
-                                      : null,
+                              percentage: (widget.spent != null &&
+                                      widget.outOf != null)
+                                  ? widget.spent!.amount / widget.outOf!.amount
+                                  : null,
                             ),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -162,12 +162,15 @@ class _SpendingsCardState extends State<SpendingsCard>
                                   TextSpan(
                                     children: [
                                       TextSpan(
-                                        text: "\$${widget.spent ?? .0}",
-                                        style: _textTheme.titleLarge,
+                                        text:
+                                            widget.spent?.toString() ?? "\$0.0",
+                                        style: _textTheme.displayLarge,
                                       ),
                                       TextSpan(
-                                        text: " / ${(widget.outOf ?? .0)} \$  ",
-                                        style: _textTheme.titleSmall!.copyWith(
+                                        text:
+                                            " / ${widget.outOf?.toString() ?? "\$0.0"}  ",
+                                        style:
+                                            _textTheme.displaySmall!.copyWith(
                                           color: Colors.white
                                               .withValues(alpha: .75),
                                         ),
@@ -177,9 +180,9 @@ class _SpendingsCardState extends State<SpendingsCard>
                                 ),
                                 Text(
                                   (widget.spent != null && widget.outOf != null)
-                                      ? "( ${(widget.spent! / widget.outOf!).toInt()}% )"
+                                      ? "( ${(widget.spent!.amount / widget.outOf!.amount).toInt()}% )"
                                       : "( 0% )",
-                                  style: _textTheme.titleSmall!.copyWith(
+                                  style: _textTheme.displaySmall!.copyWith(
                                     color: Colors.white.withValues(alpha: .75),
                                   ),
                                 ),

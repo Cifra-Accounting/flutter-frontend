@@ -178,6 +178,28 @@ class _SwipableRenderObject extends RenderBox
   bool hitTestSelf(Offset position) => size.contains(position);
 
   @override
+  bool hitTestChildren(BoxHitTestResult result, {required Offset position}) {
+    RenderBox? child = lastChild;
+
+    while (child != null) {
+      SwipableParentData? parentData = child.parentData as SwipableParentData?;
+
+      if (child.size.contains(position)) {
+        return result.addWithPaintOffset(
+          offset: Offset(_offset, 0.0),
+          position: position,
+          hitTest: (result, position) =>
+              child!.hitTest(result, position: position),
+        );
+      }
+
+      child = parentData?.previousSibling;
+    }
+
+    return false;
+  }
+
+  @override
   void handleEvent(
     PointerEvent event,
     covariant HitTestEntry<HitTestTarget> entry,

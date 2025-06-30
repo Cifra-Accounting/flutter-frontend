@@ -1,5 +1,5 @@
 import 'package:cifra_app/repositories/categories/models/category.dart';
-import 'package:cifra_app/repositories/models/db_constants.dart';
+import 'package:cifra_app/repositories/utils/db_constants.dart';
 import 'package:cv/cv.dart';
 import 'package:flutter_test/flutter_test.dart';
 

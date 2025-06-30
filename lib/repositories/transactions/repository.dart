@@ -1,14 +1,14 @@
 import 'dart:async';
 
 import 'package:cv/cv.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite/sqflite.dart';
 
 import 'package:cifra_app/repositories/categories/repository.dart';
 import 'package:cifra_app/common/models/get_filter.dart';
 import 'package:cifra_app/repositories/transactions/models/transaction.dart'
     as models;
 
-import 'package:cifra_app/repositories/models/db_constants.dart';
+import 'package:cifra_app/repositories/utils/db_constants.dart';
 import 'package:cifra_app/repositories/models/repository.dart';
 import 'package:cifra_app/repositories/utils/repository_exception.dart';
 

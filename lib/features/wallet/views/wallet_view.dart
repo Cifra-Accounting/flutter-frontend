@@ -24,7 +24,20 @@ class WalletView extends StatefulWidget {
 class _WalletViewState extends State<WalletView> {
   final GlobalKey _spendingsCardKey = const GlobalObjectKey('spendingsCard');
 
-  Periods _currentPeriod = Periods.day;
+  late ColorScheme colorScheme;
+  late TextTheme textTheme;
+
+  @override
+  void didChangeDependencies() {
+    final ThemeData theme = Theme.of(context);
+
+    colorScheme = theme.colorScheme;
+    textTheme = theme.textTheme;
+
+    super.didChangeDependencies();
+  }
+
+  Periods _currentPeriod = Periods.values.first;
 
   List<Widget> _mappedTransactions(
     BuildContext context,
@@ -37,26 +50,22 @@ class _WalletViewState extends State<WalletView> {
       if (previous == null ||
           previous.date.value?.day != transaction.date.value?.day) {
         result.add(
-          Container(
-            color: Colors.black,
-            width: double.infinity,
-            margin: EdgeInsets.only(bottom: blankSpacerSize),
+          Padding(
+            padding: const EdgeInsets.only(bottom: blankSpacerSize),
             child: Text(
               "${transaction.date.valueOrThrow.day}.${transaction.date.valueOrThrow.month}.${transaction.date.valueOrThrow.year}",
-              style: Theme.of(context)
-                  .textTheme
-                  .labelLarge
-                  ?.copyWith(fontSize: 30),
+              style: textTheme.labelLarge?.copyWith(fontSize: 30),
             ),
           ),
         );
       }
       result.add(
-        C1fraCard(
+        C1fraListTile(
           key: ValueKey(transaction.id.valueOrThrow),
           transaction: transaction,
           outOf: context.read<UserRepository>().get().dailyLimit?.amount,
           onSwiped: (key) {},
+          onTap: (key) => onCardTap(context, key),
         ),
       );
 
@@ -65,6 +74,17 @@ class _WalletViewState extends State<WalletView> {
 
     return result;
   }
+
+  void onCardTap(BuildContext context, Key key) => showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.transparent,
+        builder: (cxt) => DetailsModalSheet(
+            transaction: context.read<HistoryBloc>().state.history.firstWhere(
+                  (Transaction transacion) =>
+                      transacion.id.valueOrThrow == (key as ValueKey).value,
+                )),
+        useRootNavigator: true,
+      );
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -89,8 +109,8 @@ class _WalletViewState extends State<WalletView> {
                     child: BlocBuilder<StatsBloc, StatsState>(
                       builder: (context, state) => SpendingsCard(
                         key: _spendingsCardKey,
-                        spent: state.spendings[_currentPeriod]?.$1?.amount,
-                        outOf: state.spendings[_currentPeriod]?.$2?.amount,
+                        spent: state.spendings[_currentPeriod]?.$1,
+                        outOf: state.spendings[_currentPeriod]?.$2,
                         onChanged: (period) {
                           context
                               .read<StatsBloc>()
@@ -109,7 +129,7 @@ class _WalletViewState extends State<WalletView> {
                   ),
                   DecoratedSliver(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: colorScheme.surface,
                       borderRadius: BorderRadius.circular(cardBorderRadius),
                     ),
                     sliver: SliverPadding(
@@ -117,20 +137,16 @@ class _WalletViewState extends State<WalletView> {
                       sliver: SliverList(
                         delegate: SliverChildListDelegate(
                           <Widget>[
-                            Container(
-                              color: Colors.black,
-                              width: double.infinity,
-                              child: Text(
-                                'HISTORY',
-                                style: Theme.of(context).textTheme.labelLarge,
-                              ),
+                            Text(
+                              'HISTORY',
+                              style: textTheme.labelLarge,
                             ),
                             SizedBox(
                               height: 40,
                               child: Divider(
                                 thickness: 2.0,
                                 height: 0.0,
-                                color: Colors.black,
+                                color: colorScheme.onSurface,
                               ),
                             ),
                             ..._mappedTransactions(context, state.history),
@@ -152,111 +168,162 @@ class _WalletViewState extends State<WalletView> {
       );
 }
 
-class C1fraCard extends StatelessWidget {
-  const C1fraCard({
+class C1fraListTile extends StatelessWidget {
+  const C1fraListTile({
     required super.key,
     required this.transaction,
     this.outOf,
     required this.onSwiped,
+    required this.onTap,
   });
 
   final Transaction transaction;
   final double? outOf;
   final void Function(Key key) onSwiped;
+  final void Function(Key key) onTap;
 
   @override
-  Widget build(BuildContext context) => Container(
-        height: 56,
-        margin: EdgeInsets.only(bottom: blankSpacerSize),
-        child: Swipable(
-          key: key,
-          onSwiped: onSwiped,
-          spacing: blankSpacerSize,
-          swiped: Container(
-            color: Colors.red,
-            alignment: Alignment.center,
-            padding: const EdgeInsets.all(5.0),
-            child: Icon(Icons.stop_circle),
+  Widget build(BuildContext context) {
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+    final TextTheme textTheme = Theme.of(context).textTheme;
+
+    return Container(
+      height: 63,
+      margin: EdgeInsets.only(bottom: blankSpacerSize),
+      child: Swipable(
+        key: key,
+        onSwiped: onSwiped,
+        spacing: blankSpacerSize,
+        borderRadius: BorderRadius.circular(10),
+        swiped: Container(
+          decoration: BoxDecoration(
+            color: colorScheme.error,
+            borderRadius: BorderRadius.circular(10),
           ),
-          child: Container(
-            color: Colors.black,
-            padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: 10,
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(5.0),
+          child: Icon(
+            Icons.stop_circle,
+            color: colorScheme.onError,
+          ),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: Material(
+            color: colorScheme.surfaceContainerHigh,
+            child: InkWell(
+              onTap: () => onTap(key!),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 10,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    SizedBox(
-                      height: 30,
-                      child: C1fraIcon(
-                        icon: 33553759,
-                        color: Colors.white,
-                      ),
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      textBaseline: TextBaseline.ideographic,
-                      spacing: 7.0,
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 10,
                       children: <Widget>[
-                        Text(
-                          transaction.title.valueOrThrow,
-                          style: Theme.of(context).textTheme.labelMedium,
+                        SizedBox(
+                          height: 30,
+                          child: C1fraIcon(
+                            icon: 33553759,
+                            color: colorScheme.inverseSurface,
+                          ),
                         ),
-                        Text(
-                          transaction.description.value ?? '',
-                          style: Theme.of(context).textTheme.labelSmall,
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: 7.0,
+                          children: <Widget>[
+                            Text(
+                              transaction.title.valueOrThrow,
+                              style: textTheme.labelMedium,
+                            ),
+                            Text(
+                              transaction.description.value ?? '',
+                              style: textTheme.labelSmall,
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
-                ),
-                IntrinsicWidth(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    spacing: 7.0,
-                    children: <Widget>[
-                      Text(
-                        "${transaction.type.valueOrThrow == TransactionType.income ? "+" : "-"} ${transaction.value.valueOrThrow}",
-                        style: Theme.of(context).textTheme.labelMedium,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    IntrinsicWidth(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        spacing: 7.0,
                         children: <Widget>[
-                          SizedBox(
-                            height: 10,
-                            child: C1fraIcon(
-                              icon: transaction.type.valueOrThrow ==
-                                      TransactionType.income
-                                  ? arrowUp
-                                  : arrowDown,
-                              color: Color(0xB3FFFFFF),
-                            ),
+                          Text(
+                            "${transaction.type.valueOrThrow == TransactionType.income ? "+" : "-"} ${transaction.value.valueOrThrow}",
+                            style: textTheme.labelMedium,
                           ),
                           Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                '${transaction.value.valueOrThrow.amount / (outOf ?? transaction.value.valueOrThrow.amount) * 100}',
-                                style: Theme.of(context).textTheme.labelSmall,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              SizedBox(
+                                height: 10,
+                                child: C1fraIcon(
+                                  icon: transaction.type.valueOrThrow ==
+                                          TransactionType.income
+                                      ? arrowUp
+                                      : arrowDown,
+                                  color: colorScheme.onSurface.withAlpha(179),
+                                ),
                               ),
-                              Icon(
-                                C1fraIcons.percent,
-                                color: Colors.white.withAlpha(179),
-                                size: 10,
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    '${transaction.value.valueOrThrow.amount / (outOf ?? transaction.value.valueOrThrow.amount) * 100}',
+                                    style: textTheme.labelSmall,
+                                  ),
+                                  Icon(
+                                    C1fraIcons.percent,
+                                    color: colorScheme.onSurface.withAlpha(179),
+                                    size: 10,
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
-                )
-              ],
+                    )
+                  ],
+                ),
+              ),
             ),
           ),
         ),
-      );
+      ),
+    );
+  }
+}
+
+class DetailsModalSheet extends StatelessWidget {
+  const DetailsModalSheet({
+    super.key,
+    required this.transaction,
+  });
+
+  final Transaction transaction;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
+    // final TextTheme textTheme = theme.textTheme;
+
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surface,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(cardBorderRadius),
+        ),
+      ),
+      child: Placeholder(),
+    );
+  }
 }

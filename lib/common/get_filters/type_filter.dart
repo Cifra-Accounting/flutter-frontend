@@ -1,5 +1,5 @@
 import 'package:cifra_app/common/models/get_filter.dart';
-import 'package:cifra_app/repositories/models/db_constants.dart';
+import 'package:cifra_app/repositories/utils/db_constants.dart';
 import 'package:cifra_app/repositories/transactions/models/transaction.dart';
 
 class TypeFilter extends GetFilter {

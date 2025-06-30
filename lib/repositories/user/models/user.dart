@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:equatable/equatable.dart';
 
 import 'package:cifra_app/common/models/money.dart';
-import 'package:cifra_app/repositories/models/db_constants.dart';
+import 'package:cifra_app/repositories/utils/db_constants.dart';
 
 /// Tries to call the provided [function], if it throws,
 /// calls the [onCatch] callback

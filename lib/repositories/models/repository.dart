@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:cifra_app/common/models/get_filter.dart';
 
-abstract class Repository<T> {
+abstract interface class Repository<T> {
   FutureOr<T?> getById(int id);
 
   /// Retrieves a paginated list of items from the repository

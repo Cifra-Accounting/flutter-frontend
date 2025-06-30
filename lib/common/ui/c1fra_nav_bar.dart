@@ -47,8 +47,8 @@ class C1fraNavigationBar extends StatelessWidget {
           onPressed: () => _onButtonTap(context, index),
           icon: icon,
           color: index == this.index
-              ? colorScheme.onSurface
-              : colorScheme.onSecondary,
+              ? colorScheme.onSecondary
+              : colorScheme.onSecondary.withAlpha(70),
         ),
       );
 
