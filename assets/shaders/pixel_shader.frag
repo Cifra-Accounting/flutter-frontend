@@ -3,12 +3,15 @@
 #include <flutter/runtime_effect.glsl>
 
 uniform vec2 uSize;
+uniform vec2 uOffset;
 
+// visual pixel variables
 uniform float uPixelSize;
 uniform float uPixelSpacerSize;
 uniform vec4 uPixelColor;
 uniform vec4 uBackgroundColor;
 
+// texture to pixelize 
 uniform sampler2D uTexture;
 
 out vec4 fragColor;
@@ -54,7 +57,7 @@ float calculatePixelLuminance(vec2 pixelCenter, vec2 normalPixelSize) {
 }
 
 void main() {
-    vec2 uv = FlutterFragCoord().xy / uSize;
+    vec2 uv = (FlutterFragCoord().xy + uOffset) / uSize ;
 
     vec2 normalPixelSize = uPixelSize / uSize;
     vec2 normalPixelSpacerSize = uPixelSpacerSize / uSize;
@@ -67,8 +70,8 @@ void main() {
 
     float luminance = calculatePixelLuminance(pixelCenter, normalPixelSize);
 
-    float lightFactor = clamp(luminance + 0.1, 0.0, 1.0);
-    fragColor = mix(uBackgroundColor, uPixelColor, lightFactor > 0.5 ? lightFactor : 0.0);
+    float lightFactor = clamp(luminance + 0.4, 0.0, 1.0);
+    fragColor = mix(uBackgroundColor, uPixelColor, lightFactor > 0.6 ? lightFactor : 0.0);
 
 }
 

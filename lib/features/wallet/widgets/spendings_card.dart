@@ -6,6 +6,7 @@ import 'package:cifra_app/common/constants/numeric_constants.dart';
 
 import 'package:cifra_app/features/wallet/widgets/period_selector.dart';
 import 'package:cifra_app/features/wallet/widgets/spendings_indicator.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SpendingsCard extends StatefulWidget {
   const SpendingsCard({
@@ -59,9 +60,18 @@ class _SpendingsCardState extends State<SpendingsCard>
     _colorScheme = theme.colorScheme;
 
     _viewPortHeight = _indicatorSize().height +
-        _textSize("You have already spent", _textTheme.displaySmall!).height +
-        _textSize(widget.spent?.toString() ?? "\$0.0", _textTheme.displayLarge!)
-            .height +
+        _textSize(
+          "S",
+          GoogleFonts.montserratAlternates(
+            textStyle: _textTheme.bodyMedium,
+          ),
+        ).height +
+        _textSize(
+          "\$",
+          GoogleFonts.montserratAlternates(
+            textStyle: _textTheme.headlineLarge,
+          ),
+        ).height +
         blankSpacerSize;
 
     super.didChangeDependencies();
@@ -143,8 +153,12 @@ class _SpendingsCardState extends State<SpendingsCard>
                           spacing: blankSpacerSize * .5,
                           children: [
                             Text(
-                              "You already have spent:",
-                              style: _textTheme.displaySmall,
+                              "Spent this ${period.name}:",
+                              style: GoogleFonts.montserratAlternates(
+                                textStyle: _textTheme.bodyMedium?.copyWith(
+                                  color: _colorScheme.onPrimary,
+                                ),
+                              ),
                             ),
                             SpendingsIndicator(
                               percentage: (widget.spent != null &&
@@ -160,19 +174,23 @@ class _SpendingsCardState extends State<SpendingsCard>
                                 Text.rich(
                                   overflow: TextOverflow.fade,
                                   TextSpan(
+                                    text: widget.spent?.toString() ?? "\$0.0",
+                                    style: GoogleFonts.montserratAlternates(
+                                      textStyle:
+                                          _textTheme.headlineLarge?.copyWith(
+                                        color: _colorScheme.onPrimary,
+                                      ),
+                                    ),
                                     children: [
                                       TextSpan(
                                         text:
-                                            widget.spent?.toString() ?? "\$0.0",
-                                        style: _textTheme.displayLarge,
-                                      ),
-                                      TextSpan(
-                                        text:
                                             " / ${widget.outOf?.toString() ?? "\$0.0"}  ",
-                                        style:
-                                            _textTheme.displaySmall!.copyWith(
-                                          color: Colors.white
-                                              .withValues(alpha: .75),
+                                        style: GoogleFonts.montserratAlternates(
+                                          textStyle:
+                                              _textTheme.bodyMedium?.copyWith(
+                                            color: _colorScheme.onPrimary
+                                                .withValues(alpha: .75),
+                                          ),
                                         ),
                                       ),
                                     ],
@@ -182,8 +200,11 @@ class _SpendingsCardState extends State<SpendingsCard>
                                   (widget.spent != null && widget.outOf != null)
                                       ? "( ${(widget.spent!.amount / widget.outOf!.amount).toInt()}% )"
                                       : "( 0% )",
-                                  style: _textTheme.displaySmall!.copyWith(
-                                    color: Colors.white.withValues(alpha: .75),
+                                  style: GoogleFonts.montserratAlternates(
+                                    textStyle: _textTheme.bodyMedium?.copyWith(
+                                      color: _colorScheme.onPrimary
+                                          .withValues(alpha: .75),
+                                    ),
                                   ),
                                 ),
                               ],

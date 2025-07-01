@@ -1,3 +1,4 @@
+import 'package:cifra_app/features/wallet/widgets/period_selector.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,7 +6,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cifra_app/common/ui/ui.dart';
 import 'package:cifra_app/features/wallet/widgets/spendings_card.dart';
 import 'package:cifra_app/common/constants/enums.dart';
-import 'package:cifra_app/common/icon_pack/c1fra__icons.dart';
 import 'package:cifra_app/features/wallet/domain/bloc/history_bloc.dart/bloc.dart';
 import 'package:cifra_app/features/wallet/domain/bloc/stats_bloc.dart/bloc.dart';
 import 'package:cifra_app/features/wallet/widgets/fading_sliver.dart';
@@ -13,6 +13,7 @@ import 'package:cifra_app/repositories/transactions/models/transaction.dart';
 import 'package:cifra_app/repositories/user/repository.dart';
 
 import 'package:cifra_app/common/constants/numeric_constants.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class WalletView extends StatefulWidget {
   const WalletView({super.key});
@@ -24,15 +25,15 @@ class WalletView extends StatefulWidget {
 class _WalletViewState extends State<WalletView> {
   final GlobalKey _spendingsCardKey = const GlobalObjectKey('spendingsCard');
 
-  late ColorScheme colorScheme;
-  late TextTheme textTheme;
+  late ColorScheme _colorScheme;
+  late TextTheme _textTheme;
 
   @override
   void didChangeDependencies() {
     final ThemeData theme = Theme.of(context);
 
-    colorScheme = theme.colorScheme;
-    textTheme = theme.textTheme;
+    _colorScheme = theme.colorScheme;
+    _textTheme = theme.textTheme;
 
     super.didChangeDependencies();
   }
@@ -43,6 +44,18 @@ class _WalletViewState extends State<WalletView> {
     BuildContext context,
     List<Transaction> transactions,
   ) {
+    if (transactions.isEmpty) {
+      return [
+        Text(
+          "Seems like there is nothing here ;)",
+          style: GoogleFonts.montserratAlternates(
+            textStyle: _textTheme.bodyMedium?.copyWith(
+              color: _colorScheme.onSurface,
+            ),
+          ),
+        )
+      ];
+    }
     Transaction? previous;
     final List<Widget> result = <Widget>[];
 
@@ -54,7 +67,11 @@ class _WalletViewState extends State<WalletView> {
             padding: const EdgeInsets.only(bottom: blankSpacerSize),
             child: Text(
               "${transaction.date.valueOrThrow.day}.${transaction.date.valueOrThrow.month}.${transaction.date.valueOrThrow.year}",
-              style: textTheme.labelLarge?.copyWith(fontSize: 30),
+              style: GoogleFonts.montserratAlternates(
+                textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: _colorScheme.onSurface,
+                    ),
+              ),
             ),
           ),
         );
@@ -78,7 +95,7 @@ class _WalletViewState extends State<WalletView> {
   void onCardTap(BuildContext context, Key key) => showModalBottomSheet(
         context: context,
         backgroundColor: Colors.transparent,
-        builder: (cxt) => DetailsModalSheet(
+        builder: (context) => DetailsModalSheet(
             transaction: context.read<HistoryBloc>().state.history.firstWhere(
                   (Transaction transacion) =>
                       transacion.id.valueOrThrow == (key as ValueKey).value,
@@ -129,7 +146,7 @@ class _WalletViewState extends State<WalletView> {
                   ),
                   DecoratedSliver(
                     decoration: BoxDecoration(
-                      color: colorScheme.surface,
+                      color: _colorScheme.surface,
                       borderRadius: BorderRadius.circular(cardBorderRadius),
                     ),
                     sliver: SliverPadding(
@@ -137,16 +154,25 @@ class _WalletViewState extends State<WalletView> {
                       sliver: SliverList(
                         delegate: SliverChildListDelegate(
                           <Widget>[
-                            Text(
-                              'HISTORY',
-                              style: textTheme.labelLarge,
+                            PixelText(
+                              "history",
+                              settings: PixelTextSettings(
+                                style: GoogleFonts.pixelifySans(
+                                  textStyle:
+                                      Theme.of(context).textTheme.headlineLarge,
+                                ),
+                                pixelSize: pixelSize / 2,
+                                pixelSpacerSize: pixelSpacerSize / 2,
+                                pixelColor: _colorScheme.onSurface,
+                                backroungColor: Colors.transparent,
+                              ),
                             ),
                             SizedBox(
                               height: 40,
                               child: Divider(
                                 thickness: 2.0,
                                 height: 0.0,
-                                color: colorScheme.onSurface,
+                                color: _colorScheme.onSurface,
                               ),
                             ),
                             ..._mappedTransactions(context, state.history),
@@ -207,92 +233,97 @@ class C1fraListTile extends StatelessWidget {
             color: colorScheme.onError,
           ),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: Material(
-            color: colorScheme.surfaceContainerHigh,
-            child: InkWell(
-              onTap: () => onTap(key!),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 10,
-                  horizontal: 10,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: 10,
-                      children: <Widget>[
-                        SizedBox(
-                          height: 30,
-                          child: C1fraIcon(
-                            icon: 33553759,
-                            color: colorScheme.inverseSurface,
-                          ),
+        child: Material(
+          color: colorScheme.surfaceContainerHigh,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: InkWell(
+            onTap: () => onTap(key!),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                vertical: 10,
+                horizontal: 10,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: 10,
+                    children: <Widget>[
+                      SizedBox.square(
+                        dimension: 30,
+                        child: C1fraIcon(
+                          icon: 33553759,
+                          color: colorScheme.inverseSurface,
                         ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: 7.0,
-                          children: <Widget>[
-                            Text(
-                              transaction.title.valueOrThrow,
-                              style: textTheme.labelMedium,
-                            ),
-                            Text(
-                              transaction.description.value ?? '',
-                              style: textTheme.labelSmall,
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                    IntrinsicWidth(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        spacing: 7.0,
-                        children: <Widget>[
-                          Text(
-                            "${transaction.type.valueOrThrow == TransactionType.income ? "+" : "-"} ${transaction.value.valueOrThrow}",
-                            style: textTheme.labelMedium,
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              SizedBox(
-                                height: 10,
-                                child: C1fraIcon(
-                                  icon: transaction.type.valueOrThrow ==
-                                          TransactionType.income
-                                      ? arrowUp
-                                      : arrowDown,
-                                  color: colorScheme.onSurface.withAlpha(179),
-                                ),
-                              ),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    '${transaction.value.valueOrThrow.amount / (outOf ?? transaction.value.valueOrThrow.amount) * 100}',
-                                    style: textTheme.labelSmall,
-                                  ),
-                                  Icon(
-                                    C1fraIcons.percent,
-                                    color: colorScheme.onSurface.withAlpha(179),
-                                    size: 10,
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
                       ),
-                    )
-                  ],
-                ),
+                      Text(
+                        transaction.title.valueOrThrow,
+                        style: GoogleFonts.montserratAlternates(
+                          textStyle: textTheme.bodyLarge?.copyWith(
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    "${transaction.type.valueOrThrow == TransactionType.income ? "+" : "-"} ${transaction.value.valueOrThrow}",
+                    style: GoogleFonts.montserratAlternates(
+                      textStyle: textTheme.bodyLarge?.copyWith(
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                  ),
+                  // IntrinsicWidth(
+                  //   child: Column(
+                  //     mainAxisAlignment: MainAxisAlignment.center,
+                  //     crossAxisAlignment: CrossAxisAlignment.end,
+                  //     spacing: 7.0,
+                  //     children: <Widget>[
+                  //       Text(
+                  //         "${transaction.type.valueOrThrow == TransactionType.income ? "+" : "-"} ${transaction.value.valueOrThrow}",
+                  //         style: GoogleFonts.montserratAlternates(
+                  //           textStyle: textTheme.bodyLarge?.copyWith(
+                  //             color: colorScheme.onSurface,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //       Row(
+                  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //         children: <Widget>[
+                  //           SizedBox(
+                  //             height: 10,
+                  //             child: C1fraIcon(
+                  //               icon: transaction.type.valueOrThrow ==
+                  //                       TransactionType.income
+                  //                   ? arrowUp
+                  //                   : arrowDown,
+                  //               color: colorScheme.onSurface.withAlpha(179),
+                  //             ),
+                  //           ),
+                  //           Row(
+                  //             mainAxisSize: MainAxisSize.min,
+                  //             children: [
+                  //               Text(
+                  //                 '${transaction.value.valueOrThrow.amount / (outOf ?? transaction.value.valueOrThrow.amount) * 100}',
+                  //                 style: textTheme.labelSmall,
+                  //               ),
+                  //               Icon(
+                  //                 C1fraIcons.percent,
+                  //                 color: colorScheme.onSurface.withAlpha(179),
+                  //                 size: 10,
+                  //               ),
+                  //             ],
+                  //           ),
+                  //         ],
+                  //       ),
+                  //     ],
+                  //   ),
+                  // )
+                ],
               ),
             ),
           ),
@@ -314,7 +345,7 @@ class DetailsModalSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
-    // final TextTheme textTheme = theme.textTheme;
+    // final TextTheme _textTheme = theme._textTheme;
 
     return Container(
       decoration: BoxDecoration(

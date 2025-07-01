@@ -1,37 +1,12 @@
 import "package:flutter/material.dart";
 
 class MaterialTheme {
-  static const String kFontFamily1 = "Montserrat";
-  static const String kFontFamily2 = 'C1fra';
-
   final TextTheme textTheme = const TextTheme(
-    displayLarge: TextStyle(
-      fontFamily: kFontFamily1,
-      fontSize: 40,
-      fontWeight: FontWeight.w900,
-    ),
-    displaySmall: TextStyle(
-      fontFamily: kFontFamily1,
-      fontSize: 15,
-      fontWeight: FontWeight.w800,
-    ),
-    labelLarge: TextStyle(
-      fontFamily: kFontFamily2,
-      fontSize: 50,
-      height: 0.7,
-    ),
-    labelMedium: TextStyle(
-      fontFamily: kFontFamily1,
-      fontSize: 25,
-      height: 0.7,
-      fontWeight: FontWeight.w900,
-    ),
-    labelSmall: TextStyle(
-      fontFamily: kFontFamily1,
-      fontSize: 15,
-      height: 0.7,
-      fontWeight: FontWeight.w900,
-    ),
+    headlineLarge: TextStyle(fontSize: 40, overflow: TextOverflow.ellipsis),
+    bodyMedium: TextStyle(fontSize: 15, overflow: TextOverflow.ellipsis),
+    bodyLarge: TextStyle(fontSize: 25, overflow: TextOverflow.ellipsis),
+    labelLarge: TextStyle(fontSize: 30, overflow: TextOverflow.ellipsis),
+    labelMedium: TextStyle(fontSize: 30, overflow: TextOverflow.ellipsis),
   );
 
   const MaterialTheme();

@@ -141,9 +141,8 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
   }
 
   @override
-  Future<void> close() {
-    transactionsUpdate.cancel();
-
-    return super.close();
-  }
+  Future<void> close() => Future.wait([
+        transactionsUpdate.cancel(),
+        super.close(),
+      ]);
 }

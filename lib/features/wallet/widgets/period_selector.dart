@@ -1,13 +1,16 @@
 import 'dart:ui' as ui;
 
-import 'package:cifra_app/common/constants/assets.dart';
-import 'package:cifra_app/common/constants/enums.dart';
-import 'package:equatable/equatable.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 
-import 'package:cifra_app/common/constants/numeric_constants.dart' as consts;
-import 'package:flutter/rendering.dart';
+import 'package:equatable/equatable.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_shaders/flutter_shaders.dart';
+
+import 'package:cifra_app/common/constants/assets.dart';
+import 'package:cifra_app/common/constants/enums.dart';
+
+import 'package:cifra_app/common/constants/numeric_constants.dart' as consts;
 
 class PeriodSelector extends StatefulWidget {
   const PeriodSelector({
@@ -60,25 +63,20 @@ class _PeriodSelectorState extends State<PeriodSelector> {
   }
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-        height: consts.periodSelectorHeight * 2,
-        child: TabBar.secondary(
-          controller: widget.controller,
-          padding: EdgeInsets.zero,
-          isScrollable: true,
-          enableFeedback: true,
-          tabs: _effectiveTabs,
-          tabAlignment: TabAlignment.start,
-          indicatorSize: TabBarIndicatorSize.label,
-          indicatorColor: Colors.transparent,
-          indicatorPadding: EdgeInsets.zero,
-          indicatorWeight: 4.0,
-          dividerColor: Colors.transparent,
-          dividerHeight: 0.0,
-          overlayColor: const WidgetStatePropertyAll<Color>(Colors.transparent),
-          labelPadding: const EdgeInsets.only(
-            right: consts.cardHorizontalPadding * 1.5,
-          ),
+  Widget build(BuildContext context) => TabBar.secondary(
+        controller: widget.controller,
+        padding: EdgeInsets.zero,
+        isScrollable: true,
+        enableFeedback: true,
+        tabs: _effectiveTabs,
+        tabAlignment: TabAlignment.start,
+        indicator: null,
+        indicatorColor: Colors.transparent,
+        dividerColor: Colors.transparent,
+        dividerHeight: 0.0,
+        overlayColor: const WidgetStatePropertyAll<Color>(Colors.transparent),
+        labelPadding: const EdgeInsets.only(
+          right: consts.cardHorizontalPadding * 1.5,
         ),
       );
 }
@@ -90,35 +88,49 @@ class TabItem extends StatelessWidget {
   final String label;
 
   @override
-  Widget build(BuildContext context) => ShaderBuilder(
-        (_, shader, child) => PixelText(
-          shader: shader,
-          settings: PixelSettings(
-            pixelColor: selected ? Colors.white : Colors.white.withAlpha(50),
-          ),
-          child: child,
+  Widget build(BuildContext context) => PixelText(label,
+      settings: PixelTextSettings(
+        style: GoogleFonts.pixelifySans(
+          textStyle: Theme.of(context).textTheme.headlineLarge,
         ),
-        assetKey: pixelShader,
-        child: Text(
-          label,
-          style: TextStyle(fontSize: 50, color: Colors.white),
-        ),
-      );
+        pixelSize: consts.pixelSize / 2,
+        pixelSpacerSize: consts.pixelSpacerSize / 2,
+        pixelColor:
+            selected ? Colors.white : Colors.white.withValues(alpha: .75),
+        backroungColor: Colors.transparent,
+      ));
 }
 
 @immutable
-class PixelSettings extends Equatable {
-  const PixelSettings({
-    this.pixelSize = consts.pixelSize * 2,
-    this.pixelSpacerSize = consts.pixelSpacerSize * 2,
-    this.pixelColor = Colors.white,
-    this.backroungColor = Colors.transparent,
+class PixelTextSettings extends Equatable {
+  const PixelTextSettings({
+    this.style,
+    required this.pixelSize,
+    required this.pixelSpacerSize,
+    required this.pixelColor,
+    required this.backroungColor,
   });
 
+  final TextStyle? style;
   final double pixelSize;
   final double pixelSpacerSize;
   final Color pixelColor;
   final Color backroungColor;
+
+  PixelTextSettings copyWith({
+    TextStyle? style,
+    double? pixelSize,
+    double? pixelSpacerSize,
+    Color? pixelColor,
+    Color? backroungColor,
+  }) =>
+      PixelTextSettings(
+        style: style ?? this.style,
+        pixelSize: pixelSize ?? this.pixelSize,
+        pixelSpacerSize: pixelSpacerSize ?? this.pixelSpacerSize,
+        pixelColor: pixelColor ?? this.pixelColor,
+        backroungColor: backroungColor ?? this.backroungColor,
+      );
 
   @override
   List<Object?> get props => [
@@ -129,69 +141,151 @@ class PixelSettings extends Equatable {
       ];
 }
 
-class PixelText extends SingleChildRenderObjectWidget {
-  PixelText({
+class PixelText extends StatelessWidget {
+  const PixelText(
+    this.text, {
     super.key,
-    required Widget? child,
-    required this.shader,
     required this.settings,
-  }) : super(child: RepaintBoundary(child: child));
+  });
 
-  final FragmentShader shader;
-  final PixelSettings settings;
+  final String text;
+  final PixelTextSettings settings;
 
   @override
-  RenderObject createRenderObject(BuildContext context) =>
-      PixelObject(shader: shader, settings: settings);
+  Widget build(BuildContext context) => ShaderBuilder(
+        assetKey: pixelShader,
+        (_, shader, __) => PixelTextShader(
+          text: text,
+          shader: shader,
+          settings: settings,
+        ),
+      );
+}
+
+class PixelTextShader extends LeafRenderObjectWidget {
+  const PixelTextShader({
+    super.key,
+    required this.text,
+    required this.shader,
+    required this.settings,
+  });
+
+  final String text;
+  final FragmentShader shader;
+  final PixelTextSettings settings;
+
+  void setTextStyle(BuildContext context) {
+    if (settings.style == null) {
+      settings.copyWith(style: DefaultTextStyle.of(context).style);
+    }
+    settings.copyWith(style: settings.style!.copyWith(color: Colors.white));
+  }
+
+  @override
+  RenderObject createRenderObject(BuildContext context) {
+    setTextStyle(context);
+    return PixelTextRenderObject(
+      text: text,
+      shader: shader,
+      settings: settings,
+    );
+  }
 
   @override
   void updateRenderObject(
     BuildContext context,
     covariant RenderObject renderObject,
   ) {
-    (renderObject as PixelObject).settings = settings;
+    setTextStyle(context);
+    (renderObject as PixelTextRenderObject).settings = settings;
   }
 }
 
-class PixelObject extends RenderProxyBox {
-  PixelObject({
+class PixelTextRenderObject extends RenderBox {
+  PixelTextRenderObject({
+    required String text,
     required FragmentShader shader,
-    required PixelSettings settings,
-  })  : _shader = shader,
+    required PixelTextSettings settings,
+  })  : _text = text,
+        _shader = shader,
         _settings = settings;
 
-  late final FragmentShader _shader;
-  late ui.Image _childImage;
+  final FragmentShader _shader;
 
-  PixelSettings _settings;
-  set settings(PixelSettings settings) {
+  TextPainter? _painter;
+
+  String _text;
+  set text(String text) {
+    _text = text;
+    markNeedsLayout();
+    markNeedsSemanticsUpdate();
+    markNeedsPaint();
+  }
+
+  String get text => _text;
+
+  PixelTextSettings _settings;
+  set settings(PixelTextSettings settings) {
     _settings = settings;
     markNeedsPaint();
   }
 
-  PixelSettings get settings => _settings;
+  PixelTextSettings get settings => _settings;
 
   @override
   void performLayout() {
-    if (child != null) {
-      child!.layout(constraints, parentUsesSize: true);
-      size = child!.size;
-      _childImage = (child as RenderRepaintBoundary).toImageSync();
-    } else {
-      size = constraints.smallest;
-    }
+    _painter = TextPainter(
+      text: TextSpan(text: _text, style: settings.style),
+      textDirection: TextDirection.ltr,
+    );
+
+    _painter!.layout(
+      maxWidth: constraints.maxWidth,
+      minWidth: constraints.minWidth,
+    );
+
+    size = constraints.constrain(_painter!.size);
+  }
+
+  @override
+  void describeSemanticsConfiguration(SemanticsConfiguration config) {
+    config.hint = _text;
+    config.label = _text;
+    config.currentValueLength = _text.length;
+    config.isButton = false;
   }
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    if (child != null) {
-      _shader.setFloatUniforms((setter) {
-        setter.setSize(size);
-        setter.setFloats([settings.pixelSize, settings.pixelSpacerSize]);
-        setter.setColors([settings.pixelColor, settings.backroungColor]);
-      });
-      _shader.setImageSampler(0, _childImage);
-      context.canvas.drawRect(offset & size, Paint()..shader = _shader);
-    }
+    if (Size(size.width + offset.dx, size.height + offset.dy).isEmpty) return;
+
+    _shader.setFloatUniforms((setter) {
+      setter.setSize(size);
+      setter.setOffset(-offset);
+      setter.setFloats([settings.pixelSize, settings.pixelSpacerSize]);
+      setter.setColors(
+        [settings.pixelColor, settings.backroungColor],
+        premultiply: true,
+      );
+    });
+
+    final recorder = ui.PictureRecorder();
+    final canvas = Canvas(recorder);
+
+    _painter?.paint(canvas, Offset.zero);
+
+    final ui.Picture picture = recorder.endRecording();
+
+    final ui.Image image = picture.toImageSync(
+      size.width.ceil(),
+      size.height.ceil(),
+    );
+
+    _shader.setImageSampler(0, image);
+
+    context.canvas.drawRect(
+      offset & size,
+      Paint()..shader = _shader,
+    );
   }
 }
