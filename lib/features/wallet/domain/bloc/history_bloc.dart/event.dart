@@ -4,10 +4,6 @@ sealed class HistoryEvent {
   const HistoryEvent();
 }
 
-class InitialHistoryEvent extends HistoryEvent {
-  const InitialHistoryEvent();
-}
-
 class HitBottomHistoryEvent extends HistoryEvent {
   const HitBottomHistoryEvent();
 }
@@ -32,4 +28,11 @@ class ChangedOrderHistoryEvent extends HistoryEvent {
 
 class ShouldUpdateRepositoryHistoryEvent extends HistoryEvent {
   const ShouldUpdateRepositoryHistoryEvent();
+}
+
+class ErrorEvent extends HistoryEvent {
+  const ErrorEvent({this.e, this.st});
+
+  final Object? e;
+  final StackTrace? st;
 }

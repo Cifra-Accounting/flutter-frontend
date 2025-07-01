@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,32 +18,34 @@ part 'error.dart';
 class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
   HistoryBloc({required this.transactionRepository})
       : super(const HistoryState.initial()) {
-    on<InitialHistoryEvent>(_onInitailHistoryEvent);
     on<ShouldUpdateRepositoryHistoryEvent>(
         _onShouldUpdateRepositoryHistoryEvent);
     on<AddedFiltersHistoryEvent>(_onAddedFilterHistoryEvent);
     on<RemovedFilterHistoryEvent>(_onRemovedFilterHistoryEvent);
     on<ChangedOrderHistoryEvent>(_onChangedOrderHistoryEvent);
     on<HitBottomHistoryEvent>(_onHitBottomHistoryEvent);
+    on<ErrorEvent>(_onErrorEvent);
+
+    /// Create subscription to the [transactionRepository]
+    /// in order to react accordingly to the repository updates
+    transactionsUpdate = transactionRepository.shouldUpdateTransactions.listen(
+      (event) => add(const ShouldUpdateRepositoryHistoryEvent()),
+      onError: (e, st) => add(ErrorEvent(
+        e: BlocError((e as RepositoryException).message),
+        st: st,
+      )),
+    );
   }
 
   final TransactionRepository transactionRepository;
   late final StreamSubscription transactionsUpdate;
 
-  /// Creates subscription to the [transactionRepository]
-  /// in order to react accordingly to the repository updates
-  void _onInitailHistoryEvent(
-    InitialHistoryEvent event,
-    Emitter<HistoryState> emit,
-  ) {
-    transactionsUpdate = transactionRepository.shouldUpdateTransactions.listen(
-      (event) => add(const ShouldUpdateRepositoryHistoryEvent()),
-      onError: (e, st) => addError(
-        BlocError((e as RepositoryException).message),
-        st,
-      ),
-    );
-  }
+  void _onErrorEvent(ErrorEvent event, Emitter<HistoryState> emit) =>
+      emit(ErrorHistoryState.fromState(
+        state,
+        e: event.e,
+        st: event.st,
+      ));
 
   /// Simply clears [state]'s history in case
   /// [transactionRepository] updates affected the state
@@ -50,9 +53,8 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
   void _onShouldUpdateRepositoryHistoryEvent(
     ShouldUpdateRepositoryHistoryEvent event,
     Emitter<HistoryState> emit,
-  ) {
-    emit(state.resetHistory());
-  }
+  ) =>
+      emit(state.resetHistory());
 
   /// Adds required by the [event] filter to the [state]
   /// and clears history in case new filter affects the current history
@@ -64,12 +66,17 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
     Emitter<HistoryState> emit,
   ) {
     if (!checkFilter(event.filter)) {
-      addError(BlocError("You can't add two filters of the same type"));
+      add(ErrorEvent(
+        e: BlocError("You can't add two filters of the same type"),
+        st: StackTrace.current,
+      ));
       return;
     }
 
-    final Set<GetFilter> currentFilters = state.currentFilters
-      ..add(event.filter);
+    final Set<GetFilter> currentFilters = {
+      ...state.currentFilters,
+      event.filter,
+    };
 
     emit(state.copyWith(currentFilters: currentFilters).resetHistory());
   }
@@ -80,7 +87,9 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
     RemovedFilterHistoryEvent event,
     Emitter<HistoryState> emit,
   ) {
-    final Set<GetFilter> currentFilters = state.currentFilters
+    if (state.currentFilters.isEmpty) return;
+
+    final Set<GetFilter> currentFilters = {...state.currentFilters}
       ..removeWhere((GetFilter filter) => filter.where == event.filter.where);
 
     emit(state.copyWith(currentFilters: currentFilters).resetHistory());
@@ -91,9 +100,8 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
   void _onChangedOrderHistoryEvent(
     ChangedOrderHistoryEvent event,
     Emitter<HistoryState> emit,
-  ) {
-    emit(state.copyWith(desc: event.desc).resetHistory());
-  }
+  ) =>
+      emit(state.copyWith(desc: event.desc).resetHistory());
 
   /// Prompts the [transactionRepository] to return the new set
   /// of transactions (number of returned transactions is determined
@@ -128,7 +136,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
 
   /// Checks whether [state] already has filter of the same type
   /// pushing two filters of the type to the repository might be
-  /// not optimal ot all
+  /// not optimal
   ///
   /// returns [false] if [filter] is not eligible
   ///

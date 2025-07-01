@@ -15,10 +15,10 @@ class HistoryState extends Equatable {
   final List<Transaction> history;
   final Set<GetFilter> currentFilters;
   final bool desc;
+  final bool reachedEnd;
 
   final int _currentLimit;
   final int _currentOffset;
-  final bool reachedEnd;
 
   GetFilter? get currentFilter {
     if (currentFilters.isNotEmpty) {
@@ -67,4 +67,22 @@ class HistoryState extends Equatable {
         ...currentFilters,
         ...history,
       ];
+}
+
+class ErrorHistoryState extends HistoryState {
+  ErrorHistoryState.fromState(HistoryState state, {this.e, this.st})
+      : super(
+          currentFilters: state.currentFilters,
+          history: state.history,
+          desc: state.desc,
+          limit: state._currentLimit,
+          offset: state._currentOffset,
+          reachedEnd: state.reachedEnd,
+        );
+
+  final Object? e;
+  final StackTrace? st;
+
+  @override
+  List<Object?> get props => [...super.props, e, st];
 }
