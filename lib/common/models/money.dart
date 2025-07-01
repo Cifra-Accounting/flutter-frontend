@@ -58,6 +58,13 @@ class Money {
     throw TypeError();
   }
 
+  Money operator *(int other) {
+    return Money(
+      currency: currency,
+      amountInSmallestUnits: _amountInSmallestUnits * other,
+    );
+  }
+
   @override
   String toString() => formattedAmount;
 

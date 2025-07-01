@@ -63,19 +63,9 @@ class StatsBloc extends Bloc<StatsEvent, StatsState> {
     required this.transactionRepository,
     required this.userRepository,
   }) : super(const StatsState.initial()) {
-    on<InitialStatsEvent>(_onInitialStatsEvent);
     on<ShouldUpdateRepositoryStatsEvent>(_onShouldUpdateRepositoryStatsEvent);
     on<PeriodPromptedStatsEvent>(_onPeriodPromptedStatsEvent);
-  }
 
-  final TransactionRepository transactionRepository;
-  final UserRepository userRepository;
-  late final StreamSubscription updateSub;
-
-  void _onInitialStatsEvent(
-    InitialStatsEvent event,
-    Emitter<StatsState> emit,
-  ) {
     updateSub = transactionRepository.shouldUpdateTransactions.listen(
       (event) => add(const ShouldUpdateRepositoryStatsEvent()),
       onError: (error, stackTrace) => addError(
@@ -83,6 +73,10 @@ class StatsBloc extends Bloc<StatsEvent, StatsState> {
       ),
     );
   }
+
+  final TransactionRepository transactionRepository;
+  final UserRepository userRepository;
+  late final StreamSubscription updateSub;
 
   void _onShouldUpdateRepositoryStatsEvent(
     ShouldUpdateRepositoryStatsEvent event,
@@ -102,7 +96,8 @@ class StatsBloc extends Bloc<StatsEvent, StatsState> {
       final Money? spent = (await transactionRepository.getList(filter: filter))
           .reduceTransactions();
 
-      final Money? outOf = userRepository.get().dailyLimit;
+      final Money outOf =
+          userRepository.get().dailyLimit! * (filter.to.day - filter.from.day);
 
       final MapEntry<Periods, (Money?, Money?)> newEntry =
           MapEntry(event.period, (spent, outOf));
