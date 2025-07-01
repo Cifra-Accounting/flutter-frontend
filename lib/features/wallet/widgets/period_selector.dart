@@ -81,24 +81,66 @@ class _PeriodSelectorState extends State<PeriodSelector> {
       );
 }
 
-class TabItem extends StatelessWidget {
+class TabItem extends StatefulWidget {
   const TabItem({super.key, required this.selected, required this.label});
 
   final bool selected;
   final String label;
 
   @override
-  Widget build(BuildContext context) => PixelText(label,
-      settings: PixelTextSettings(
-        style: GoogleFonts.pixelifySans(
-          textStyle: Theme.of(context).textTheme.headlineLarge,
+  State<TabItem> createState() => _TabItemState();
+}
+
+class _TabItemState extends State<TabItem> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  final Animatable<double> tween = Tween<double>(begin: 0, end: 0.3).chain(
+    CurveTween(curve: Curves.easeOut),
+  );
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(vsync: this, duration: Durations.medium1);
+    if (widget.selected) _controller.value = _controller.upperBound;
+  }
+
+  @override
+  void didUpdateWidget(TabItem oldWidget) {
+    if (widget.selected != oldWidget.selected) {
+      widget.selected ? _controller.forward() : _controller.reverse();
+    }
+
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) => Transform.scale(
+          scale: tween.evaluate(_controller) + 1.0,
+          alignment: Alignment.center,
+          child: PixelText(widget.label,
+              settings: PixelTextSettings(
+                style: GoogleFonts.pixelifySans(
+                  textStyle: Theme.of(context).textTheme.headlineLarge,
+                ),
+                pixelSize: consts.pixelSize / 2,
+                pixelSpacerSize: consts.pixelSpacerSize / 2,
+                pixelColor: widget.selected
+                    ? Colors.white
+                    : Colors.white.withValues(alpha: .75),
+                backroungColor: Colors.transparent,
+              )),
         ),
-        pixelSize: consts.pixelSize / 2,
-        pixelSpacerSize: consts.pixelSpacerSize / 2,
-        pixelColor:
-            selected ? Colors.white : Colors.white.withValues(alpha: .75),
-        backroungColor: Colors.transparent,
-      ));
+      );
 }
 
 @immutable
@@ -249,10 +291,10 @@ class PixelTextRenderObject extends RenderBox {
 
   @override
   void describeSemanticsConfiguration(SemanticsConfiguration config) {
-    config.hint = _text;
+    super.describeSemanticsConfiguration(config);
+
     config.label = _text;
-    config.currentValueLength = _text.length;
-    config.isButton = false;
+    config.textDirection = TextDirection.ltr;
   }
 
   @override

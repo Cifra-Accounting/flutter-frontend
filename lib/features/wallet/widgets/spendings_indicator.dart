@@ -62,8 +62,6 @@ class _SpendingsIndicatorRenderObject extends RenderBox
         );
       });
     }
-
-    markNeedsSemanticsUpdate();
   }
 
   @override
@@ -93,19 +91,6 @@ class _SpendingsIndicatorRenderObject extends RenderBox
     _idleAnimationController?.dispose();
 
     super.detach();
-  }
-
-  @override
-  Rect get semanticBounds => (Offset.zero & size);
-
-  @override
-  void describeSemanticsConfiguration(SemanticsConfiguration config) {
-    config.hint = "Current ratio of the money spent to the money available";
-    config.value = _percentage == null
-        ? "Value is loading"
-        : "Persentage showing is $_percentage";
-
-    super.describeSemanticsConfiguration(config);
   }
 
   @override

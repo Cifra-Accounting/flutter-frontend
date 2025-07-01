@@ -96,8 +96,10 @@ class StatsBloc extends Bloc<StatsEvent, StatsState> {
       final Money? spent = (await transactionRepository.getList(filter: filter))
           .reduceTransactions();
 
-      final Money outOf =
-          userRepository.get().dailyLimit! * (filter.to.day - filter.from.day);
+      final Money? outOf = userRepository.get().dailyLimit == null
+          ? null
+          : userRepository.get().dailyLimit! *
+              (filter.to.day - filter.from.day);
 
       final MapEntry<Periods, (Money?, Money?)> newEntry =
           MapEntry(event.period, (spent, outOf));
