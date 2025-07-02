@@ -63,20 +63,26 @@ class _PeriodSelectorState extends State<PeriodSelector> {
   }
 
   @override
-  Widget build(BuildContext context) => TabBar.secondary(
-        controller: widget.controller,
-        padding: EdgeInsets.zero,
-        isScrollable: true,
-        enableFeedback: true,
-        tabs: _effectiveTabs,
-        tabAlignment: TabAlignment.start,
-        indicator: null,
-        indicatorColor: Colors.transparent,
-        dividerColor: Colors.transparent,
-        dividerHeight: 0.0,
-        overlayColor: const WidgetStatePropertyAll<Color>(Colors.transparent),
-        labelPadding: const EdgeInsets.only(
-          right: consts.cardHorizontalPadding * 1.5,
+  Widget build(BuildContext context) => Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(consts.cardBorderRadius / 2),
+          color: Theme.of(context).colorScheme.shadow,
+        ),
+        child: TabBar.secondary(
+          controller: widget.controller,
+          padding: EdgeInsets.zero,
+          isScrollable: true,
+          enableFeedback: true,
+          tabs: _effectiveTabs,
+          tabAlignment: TabAlignment.start,
+          indicator: null,
+          indicatorColor: Colors.transparent,
+          dividerColor: Colors.transparent,
+          dividerHeight: 0.0,
+          overlayColor: const WidgetStatePropertyAll<Color>(Colors.transparent),
+          labelPadding: const EdgeInsets.only(
+            right: consts.cardHorizontalPadding * 1.5,
+          ),
         ),
       );
 }
@@ -92,53 +98,56 @@ class TabItem extends StatefulWidget {
 }
 
 class _TabItemState extends State<TabItem> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  final Animatable<double> tween = Tween<double>(begin: 0, end: 0.3).chain(
-    CurveTween(curve: Curves.easeOut),
-  );
+  TextStyle? _textStyle;
+
+  TextStyle? _selectedStyle;
+  TextStyle? _unselectedStyle;
 
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final TextStyle? headlineLarge = Theme.of(context).textTheme.headlineLarge;
 
-    _controller = AnimationController(vsync: this, duration: Durations.medium1);
-    if (widget.selected) _controller.value = _controller.upperBound;
+    _selectedStyle = headlineLarge?.copyWith(
+      fontWeight: headlineLarge.fontWeight == null ? null : FontWeight.w800,
+    );
+    _unselectedStyle = headlineLarge;
+
+    if (widget.selected) {
+      _textStyle = _selectedStyle;
+    } else {
+      _textStyle = _unselectedStyle;
+    }
   }
 
   @override
   void didUpdateWidget(TabItem oldWidget) {
     if (widget.selected != oldWidget.selected) {
-      widget.selected ? _controller.forward() : _controller.reverse();
+      widget.selected
+          ? _textStyle = _selectedStyle
+          : _textStyle = _unselectedStyle;
     }
 
     super.didUpdateWidget(oldWidget);
   }
 
   @override
-  void dispose() {
-    _controller.dispose();
-
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) => AnimatedBuilder(
-        animation: _controller,
-        builder: (context, child) => Transform.scale(
-          scale: tween.evaluate(_controller) + 1.0,
-          alignment: Alignment.center,
-          child: PixelText(widget.label,
-              settings: PixelTextSettings(
-                style: GoogleFonts.pixelifySans(
-                  textStyle: Theme.of(context).textTheme.headlineLarge,
-                ),
-                pixelSize: consts.pixelSize / 2,
-                pixelSpacerSize: consts.pixelSpacerSize / 2,
-                pixelColor: widget.selected
-                    ? Colors.white
-                    : Colors.white.withValues(alpha: .75),
-                backroungColor: Colors.transparent,
-              )),
+  Widget build(BuildContext context) => AnimatedDefaultTextStyle(
+        style: GoogleFonts.pixelifySans(
+          textStyle: _textStyle,
+        ),
+        duration: Durations.medium1,
+        curve: Curves.easeOut,
+        child: PixelText(
+          widget.label,
+          settings: PixelTextSettings(
+            pixelSize: consts.pixelSize / 2,
+            pixelSpacerSize: consts.pixelSpacerSize / 2,
+            pixelColor: widget.selected
+                ? Colors.white
+                : Colors.white.withValues(alpha: .75),
+            backroungColor: Colors.transparent,
+          ),
         ),
       );
 }
@@ -216,20 +225,21 @@ class PixelTextShader extends LeafRenderObjectWidget {
   final FragmentShader shader;
   final PixelTextSettings settings;
 
-  void setTextStyle(BuildContext context) {
+  PixelTextSettings setTextStyle(BuildContext context) {
     if (settings.style == null) {
-      settings.copyWith(style: DefaultTextStyle.of(context).style);
+      return settings.copyWith(style: DefaultTextStyle.of(context).style);
     }
-    settings.copyWith(style: settings.style!.copyWith(color: Colors.white));
+    return settings.copyWith(
+      style: settings.style?.copyWith(color: Colors.white),
+    );
   }
 
   @override
   RenderObject createRenderObject(BuildContext context) {
-    setTextStyle(context);
     return PixelTextRenderObject(
       text: text,
       shader: shader,
-      settings: settings,
+      settings: setTextStyle(context),
     );
   }
 
@@ -238,8 +248,9 @@ class PixelTextShader extends LeafRenderObjectWidget {
     BuildContext context,
     covariant RenderObject renderObject,
   ) {
-    setTextStyle(context);
-    (renderObject as PixelTextRenderObject).settings = settings;
+    (renderObject as PixelTextRenderObject)
+      ..settings = setTextStyle(context)
+      ..text = text;
   }
 }
 
@@ -259,6 +270,7 @@ class PixelTextRenderObject extends RenderBox {
   String _text;
   set text(String text) {
     _text = text;
+
     markNeedsLayout();
     markNeedsSemanticsUpdate();
     markNeedsPaint();
@@ -269,6 +281,8 @@ class PixelTextRenderObject extends RenderBox {
   PixelTextSettings _settings;
   set settings(PixelTextSettings settings) {
     _settings = settings;
+
+    markNeedsLayout();
     markNeedsPaint();
   }
 
@@ -277,7 +291,7 @@ class PixelTextRenderObject extends RenderBox {
   @override
   void performLayout() {
     _painter = TextPainter(
-      text: TextSpan(text: _text, style: settings.style),
+      text: TextSpan(text: _text, style: _settings.style),
       textDirection: TextDirection.ltr,
     );
 

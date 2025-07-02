@@ -1,6 +1,7 @@
 import 'package:cifra_app/common/constants/enums.dart';
 import 'package:cifra_app/common/navigation/routing_constants.dart';
 import 'package:cifra_app/features/home/views/home_view.dart';
+import 'package:cifra_app/features/onboarding/views/onboarding_view.dart';
 import 'package:cifra_app/features/stats/views/stats_view.dart';
 import 'package:cifra_app/features/wallet/domain/bloc/history_bloc.dart/bloc.dart';
 import 'package:cifra_app/features/wallet/domain/bloc/stats_bloc.dart/bloc.dart';
@@ -26,8 +27,14 @@ final GoRouter router = GoRouter(
       backgroundColor: Theme.of(context).colorScheme.error,
     ),
   ),
+  // redirect: (context, state) =>
+  //     context.read<UserRepository>().get().isIntroduced ? null : onBoardingPath,
   initialLocation: walletPath,
   routes: <RouteBase>[
+    GoRoute(
+      path: onBoardingPath,
+      builder: (context, state) => OnboardingView(),
+    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) =>
           HomeView(navigationShell: navigationShell),

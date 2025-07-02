@@ -95,11 +95,12 @@ class _WalletViewState extends State<WalletView> {
   void onCardTap(BuildContext context, Key key) => showModalBottomSheet(
         context: context,
         backgroundColor: Colors.transparent,
-        builder: (context) => DetailsModalSheet(
-            transaction: context.read<HistoryBloc>().state.history.firstWhere(
-                  (Transaction transacion) =>
-                      transacion.id.valueOrThrow == (key as ValueKey).value,
-                )),
+        builder: (_) => DetailsModalSheet(
+          transaction: context.read<HistoryBloc>().state.history.firstWhere(
+                (Transaction transacion) =>
+                    transacion.id.valueOrThrow == (key as ValueKey).value,
+              ),
+        ),
         useRootNavigator: true,
       );
 
@@ -154,17 +155,26 @@ class _WalletViewState extends State<WalletView> {
                       sliver: SliverList(
                         delegate: SliverChildListDelegate(
                           <Widget>[
-                            PixelText(
-                              "history",
-                              settings: PixelTextSettings(
-                                style: GoogleFonts.pixelifySans(
-                                  textStyle:
-                                      Theme.of(context).textTheme.headlineLarge,
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(
+                                  cardBorderRadius / 2,
                                 ),
-                                pixelSize: pixelSize / 2,
-                                pixelSpacerSize: pixelSpacerSize / 2,
-                                pixelColor: _colorScheme.onSurface,
-                                backroungColor: Colors.transparent,
+                                color: _colorScheme.shadow,
+                              ),
+                              child: PixelText(
+                                "history",
+                                settings: PixelTextSettings(
+                                  style: GoogleFonts.pixelifySans(
+                                    textStyle: Theme.of(context)
+                                        .textTheme
+                                        .headlineLarge,
+                                  ),
+                                  pixelSize: pixelSize / 2,
+                                  pixelSpacerSize: pixelSpacerSize / 2,
+                                  pixelColor: _colorScheme.shadow.withValues(),
+                                  backroungColor: Colors.transparent,
+                                ),
                               ),
                             ),
                             SizedBox(
@@ -220,11 +230,11 @@ class C1fraListTile extends StatelessWidget {
         key: key,
         onSwiped: onSwiped,
         spacing: blankSpacerSize,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(cardBorderRadius / 2),
         swiped: Container(
           decoration: BoxDecoration(
             color: colorScheme.error,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(cardBorderRadius / 2),
           ),
           alignment: Alignment.center,
           padding: const EdgeInsets.all(5.0),
@@ -233,97 +243,52 @@ class C1fraListTile extends StatelessWidget {
             color: colorScheme.onError,
           ),
         ),
-        child: Material(
-          color: colorScheme.surfaceContainerHigh,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: InkWell(
-            onTap: () => onTap(key!),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                vertical: 10,
-                horizontal: 10,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: 10,
-                    children: <Widget>[
-                      SizedBox.square(
-                        dimension: 30,
-                        child: C1fraIcon(
-                          icon: 33553759,
-                          color: colorScheme.inverseSurface,
-                        ),
-                      ),
-                      Text(
-                        transaction.title.valueOrThrow,
-                        style: GoogleFonts.montserratAlternates(
-                          textStyle: textTheme.bodyLarge?.copyWith(
-                            color: colorScheme.onSurface,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(cardBorderRadius / 2),
+          child: Material(
+            color: colorScheme.surfaceContainerHigh,
+            child: InkWell(
+              onTap: () => onTap(key!),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10,
+                  horizontal: 10,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: 10,
+                      children: <Widget>[
+                        SizedBox.square(
+                          dimension: 30,
+                          child: C1fraIcon(
+                            icon: transaction
+                                .category.valueOrThrow.icon.valueOrThrow,
+                            color: colorScheme.inverseSurface,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Text(
-                    "${transaction.type.valueOrThrow == TransactionType.income ? "+" : "-"} ${transaction.value.valueOrThrow}",
-                    style: GoogleFonts.montserratAlternates(
-                      textStyle: textTheme.bodyLarge?.copyWith(
-                        color: colorScheme.onSurface,
+                        Text(
+                          transaction.title.valueOrThrow,
+                          style: GoogleFonts.montserratAlternates(
+                            textStyle: textTheme.bodyLarge?.copyWith(
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      "${transaction.type.valueOrThrow == TransactionType.income ? "+" : "-"} ${transaction.value.valueOrThrow}",
+                      style: GoogleFonts.montserratAlternates(
+                        textStyle: textTheme.bodyLarge?.copyWith(
+                          color: colorScheme.onSurface,
+                        ),
                       ),
                     ),
-                  ),
-                  // IntrinsicWidth(
-                  //   child: Column(
-                  //     mainAxisAlignment: MainAxisAlignment.center,
-                  //     crossAxisAlignment: CrossAxisAlignment.end,
-                  //     spacing: 7.0,
-                  //     children: <Widget>[
-                  //       Text(
-                  //         "${transaction.type.valueOrThrow == TransactionType.income ? "+" : "-"} ${transaction.value.valueOrThrow}",
-                  //         style: GoogleFonts.montserratAlternates(
-                  //           textStyle: textTheme.bodyLarge?.copyWith(
-                  //             color: colorScheme.onSurface,
-                  //           ),
-                  //         ),
-                  //       ),
-                  //       Row(
-                  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  //         children: <Widget>[
-                  //           SizedBox(
-                  //             height: 10,
-                  //             child: C1fraIcon(
-                  //               icon: transaction.type.valueOrThrow ==
-                  //                       TransactionType.income
-                  //                   ? arrowUp
-                  //                   : arrowDown,
-                  //               color: colorScheme.onSurface.withAlpha(179),
-                  //             ),
-                  //           ),
-                  //           Row(
-                  //             mainAxisSize: MainAxisSize.min,
-                  //             children: [
-                  //               Text(
-                  //                 '${transaction.value.valueOrThrow.amount / (outOf ?? transaction.value.valueOrThrow.amount) * 100}',
-                  //                 style: textTheme.labelSmall,
-                  //               ),
-                  //               Icon(
-                  //                 C1fraIcons.percent,
-                  //                 color: colorScheme.onSurface.withAlpha(179),
-                  //                 size: 10,
-                  //               ),
-                  //             ],
-                  //           ),
-                  //         ],
-                  //       ),
-                  //     ],
-                  //   ),
-                  // )
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -354,7 +319,32 @@ class DetailsModalSheet extends StatelessWidget {
           top: Radius.circular(cardBorderRadius),
         ),
       ),
-      child: Placeholder(),
+      padding: EdgeInsets.all(20),
+      child: Column(
+        children: <Widget>[
+          Container(
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHigh,
+              borderRadius: BorderRadius.circular(cardBorderRadius / 2),
+            ),
+            padding: EdgeInsets.all(10),
+            child: Row(
+              children: <Widget>[
+                SizedBox.square(
+                  dimension: 30,
+                  child: C1fraIcon(
+                    icon: transaction.category.valueOrThrow.icon.valueOrThrow,
+                    color: colorScheme.onSurface,
+                  ),
+                ),
+                Expanded(
+                  child: 
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
     );
   }
 }

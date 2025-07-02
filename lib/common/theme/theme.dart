@@ -2,7 +2,7 @@ import "package:flutter/material.dart";
 
 class MaterialTheme {
   final TextTheme textTheme = const TextTheme(
-    headlineLarge: TextStyle(fontSize: 40, overflow: TextOverflow.ellipsis),
+    headlineLarge: TextStyle(fontSize: 45, overflow: TextOverflow.ellipsis),
     bodyMedium: TextStyle(fontSize: 15, overflow: TextOverflow.ellipsis),
     bodyLarge: TextStyle(fontSize: 25, overflow: TextOverflow.ellipsis),
     labelLarge: TextStyle(fontSize: 30, overflow: TextOverflow.ellipsis),
