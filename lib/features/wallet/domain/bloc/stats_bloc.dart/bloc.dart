@@ -17,47 +17,6 @@ import 'package:cifra_app/repositories/utils/repository_exception.dart';
 part 'event.dart';
 part 'state.dart';
 
-sealed class StatsEvent {
-  const StatsEvent();
-}
-
-class InitialStatsEvent extends StatsEvent {
-  const InitialStatsEvent();
-}
-
-class ShouldUpdateRepositoryStatsEvent extends StatsEvent {
-  const ShouldUpdateRepositoryStatsEvent();
-}
-
-class PeriodPromptedStatsEvent extends StatsEvent {
-  const PeriodPromptedStatsEvent({
-    required this.period,
-  });
-
-  final Periods period;
-}
-
-@immutable
-class StatsState extends Equatable {
-  const StatsState({required this.spendings});
-
-  /// Maps each prompted period with a pair (Money, Money),
-  /// first one is for amount spent, the second one is for
-  /// the whole amount given to the particular period
-  final Map<Periods, (Money?, Money?)> spendings;
-
-  const StatsState.initial() : spendings = const <Periods, (Money?, Money?)>{};
-
-  StatsState copyWith({Map<Periods, (Money?, Money?)>? spendings}) =>
-      StatsState(spendings: spendings ?? this.spendings);
-
-  StatsState resetSpendinds() =>
-      StatsState(spendings: <Periods, (Money?, Money?)>{});
-
-  @override
-  List<Object?> get props => [...spendings.entries];
-}
-
 class StatsBloc extends Bloc<StatsEvent, StatsState> {
   StatsBloc({
     required this.transactionRepository,
@@ -92,10 +51,11 @@ class StatsBloc extends Bloc<StatsEvent, StatsState> {
     if (!state.spendings.containsKey(event.period)) {
       final DateTimeFilter filter =
           DateTimeFilter.fromPeriod(period: event.period);
+
       final Money? outOf = userRepository.get().dailyLimit == null
           ? null
           : userRepository.get().dailyLimit! *
-              (filter.to.day - filter.from.day);
+              (filter.to.difference(filter.from).inDays);
 
       final Money? spent = (await transactionRepository.getList(filter: filter))
           .reduceTransactions(baseCurrency: outOf?.currency ?? Currency.usd);

@@ -14,6 +14,7 @@ import 'package:cifra_app/repositories/user/repository.dart';
 
 import 'package:cifra_app/common/constants/numeric_constants.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:marquee/marquee.dart';
 
 class WalletView extends StatefulWidget {
   const WalletView({super.key});
@@ -172,7 +173,7 @@ class _WalletViewState extends State<WalletView> {
                                   ),
                                   pixelSize: pixelSize / 2,
                                   pixelSpacerSize: pixelSpacerSize / 2,
-                                  pixelColor: _colorScheme.shadow.withValues(),
+                                  pixelColor: _colorScheme.onPrimary,
                                   backroungColor: Colors.transparent,
                                 ),
                               ),
@@ -310,7 +311,7 @@ class DetailsModalSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final ColorScheme colorScheme = theme.colorScheme;
-    // final TextTheme _textTheme = theme._textTheme;
+    final TextTheme textTheme = theme.textTheme;
 
     return Container(
       decoration: BoxDecoration(
@@ -321,14 +322,18 @@ class DetailsModalSheet extends StatelessWidget {
       ),
       padding: EdgeInsets.all(20),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: blankSpacerSize,
         children: <Widget>[
           Container(
+            height: 50,
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(cardBorderRadius / 2),
             ),
             padding: EdgeInsets.all(10),
             child: Row(
+              spacing: 5.0,
               children: <Widget>[
                 SizedBox.square(
                   dimension: 30,
@@ -338,11 +343,53 @@ class DetailsModalSheet extends StatelessWidget {
                   ),
                 ),
                 Expanded(
-                  child: 
+                  child: Marquee(
+                    text:
+                        "${transaction.title.valueOrThrow} ( ${transaction.category.valueOrThrow.name.valueOrThrow} )",
+                    style: GoogleFonts.montserratAlternates(
+                      textStyle: textTheme.bodyLarge?.copyWith(
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                    startAfter: Durations.extralong4,
+                    pauseAfterRound: Durations.extralong4,
+                    fadingEdgeStartFraction: 0.1,
+                    fadingEdgeEndFraction: 0.1,
+                  ),
                 ),
               ],
             ),
-          )
+          ),
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(cardBorderRadius / 2),
+              color: colorScheme.surfaceContainerHigh,
+            ),
+            padding: EdgeInsets.all(10),
+            child: Column(
+              spacing: 5.0,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  "${transaction.date.valueOrThrow.day}.${transaction.date.valueOrThrow.month}.${transaction.date.valueOrThrow.year} ${transaction.date.valueOrThrow.toString().split(" ")[1]}",
+                  style: GoogleFonts.montserratAlternates(
+                    textStyle: textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+                Text(
+                  transaction.description.value ?? "",
+                  style: GoogleFonts.montserratAlternates(
+                    textStyle: textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
