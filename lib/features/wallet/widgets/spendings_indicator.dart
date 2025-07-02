@@ -166,7 +166,7 @@ class _SpendingsIndicatorRenderObject extends RenderBox
 
   @override
   Ticker createTicker(TickerCallback onTick) {
-    _ticker = Ticker(onTick, debugLabel: "SpendingsIndicator Ticker");
+    _ticker ??= Ticker(onTick, debugLabel: "SpendingsIndicator Ticker");
     return _ticker!;
   }
 }

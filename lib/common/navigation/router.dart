@@ -27,8 +27,8 @@ final GoRouter router = GoRouter(
       backgroundColor: Theme.of(context).colorScheme.error,
     ),
   ),
-  // redirect: (context, state) =>
-  //     context.read<UserRepository>().get().isIntroduced ? null : onBoardingPath,
+  redirect: (context, state) =>
+      context.read<UserRepository>().get().isIntroduced ? null : onBoardingPath,
   initialLocation: walletPath,
   routes: <RouteBase>[
     GoRoute(
