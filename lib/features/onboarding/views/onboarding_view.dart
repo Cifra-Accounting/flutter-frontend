@@ -104,71 +104,73 @@ class _OnboardingViewState extends State<OnboardingView>
               offPixelColor: Colors.transparent,
             ),
           ),
-          Form(
-            key: _formKey,
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 20.0),
-              child: Column(
-                spacing: blankSpacerSize / 2.0,
-                children: [
-                  Expanded(
-                    child: PageView(
-                      controller: _pageController,
-                      physics: NeverScrollableScrollPhysics(),
-                      children: _pageChildren
-                          .map<Widget>(
-                            (child) => Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 20.0),
-                              child: child,
-                            ),
-                          )
-                          .toList(),
+          SafeArea(
+            child: Form(
+              key: _formKey,
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 20.0),
+                child: Column(
+                  spacing: blankSpacerSize / 2.0,
+                  children: [
+                    Expanded(
+                      child: PageView(
+                        controller: _pageController,
+                        physics: NeverScrollableScrollPhysics(),
+                        children: _pageChildren
+                            .map<Widget>(
+                              (child) => Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 20.0),
+                                child: child,
+                              ),
+                            )
+                            .toList(),
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20.0),
-                    child: TabPageSelector(
-                      controller: _tabController,
-                      color: colorScheme.onPrimaryContainer,
-                      selectedColor: colorScheme.primaryContainer,
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20.0),
+                      child: TabPageSelector(
+                        controller: _tabController,
+                        color: colorScheme.onPrimaryContainer,
+                        selectedColor: colorScheme.primaryContainer,
+                      ),
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20.0),
-                    child: SelectableButton(
-                      tooltip: "Continue",
-                      onTap: _handleButtonTap,
-                      content: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        spacing: 5.0,
-                        children: <Widget>[
-                          SizedBox.square(
-                            dimension: _textTheme.bodyMedium?.fontSize,
-                            child: C1fraIcon(
-                              icon: arrowRight,
-                              color: colorScheme.onPrimaryContainer,
-                            ),
-                          ),
-                          Text(
-                            "Continue",
-                            style: GoogleFonts.montserratAlternates(
-                              textStyle: _textTheme.bodyMedium?.copyWith(
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20.0),
+                      child: SelectableButton(
+                        tooltip: "Continue",
+                        onTap: _handleButtonTap,
+                        content: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          spacing: 5.0,
+                          children: <Widget>[
+                            SizedBox.square(
+                              dimension: _textTheme.bodyMedium?.fontSize,
+                              child: C1fraIcon(
+                                icon: arrowRight,
                                 color: colorScheme.onPrimaryContainer,
                               ),
                             ),
-                          ),
-                          SizedBox.square(
-                            dimension: _textTheme.bodyMedium?.fontSize,
-                            child: C1fraIcon(
-                              icon: arrowRight,
-                              color: colorScheme.onPrimaryContainer,
+                            Text(
+                              "Continue",
+                              style: GoogleFonts.montserratAlternates(
+                                textStyle: _textTheme.bodyMedium?.copyWith(
+                                  color: colorScheme.onPrimaryContainer,
+                                ),
+                              ),
                             ),
-                          )
-                        ],
+                            SizedBox.square(
+                              dimension: _textTheme.bodyMedium?.fontSize,
+                              child: C1fraIcon(
+                                icon: arrowRight,
+                                color: colorScheme.onPrimaryContainer,
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           )
@@ -188,94 +190,96 @@ class FirstView extends StatelessWidget {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
 
-    return Column(
-      spacing: 5.0,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(
-          height: iconSize + 20.0,
-          child: Row(
-            spacing: blankSpacerSize / 2,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: colorScheme.shadow,
-                  borderRadius: BorderRadius.circular(cardBorderRadius / 2),
-                ),
-                padding: EdgeInsets.all(10),
-                child: SvgPicture.asset(
-                  "assets/c1fra_logo.svg",
-                  height: iconSize,
-                  fit: BoxFit.fitHeight,
-                ),
-              ),
-              Expanded(
-                child: Container(
+    return SingleChildScrollView(
+      child: Column(
+        spacing: 5.0,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            height: iconSize + 20.0,
+            child: Row(
+              spacing: blankSpacerSize / 2,
+              children: [
+                Container(
                   decoration: BoxDecoration(
-                    color: colorScheme.surface,
+                    color: colorScheme.shadow,
                     borderRadius: BorderRadius.circular(cardBorderRadius / 2),
                   ),
                   padding: EdgeInsets.all(10),
-                  child: Marquee(
-                    text: "c1fra acc.",
-                    fadingEdgeStartFraction: .1,
-                    fadingEdgeEndFraction: .1,
-                    style: GoogleFonts.montserratAlternates(
-                      textStyle: textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.onSurface,
+                  child: SvgPicture.asset(
+                    "assets/c1fra_logo.svg",
+                    height: iconSize,
+                    fit: BoxFit.fitHeight,
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: colorScheme.surface,
+                      borderRadius: BorderRadius.circular(cardBorderRadius / 2),
+                    ),
+                    padding: EdgeInsets.all(10),
+                    child: Marquee(
+                      text: "c1fra acc.",
+                      fadingEdgeStartFraction: .1,
+                      fadingEdgeEndFraction: .1,
+                      style: GoogleFonts.montserratAlternates(
+                        textStyle: textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurface,
+                        ),
                       ),
                     ),
                   ),
                 ),
+              ],
+            ),
+          ),
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(cardBorderRadius / 2),
+            ),
+            padding: EdgeInsets.all(10),
+            child: PixelText(
+              "Welcome to new accounting",
+              settings: PixelTextSettings(
+                pixelSize: pixelSize / 2,
+                pixelSpacerSize: pixelSpacerSize / 2,
+                style: GoogleFonts.pixelifySans(
+                  textStyle: textTheme.headlineLarge?.copyWith(
+                    color: colorScheme.onPrimaryContainer,
+                    overflow: TextOverflow.visible,
+                  ),
+                ),
+                pixelColor: colorScheme.onPrimaryContainer,
+                backroungColor: Colors.transparent,
               ),
-            ],
+            ),
           ),
-        ),
-        Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: colorScheme.primaryContainer,
-            borderRadius: BorderRadius.circular(cardBorderRadius / 2),
-          ),
-          padding: EdgeInsets.all(10),
-          child: PixelText(
-            "Welcome to new accounting",
-            settings: PixelTextSettings(
-              pixelSize: pixelSize / 2,
-              pixelSpacerSize: pixelSpacerSize / 2,
-              style: GoogleFonts.pixelifySans(
-                textStyle: textTheme.headlineLarge?.copyWith(
+          Container(
+            height: iconSize + 20.0,
+            decoration: BoxDecoration(
+              color: colorScheme.shadow,
+              borderRadius: BorderRadius.circular(
+                cardBorderRadius / 2,
+              ),
+            ),
+            padding: EdgeInsets.all(10),
+            child: Marquee(
+              text: "you'll need to fill something out first.........",
+              fadingEdgeStartFraction: .1,
+              fadingEdgeEndFraction: .1,
+              style: GoogleFonts.montserratAlternates(
+                textStyle: textTheme.bodyMedium?.copyWith(
                   color: colorScheme.onPrimaryContainer,
-                  overflow: TextOverflow.visible,
                 ),
               ),
-              pixelColor: colorScheme.onPrimaryContainer,
-              backroungColor: Colors.transparent,
             ),
           ),
-        ),
-        Container(
-          height: iconSize + 20.0,
-          decoration: BoxDecoration(
-            color: colorScheme.shadow,
-            borderRadius: BorderRadius.circular(
-              cardBorderRadius / 2,
-            ),
-          ),
-          padding: EdgeInsets.all(10),
-          child: Marquee(
-            text: "you'll need to fill something out first.........",
-            fadingEdgeStartFraction: .1,
-            fadingEdgeEndFraction: .1,
-            style: GoogleFonts.montserratAlternates(
-              textStyle: textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onPrimaryContainer,
-              ),
-            ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -301,267 +305,256 @@ class _SecondViewState extends State<SecondView> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
 
-    return Column(
-      spacing: 5.0,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(
-          height: iconSize + 20.0,
-          child: Row(
-            spacing: blankSpacerSize / 2,
-            children: [
-              Expanded(
-                flex: 1,
-                child: SelectableButton(
-                  tooltip: "Back",
-                  onTap: widget.onBackTap,
-                  decoration: BoxDecoration(
-                    color: colorScheme.shadow,
-                  ),
-                  content: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    spacing: 5.0,
-                    children: <Widget>[
-                      SizedBox.square(
-                        dimension: textTheme.bodyMedium?.fontSize,
-                        child: C1fraIcon(
-                          icon: arrowLeft,
-                          color: colorScheme.onPrimaryContainer,
-                        ),
-                      ),
-                      Text(
-                        "Back",
-                        style: GoogleFonts.montserratAlternates(
-                          textStyle: textTheme.bodyMedium?.copyWith(
+    return SingleChildScrollView(
+      child: Column(
+        spacing: 5.0,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            height: iconSize + 20.0,
+            child: Row(
+              spacing: blankSpacerSize / 2,
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: SelectableButton(
+                    tooltip: "Back",
+                    onTap: widget.onBackTap,
+                    decoration: BoxDecoration(
+                      color: colorScheme.shadow,
+                    ),
+                    content: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: 5.0,
+                      children: <Widget>[
+                        SizedBox.square(
+                          dimension: textTheme.bodyMedium?.fontSize,
+                          child: C1fraIcon(
+                            icon: arrowLeft,
                             color: colorScheme.onPrimaryContainer,
                           ),
                         ),
+                        Text(
+                          "Back",
+                          style: GoogleFonts.montserratAlternates(
+                            textStyle: textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onPrimaryContainer,
+                            ),
+                          ),
+                        ),
+                        SizedBox.square(
+                          dimension: textTheme.bodyMedium?.fontSize,
+                          child: C1fraIcon(
+                            icon: arrowLeft,
+                            color: colorScheme.onPrimaryContainer,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: colorScheme.surface,
+                      borderRadius: BorderRadius.circular(cardBorderRadius / 2),
+                    ),
+                    padding: EdgeInsets.all(10),
+                    child: Marquee(
+                      text: "back.",
+                      fadingEdgeStartFraction: .1,
+                      fadingEdgeEndFraction: .1,
+                      style: GoogleFonts.montserratAlternates(
+                        textStyle: textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurface,
+                        ),
                       ),
-                      SizedBox.square(
-                        dimension: textTheme.bodyMedium?.fontSize,
-                        child: C1fraIcon(
-                          icon: arrowLeft,
-                          color: colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(cardBorderRadius / 2),
+            ),
+            padding: EdgeInsets.all(10),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: blankSpacerSize / 2.0,
+              children: [
+                PixelText(
+                  "what suits you more?",
+                  settings: PixelTextSettings(
+                    pixelSize: pixelSize / 2.25,
+                    pixelSpacerSize: pixelSpacerSize / 2.25,
+                    style: GoogleFonts.pixelifySans(
+                      textStyle: textTheme.headlineLarge?.copyWith(
+                        color: colorScheme.onPrimaryContainer,
+                        overflow: TextOverflow.visible,
+                      ),
+                    ),
+                    pixelColor: colorScheme.onPrimaryContainer,
+                    backroungColor: Colors.transparent,
+                  ),
+                ),
+                DropdownButtonFormField2<Languages>(
+                  value: _languageSelectionValue,
+                  items: Languages.values
+                      .map<DropdownMenuItem<Languages>>(
+                        (Languages language) => DropdownMenuItem<Languages>(
+                          value: language,
+                          child: Text(language.label),
                         ),
                       )
-                    ],
+                      .toList(),
+                  validator: (value) =>
+                      value == null ? "Please choose one" : null,
+                  onChanged: (value) => setState(() {
+                    _languageSelectionValue = value;
+                  }),
+                  style: GoogleFonts.montserratAlternates(
+                    textStyle: textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurface,
+                      overflow: TextOverflow.visible,
+                    ),
                   ),
-                ),
-              ),
-              Expanded(
-                flex: 2,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: colorScheme.surface,
-                    borderRadius: BorderRadius.circular(cardBorderRadius / 2),
+                  dropdownStyleData: DropdownStyleData(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(
+                          cardBorderRadius / 2.0,
+                        ),
+                        color: colorScheme.surface),
                   ),
-                  padding: EdgeInsets.all(10),
-                  child: Marquee(
-                    text: "back.",
-                    fadingEdgeStartFraction: .1,
-                    fadingEdgeEndFraction: .1,
-                    style: GoogleFonts.montserratAlternates(
+                  decoration: InputDecoration(
+                    labelText: "App language",
+                    labelStyle: GoogleFonts.montserratAlternates(
                       textStyle: textTheme.bodyMedium?.copyWith(
                         color: colorScheme.onSurface,
+                        overflow: TextOverflow.visible,
                       ),
+                    ),
+                    floatingLabelBehavior: FloatingLabelBehavior.never,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                    filled: true,
+                    fillColor: colorScheme.surface,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(cardBorderRadius / 2),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(cardBorderRadius / 2),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(cardBorderRadius / 2),
+                      borderSide: BorderSide(color: colorScheme.error),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(cardBorderRadius / 2),
+                      borderSide: BorderSide(color: colorScheme.error),
                     ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
-        Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: colorScheme.primaryContainer,
-            borderRadius: BorderRadius.circular(cardBorderRadius / 2),
-          ),
-          padding: EdgeInsets.all(10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: blankSpacerSize / 2.0,
-            children: [
-              PixelText(
-                "what suits you more?",
-                settings: PixelTextSettings(
-                  pixelSize: pixelSize / 2.25,
-                  pixelSpacerSize: pixelSpacerSize / 2.25,
-                  style: GoogleFonts.pixelifySans(
-                    textStyle: textTheme.headlineLarge?.copyWith(
-                      color: colorScheme.onPrimaryContainer,
-                      overflow: TextOverflow.visible,
+                DropdownButtonFormField2<DateFormat>(
+                  value: _dateFormatSelectionValue,
+                  items: DateFormat.values
+                      .map<DropdownMenuItem<DateFormat>>(
+                        (DateFormat format) => DropdownMenuItem<DateFormat>(
+                          value: format,
+                          child: Text(format.label),
+                        ),
+                      )
+                      .toList(),
+                  validator: (value) =>
+                      value == null ? "Please choose one" : null,
+                  onChanged: (value) => setState(() {
+                    _dateFormatSelectionValue = value;
+                  }),
+                  style: GoogleFonts.montserratAlternates(
+                    textStyle: textTheme.bodyMedium?.copyWith(
+                      color: colorScheme.onSurface,
                     ),
                   ),
-                  pixelColor: colorScheme.onPrimaryContainer,
-                  backroungColor: Colors.transparent,
-                ),
-              ),
-              DropdownButtonFormField2<Languages>(
-                value: _languageSelectionValue,
-                items: Languages.values
-                    .map<DropdownMenuItem<Languages>>(
-                      (Languages language) => DropdownMenuItem<Languages>(
-                        value: language,
-                        child: Text(language.label),
-                      ),
-                    )
-                    .toList(),
-                validator: (value) =>
-                    value == null ? "Please choose one" : null,
-                onChanged: (value) => setState(() {
-                  _languageSelectionValue = value;
-                }),
-                style: GoogleFonts.montserratAlternates(
-                  textStyle: textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurface,
-                    overflow: TextOverflow.visible,
-                  ),
-                ),
-                dropdownStyleData: DropdownStyleData(
-                  decoration: BoxDecoration(
+                  dropdownStyleData: DropdownStyleData(
+                    decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(
                         cardBorderRadius / 2.0,
                       ),
-                      color: colorScheme.surface),
+                      color: colorScheme.surface,
+                    ),
+                  ),
+                  decoration: InputDecoration(
+                    labelText: "App date format",
+                    labelStyle: GoogleFonts.montserratAlternates(
+                      textStyle: textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onSurface,
+                        overflow: TextOverflow.visible,
+                      ),
+                    ),
+                    floatingLabelBehavior: FloatingLabelBehavior.never,
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 10),
+                    filled: true,
+                    fillColor: colorScheme.surface,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(cardBorderRadius / 2),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(cardBorderRadius / 2),
+                      borderSide: BorderSide.none,
+                    ),
+                    focusedErrorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(cardBorderRadius / 2),
+                      borderSide: BorderSide(color: colorScheme.error),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(cardBorderRadius / 2),
+                      borderSide: BorderSide(color: colorScheme.error),
+                    ),
+                  ),
                 ),
-                decoration: InputDecoration(
-                  labelText: "App language",
-                  labelStyle: GoogleFonts.montserratAlternates(
+                Text(
+                  "( you can change it in the settings later)",
+                  style: GoogleFonts.montserratAlternates(
                     textStyle: textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurface,
+                      color:
+                          colorScheme.onPrimaryContainer.withValues(alpha: .7),
                       overflow: TextOverflow.visible,
                     ),
                   ),
-                  // helperText: "Choose app language",
-                  // helperStyle: GoogleFonts.montserratAlternates(
-                  //   textStyle: textTheme.bodyMedium?.copyWith(
-                  //     color: colorScheme.onPrimaryContainer,
-                  //     overflow: TextOverflow.visible,
-                  //   ),
-                  // ),
-                  floatingLabelBehavior: FloatingLabelBehavior.never,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                  filled: true,
-                  fillColor: colorScheme.surface,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(cardBorderRadius / 2),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(cardBorderRadius / 2),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(cardBorderRadius / 2),
-                    borderSide: BorderSide(color: colorScheme.error),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(cardBorderRadius / 2),
-                    borderSide: BorderSide(color: colorScheme.error),
-                  ),
                 ),
-              ),
-              DropdownButtonFormField2<DateFormat>(
-                value: _dateFormatSelectionValue,
-                items: DateFormat.values
-                    .map<DropdownMenuItem<DateFormat>>(
-                      (DateFormat format) => DropdownMenuItem<DateFormat>(
-                        value: format,
-                        child: Text(format.label),
-                      ),
-                    )
-                    .toList(),
-                validator: (value) =>
-                    value == null ? "Please choose one" : null,
-                onChanged: (value) => setState(() {
-                  _dateFormatSelectionValue = value;
-                }),
-                style: GoogleFonts.montserratAlternates(
-                  textStyle: textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onSurface,
-                    overflow: TextOverflow.visible,
-                  ),
-                ),
-                dropdownStyleData: DropdownStyleData(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(
-                        cardBorderRadius / 2.0,
-                      ),
-                      color: colorScheme.surface),
-                ),
-                decoration: InputDecoration(
-                  labelText: "App date format",
-                  labelStyle: GoogleFonts.montserratAlternates(
-                    textStyle: textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurface,
-                      overflow: TextOverflow.visible,
-                    ),
-                  ),
-                  floatingLabelBehavior: FloatingLabelBehavior.never,
-                  // helperText: "Choose app date format",
-                  // helperStyle: GoogleFonts.montserratAlternates(
-                  //   textStyle: textTheme.bodyMedium?.copyWith(
-                  //     color: colorScheme.onPrimaryContainer,
-                  //     overflow: TextOverflow.visible,
-                  //   ),
-                  // ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                  filled: true,
-                  fillColor: colorScheme.surface,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(cardBorderRadius / 2),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(cardBorderRadius / 2),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(cardBorderRadius / 2),
-                    borderSide: BorderSide(color: colorScheme.error),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(cardBorderRadius / 2),
-                    borderSide: BorderSide(color: colorScheme.error),
-                  ),
-                ),
-              ),
-              Text(
-                "( you can change it in the settings later)",
-                style: GoogleFonts.montserratAlternates(
-                  textStyle: textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onPrimaryContainer.withValues(alpha: .7),
-                    overflow: TextOverflow.visible,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Container(
-          height: iconSize + 20.0,
-          decoration: BoxDecoration(
-            color: colorScheme.shadow,
-            borderRadius: BorderRadius.circular(
-              cardBorderRadius / 2,
+              ],
             ),
           ),
-          padding: EdgeInsets.all(10),
-          child: Marquee(
-            text: "please fill out this regional info.........",
-            fadingEdgeStartFraction: .1,
-            fadingEdgeEndFraction: .1,
-            style: GoogleFonts.montserratAlternates(
-              textStyle: textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onPrimaryContainer,
+          Container(
+            height: iconSize + 20.0,
+            decoration: BoxDecoration(
+              color: colorScheme.shadow,
+              borderRadius: BorderRadius.circular(
+                cardBorderRadius / 2,
+              ),
+            ),
+            padding: EdgeInsets.all(10),
+            child: Marquee(
+              text: "please fill out this regional info.........",
+              fadingEdgeStartFraction: .1,
+              fadingEdgeEndFraction: .1,
+              style: GoogleFonts.montserratAlternates(
+                textStyle: textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onPrimaryContainer,
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -587,282 +580,285 @@ class _ThirdViewState extends State<ThirdView> {
     final ColorScheme colorScheme = Theme.of(context).colorScheme;
     final TextTheme textTheme = Theme.of(context).textTheme;
 
-    return Column(
-      spacing: 5.0,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        SizedBox(
-          height: iconSize + 20.0,
-          child: Row(
-            spacing: blankSpacerSize / 2,
-            children: [
-              Expanded(
-                flex: 1,
-                child: SelectableButton(
-                  tooltip: "Back",
-                  onTap: widget.onBackTap,
-                  decoration: BoxDecoration(
-                    color: colorScheme.shadow,
-                  ),
-                  content: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    spacing: 5.0,
-                    children: <Widget>[
-                      SizedBox.square(
-                        dimension: textTheme.bodyMedium?.fontSize,
-                        child: C1fraIcon(
-                          icon: arrowLeft,
-                          color: colorScheme.onPrimaryContainer,
-                        ),
-                      ),
-                      Text(
-                        "Back",
-                        style: GoogleFonts.montserratAlternates(
-                          textStyle: textTheme.bodyMedium?.copyWith(
+    return SingleChildScrollView(
+      child: Column(
+        spacing: 5.0,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            height: iconSize + 20.0,
+            child: Row(
+              spacing: blankSpacerSize / 2,
+              children: [
+                Expanded(
+                  flex: 1,
+                  child: SelectableButton(
+                    tooltip: "Back",
+                    onTap: widget.onBackTap,
+                    decoration: BoxDecoration(
+                      color: colorScheme.shadow,
+                    ),
+                    content: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: 5.0,
+                      children: <Widget>[
+                        SizedBox.square(
+                          dimension: textTheme.bodyMedium?.fontSize,
+                          child: C1fraIcon(
+                            icon: arrowLeft,
                             color: colorScheme.onPrimaryContainer,
                           ),
                         ),
-                      ),
-                      SizedBox.square(
-                        dimension: textTheme.bodyMedium?.fontSize,
-                        child: C1fraIcon(
-                          icon: arrowLeft,
-                          color: colorScheme.onPrimaryContainer,
+                        Text(
+                          "Back",
+                          style: GoogleFonts.montserratAlternates(
+                            textStyle: textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onPrimaryContainer,
+                            ),
+                          ),
                         ),
-                      )
-                    ],
+                        SizedBox.square(
+                          dimension: textTheme.bodyMedium?.fontSize,
+                          child: C1fraIcon(
+                            icon: arrowLeft,
+                            color: colorScheme.onPrimaryContainer,
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              Expanded(
-                flex: 2,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: colorScheme.surface,
-                    borderRadius: BorderRadius.circular(cardBorderRadius / 2),
-                  ),
-                  padding: EdgeInsets.all(10),
-                  child: Marquee(
-                    text: "back.",
-                    fadingEdgeStartFraction: .1,
-                    fadingEdgeEndFraction: .1,
-                    style: GoogleFonts.montserratAlternates(
-                      textStyle: textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.onSurface,
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: colorScheme.surface,
+                      borderRadius: BorderRadius.circular(cardBorderRadius / 2),
+                    ),
+                    padding: EdgeInsets.all(10),
+                    child: Marquee(
+                      text: "back.",
+                      fadingEdgeStartFraction: .1,
+                      fadingEdgeEndFraction: .1,
+                      style: GoogleFonts.montserratAlternates(
+                        textStyle: textTheme.bodyMedium?.copyWith(
+                          color: colorScheme.onSurface,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: colorScheme.primaryContainer,
-            borderRadius: BorderRadius.circular(cardBorderRadius / 2),
-          ),
-          padding: EdgeInsets.all(10),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: blankSpacerSize / 2.0,
-            children: [
-              PixelText(
-                "what are your goals?",
-                settings: PixelTextSettings(
-                  pixelSize: pixelSize / 2.25,
-                  pixelSpacerSize: pixelSpacerSize / 2.25,
-                  style: GoogleFonts.pixelifySans(
-                    textStyle: textTheme.headlineLarge?.copyWith(
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(cardBorderRadius / 2),
+            ),
+            padding: EdgeInsets.all(10),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: blankSpacerSize / 2.0,
+              children: [
+                PixelText(
+                  "what are your goals?",
+                  settings: PixelTextSettings(
+                    pixelSize: pixelSize / 2.25,
+                    pixelSpacerSize: pixelSpacerSize / 2.25,
+                    style: GoogleFonts.pixelifySans(
+                      textStyle: textTheme.headlineLarge?.copyWith(
+                        color: colorScheme.onPrimaryContainer,
+                        overflow: TextOverflow.visible,
+                      ),
+                    ),
+                    pixelColor: colorScheme.onPrimaryContainer,
+                    backroungColor: Colors.transparent,
+                  ),
+                ),
+                Text(
+                  "how much do you want to spend a month",
+                  style: GoogleFonts.montserratAlternates(
+                    textStyle: textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onPrimaryContainer,
                       overflow: TextOverflow.visible,
                     ),
                   ),
-                  pixelColor: colorScheme.onPrimaryContainer,
-                  backroungColor: Colors.transparent,
                 ),
-              ),
-              Text(
-                "how much do you want to spend a month",
-                style: GoogleFonts.montserratAlternates(
-                  textStyle: textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onPrimaryContainer,
-                    overflow: TextOverflow.visible,
-                  ),
-                ),
-              ),
-              Row(
-                spacing: blankSpacerSize / 2.0,
-                children: <Widget>[
-                  Expanded(
-                    child: DropdownButtonFormField2<Currency>(
-                      value: _currencySelectionValue,
-                      items: Currency.values
-                          .map<DropdownMenuItem<Currency>>(
-                            (currency) => DropdownMenuItem<Currency>(
-                              value: currency,
-                              child: Text(
-                                "${currency.symbol} ${currency.name}",
+                Row(
+                  spacing: blankSpacerSize / 2.0,
+                  children: <Widget>[
+                    Expanded(
+                      child: DropdownButtonFormField2<Currency>(
+                        value: _currencySelectionValue,
+                        items: Currency.values
+                            .map<DropdownMenuItem<Currency>>(
+                              (currency) => DropdownMenuItem<Currency>(
+                                value: currency,
+                                child: Text(
+                                  "${currency.symbol} ${currency.name}",
+                                ),
                               ),
-                            ),
-                          )
-                          .toList(),
-                      validator: (value) => value == null ? "choose one" : null,
-                      onChanged: (value) => setState(() {
-                        _currencySelectionValue = value;
-                      }),
-                      style: GoogleFonts.montserratAlternates(
-                        textStyle: textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onSurface,
-                        ),
-                      ),
-                      iconStyleData: IconStyleData(iconSize: 0),
-                      dropdownStyleData: DropdownStyleData(
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(
-                              cardBorderRadius / 2.0,
-                            ),
-                            color: colorScheme.surface),
-                      ),
-                      decoration: InputDecoration(
-                        labelText: "Currency",
-                        labelStyle: GoogleFonts.montserratAlternates(
+                            )
+                            .toList(),
+                        validator: (value) =>
+                            value == null ? "choose one" : null,
+                        onChanged: (value) => setState(() {
+                          _currencySelectionValue = value;
+                        }),
+                        style: GoogleFonts.montserratAlternates(
                           textStyle: textTheme.bodyMedium?.copyWith(
                             color: colorScheme.onSurface,
                           ),
                         ),
-                        floatingLabelBehavior: FloatingLabelBehavior.never,
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 10),
-                        filled: true,
-                        fillColor: colorScheme.surface,
-                        border: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(cardBorderRadius / 2),
-                          borderSide: BorderSide.none,
+                        iconStyleData: IconStyleData(iconSize: 0),
+                        dropdownStyleData: DropdownStyleData(
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(
+                                cardBorderRadius / 2.0,
+                              ),
+                              color: colorScheme.surface),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(cardBorderRadius / 2),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(cardBorderRadius / 2),
-                          borderSide: BorderSide(color: colorScheme.error),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(cardBorderRadius / 2),
-                          borderSide: BorderSide(color: colorScheme.error),
-                        ),
-                        errorStyle: GoogleFonts.montserratAlternates(
-                          textStyle: textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onPrimary,
+                        decoration: InputDecoration(
+                          labelText: " Currency",
+                          labelStyle: GoogleFonts.montserratAlternates(
+                            textStyle: textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                          floatingLabelBehavior: FloatingLabelBehavior.never,
+                          contentPadding: EdgeInsets.zero,
+                          filled: true,
+                          fillColor: colorScheme.surface,
+                          border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.circular(cardBorderRadius / 2),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.circular(cardBorderRadius / 2),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.circular(cardBorderRadius / 2),
+                            borderSide: BorderSide(color: colorScheme.error),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.circular(cardBorderRadius / 2),
+                            borderSide: BorderSide(color: colorScheme.error),
+                          ),
+                          errorStyle: GoogleFonts.montserratAlternates(
+                            textStyle: textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onPrimary,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: TextFormField(
-                      keyboardType: TextInputType.numberWithOptions(
-                        decimal: true,
-                      ),
-                      style: GoogleFonts.montserratAlternates(
-                        textStyle: textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onSurface,
-                          overflow: TextOverflow.visible,
+                    Expanded(
+                      flex: 3,
+                      child: TextFormField(
+                        keyboardType: TextInputType.numberWithOptions(
+                          decimal: true,
                         ),
-                      ),
-                      inputFormatters: [
-                        AutoDecimalTextInputFormatter(
-                          fractionDigits:
-                              _currencySelectionValue?.fractionDigits ?? 2,
-                        ),
-                      ],
-                      validator: (value) => value == null || value.isEmpty
-                          ? "enter someting"
-                          : null,
-                      decoration: InputDecoration(
-                        labelText: "Monthly spendings",
-                        labelStyle: GoogleFonts.montserratAlternates(
+                        style: GoogleFonts.montserratAlternates(
                           textStyle: textTheme.bodyMedium?.copyWith(
                             color: colorScheme.onSurface,
+                            overflow: TextOverflow.visible,
                           ),
                         ),
-                        floatingLabelBehavior: FloatingLabelBehavior.never,
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 10),
-                        filled: true,
-                        fillColor: colorScheme.surface,
-                        border: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(cardBorderRadius / 2),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(cardBorderRadius / 2),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedErrorBorder: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(cardBorderRadius / 2),
-                          borderSide: BorderSide(color: colorScheme.error),
-                        ),
-                        errorBorder: OutlineInputBorder(
-                          borderRadius:
-                              BorderRadius.circular(cardBorderRadius / 2),
-                          borderSide: BorderSide(color: colorScheme.error),
-                        ),
-                        errorStyle: GoogleFonts.montserratAlternates(
-                          textStyle: textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onPrimary,
+                        inputFormatters: [
+                          AutoDecimalTextInputFormatter(
+                            fractionDigits:
+                                _currencySelectionValue?.fractionDigits ?? 2,
+                          ),
+                        ],
+                        validator: (value) => value == null || value.isEmpty
+                            ? "enter someting"
+                            : null,
+                        decoration: InputDecoration(
+                          labelText: "Monthly spendings",
+                          labelStyle: GoogleFonts.montserratAlternates(
+                            textStyle: textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
+                          floatingLabelBehavior: FloatingLabelBehavior.never,
+                          contentPadding:
+                              const EdgeInsets.symmetric(horizontal: 10),
+                          filled: true,
+                          fillColor: colorScheme.surface,
+                          border: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.circular(cardBorderRadius / 2),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.circular(cardBorderRadius / 2),
+                            borderSide: BorderSide.none,
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.circular(cardBorderRadius / 2),
+                            borderSide: BorderSide(color: colorScheme.error),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius:
+                                BorderRadius.circular(cardBorderRadius / 2),
+                            borderSide: BorderSide(color: colorScheme.error),
+                          ),
+                          errorStyle: GoogleFonts.montserratAlternates(
+                            textStyle: textTheme.bodyMedium?.copyWith(
+                              color: colorScheme.onPrimary,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              Text(
-                "( you can change it in the settings later)",
-                style: GoogleFonts.montserratAlternates(
-                  textStyle: textTheme.bodyMedium?.copyWith(
-                    color: colorScheme.onPrimaryContainer.withValues(alpha: .7),
-                    overflow: TextOverflow.visible,
+                  ],
+                ),
+                Text(
+                  "( you can change it in the settings later)",
+                  style: GoogleFonts.montserratAlternates(
+                    textStyle: textTheme.bodyMedium?.copyWith(
+                      color:
+                          colorScheme.onPrimaryContainer.withValues(alpha: .7),
+                      overflow: TextOverflow.visible,
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
-        Container(
-          height: iconSize + 20.0,
-          decoration: BoxDecoration(
-            color: colorScheme.shadow,
-            borderRadius: BorderRadius.circular(
-              cardBorderRadius / 2,
+              ],
             ),
           ),
-          padding: EdgeInsets.all(10),
-          child: Marquee(
-            text: "please fill out your financial goals.........",
-            fadingEdgeStartFraction: .1,
-            fadingEdgeEndFraction: .1,
-            style: GoogleFonts.montserratAlternates(
-              textStyle: textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onPrimaryContainer,
+          Container(
+            height: iconSize + 20.0,
+            decoration: BoxDecoration(
+              color: colorScheme.shadow,
+              borderRadius: BorderRadius.circular(
+                cardBorderRadius / 2,
+              ),
+            ),
+            padding: EdgeInsets.all(10),
+            child: Marquee(
+              text: "please fill out your financial goals.........",
+              fadingEdgeStartFraction: .1,
+              fadingEdgeEndFraction: .1,
+              style: GoogleFonts.montserratAlternates(
+                textStyle: textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onPrimaryContainer,
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -1119,7 +1115,7 @@ class PixelBackgroundRenderObject extends RenderBox {
 
   void _onTick(Duration elapsed) {
     for (var circle in _circles ?? []) {
-      final Offset movement = circle.direction * 0.01;
+      final Offset movement = circle.direction * 0.001;
       circle.center += movement;
 
       if (circle.center.dx < 0 || circle.center.dx > size.width) {
@@ -1159,7 +1155,7 @@ class PixelBackgroundRenderObject extends RenderBox {
     uPixelSpacerSize = size.width / uPixelCount! - settings.pixelSize;
     vPixelSpacerSize = size.height / vPixelCount! - settings.pixelSize;
 
-    _circles = _createCircles();
+    _circles ??= _createCircles();
   }
 
   @override
