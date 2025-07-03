@@ -23,3 +23,5 @@ const double blankSpacerSize = 10;
 
 const int arrowDown = 4674692;
 const int arrowUp = 1086833;
+const int arrowRight = 4488452;
+const int arrowLeft = 4291652;

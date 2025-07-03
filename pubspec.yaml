@@ -27,6 +27,7 @@ dependencies:
   google_fonts: ^6.2.1
   build_runner: ^2.4.15
   marquee: ^2.3.0
+  dropdown_button2: ^2.3.9
 
 dev_dependencies:
   flutter_test:

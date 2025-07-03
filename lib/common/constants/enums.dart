@@ -65,3 +65,19 @@ enum Periods {
     return (from, to);
   }
 }
+
+enum Languages {
+  english("English"),
+  russian("Русский");
+
+  const Languages(this.label);
+  final String label;
+}
+
+enum DateFormat {
+  ddmmyy("dd.mm.yyyy"),
+  mmddyy("mm.dd.yyyy");
+
+  const DateFormat(this.label);
+  final String label;
+}
