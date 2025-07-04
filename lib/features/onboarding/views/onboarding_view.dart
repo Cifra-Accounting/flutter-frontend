@@ -37,11 +37,32 @@ class _OnboardingViewState extends State<OnboardingView>
   late final TabController _tabController;
   int _currentPageIndex = 0;
 
-  late final List<Widget> _pageChildren = <Widget>[
-    const FirstView(),
-    SecondView(key: PageStorageKey('page2'), onBackTap: _handleBackButtonTap),
-    ThirdView(key: PageStorageKey('page3'), onBackTap: _handleBackButtonTap),
-  ];
+  Languages? languagesValue;
+  DateFormat? dateFormatValue;
+  Currency? currencyValue;
+  int? amountinSmallestUnitsValue;
+
+  List<Widget> get _pageChildren => <Widget>[
+        FirstView(),
+        SecondView(
+          languageValue: languagesValue,
+          dateFormatValue: dateFormatValue,
+          onBackTap: _handleBackButtonTap,
+          onUpdate: (languagesValue, dateFormatValue) => setState(() {
+            this.languagesValue = languagesValue;
+            this.dateFormatValue = dateFormatValue;
+          }),
+        ),
+        ThirdView(
+          currencyValue: currencyValue,
+          amountinSmallestUnitsValue: amountinSmallestUnitsValue,
+          onBackTap: _handleBackButtonTap,
+          onUpdate: (currencyValue, amountinSmallestUnitsValue) => setState(() {
+            this.currencyValue = currencyValue;
+            this.amountinSmallestUnitsValue = amountinSmallestUnitsValue;
+          }),
+        ),
+      ];
 
   @override
   void initState() {
@@ -78,9 +99,13 @@ class _OnboardingViewState extends State<OnboardingView>
 
   void _handleButtonTap() {
     if (_currentPageIndex == _pageChildren.length - 1) {
-      (_formKey.currentState?.validate() ?? false)
-          ? context.go(walletPath)
-          : null;
+      if ((_formKey.currentState?.validate() ?? false) &&
+          currencyValue != null &&
+          amountinSmallestUnitsValue != null &&
+          languagesValue != null &&
+          dateFormatValue != null) {
+        context.go(walletPath);
+      }
     } else {
       _updateCurrentPageIndex(++_currentPageIndex);
     }
@@ -284,21 +309,19 @@ class FirstView extends StatelessWidget {
   }
 }
 
-class SecondView extends StatefulWidget {
+class SecondView extends StatelessWidget {
   const SecondView({
     super.key,
+    this.languageValue,
+    this.dateFormatValue,
+    required this.onUpdate,
     required this.onBackTap,
   });
 
+  final Languages? languageValue;
+  final DateFormat? dateFormatValue;
+  final void Function(Languages?, DateFormat?) onUpdate;
   final VoidCallback onBackTap;
-
-  @override
-  State<SecondView> createState() => _SecondViewState();
-}
-
-class _SecondViewState extends State<SecondView> {
-  Languages? _languageSelectionValue;
-  DateFormat? _dateFormatSelectionValue;
 
   @override
   Widget build(BuildContext context) {
@@ -320,7 +343,7 @@ class _SecondViewState extends State<SecondView> {
                   flex: 1,
                   child: SelectableButton(
                     tooltip: "Back",
-                    onTap: widget.onBackTap,
+                    onTap: onBackTap,
                     decoration: BoxDecoration(
                       color: colorScheme.shadow,
                     ),
@@ -405,7 +428,7 @@ class _SecondViewState extends State<SecondView> {
                   ),
                 ),
                 DropdownButtonFormField2<Languages>(
-                  value: _languageSelectionValue,
+                  value: languageValue,
                   items: Languages.values
                       .map<DropdownMenuItem<Languages>>(
                         (Languages language) => DropdownMenuItem<Languages>(
@@ -416,9 +439,10 @@ class _SecondViewState extends State<SecondView> {
                       .toList(),
                   validator: (value) =>
                       value == null ? "Please choose one" : null,
-                  onChanged: (value) => setState(() {
-                    _languageSelectionValue = value;
-                  }),
+                  onChanged: (value) => onUpdate(
+                    value,
+                    dateFormatValue,
+                  ),
                   style: GoogleFonts.montserratAlternates(
                     textStyle: textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurface,
@@ -463,7 +487,7 @@ class _SecondViewState extends State<SecondView> {
                   ),
                 ),
                 DropdownButtonFormField2<DateFormat>(
-                  value: _dateFormatSelectionValue,
+                  value: dateFormatValue,
                   items: DateFormat.values
                       .map<DropdownMenuItem<DateFormat>>(
                         (DateFormat format) => DropdownMenuItem<DateFormat>(
@@ -474,9 +498,10 @@ class _SecondViewState extends State<SecondView> {
                       .toList(),
                   validator: (value) =>
                       value == null ? "Please choose one" : null,
-                  onChanged: (value) => setState(() {
-                    _dateFormatSelectionValue = value;
-                  }),
+                  onChanged: (value) => onUpdate(
+                    languageValue,
+                    value,
+                  ),
                   style: GoogleFonts.montserratAlternates(
                     textStyle: textTheme.bodyMedium?.copyWith(
                       color: colorScheme.onSurface,
@@ -559,21 +584,19 @@ class _SecondViewState extends State<SecondView> {
   }
 }
 
-class ThirdView extends StatefulWidget {
+class ThirdView extends StatelessWidget {
   const ThirdView({
     super.key,
+    this.currencyValue,
+    this.amountinSmallestUnitsValue,
     required this.onBackTap,
+    required this.onUpdate,
   });
 
+  final Currency? currencyValue;
+  final int? amountinSmallestUnitsValue;
   final VoidCallback onBackTap;
-
-  @override
-  State<ThirdView> createState() => _ThirdViewState();
-}
-
-class _ThirdViewState extends State<ThirdView> {
-  Currency? _currencySelectionValue;
-  int? amountInSmallestUnits;
+  final void Function(Currency?, int?) onUpdate;
 
   @override
   Widget build(BuildContext context) {
@@ -595,7 +618,7 @@ class _ThirdViewState extends State<ThirdView> {
                   flex: 1,
                   child: SelectableButton(
                     tooltip: "Back",
-                    onTap: widget.onBackTap,
+                    onTap: onBackTap,
                     decoration: BoxDecoration(
                       color: colorScheme.shadow,
                     ),
@@ -693,7 +716,7 @@ class _ThirdViewState extends State<ThirdView> {
                   children: <Widget>[
                     Expanded(
                       child: DropdownButtonFormField2<Currency>(
-                        value: _currencySelectionValue,
+                        value: currencyValue,
                         items: Currency.values
                             .map<DropdownMenuItem<Currency>>(
                               (currency) => DropdownMenuItem<Currency>(
@@ -706,9 +729,10 @@ class _ThirdViewState extends State<ThirdView> {
                             .toList(),
                         validator: (value) =>
                             value == null ? "choose one" : null,
-                        onChanged: (value) => setState(() {
-                          _currencySelectionValue = value;
-                        }),
+                        onChanged: (value) => onUpdate(
+                          value,
+                          amountinSmallestUnitsValue,
+                        ),
                         style: GoogleFonts.montserratAlternates(
                           textStyle: textTheme.bodyMedium?.copyWith(
                             color: colorScheme.onSurface,
@@ -762,8 +786,11 @@ class _ThirdViewState extends State<ThirdView> {
                       ),
                     ),
                     Expanded(
-                      flex: 3,
+                      flex: 2,
                       child: TextFormField(
+                        initialValue: amountinSmallestUnitsValue != null
+                            ? "${amountinSmallestUnitsValue! / pow(10, currencyValue?.fractionDigits ?? 2)}"
+                            : "",
                         keyboardType: TextInputType.numberWithOptions(
                           decimal: true,
                         ),
@@ -775,13 +802,18 @@ class _ThirdViewState extends State<ThirdView> {
                         ),
                         inputFormatters: [
                           AutoDecimalTextInputFormatter(
-                            fractionDigits:
-                                _currencySelectionValue?.fractionDigits ?? 2,
+                            fractionDigits: currencyValue?.fractionDigits ?? 2,
                           ),
                         ],
                         validator: (value) => value == null || value.isEmpty
                             ? "enter someting"
                             : null,
+                        onChanged: (value) => onUpdate(
+                          currencyValue,
+                          int.tryParse(
+                            value.replaceFirstMapped(".", (_) => ""),
+                          ),
+                        ),
                         decoration: InputDecoration(
                           labelText: "Monthly spendings",
                           labelStyle: GoogleFonts.montserratAlternates(
