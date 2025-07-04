@@ -1,23 +1,24 @@
 import 'dart:math';
 
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/scheduler.dart';
+
+import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:marquee/marquee.dart';
+
 import 'package:cifra_app/common/constants/enums.dart';
 import 'package:cifra_app/common/models/money.dart';
 import 'package:cifra_app/common/navigation/navigation.dart';
 import 'package:cifra_app/common/ui/c1fra_icon.dart';
 import 'package:cifra_app/features/wallet/widgets/period_selector.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/scheduler.dart';
-
-import 'package:equatable/equatable.dart';
 
 import 'package:cifra_app/common/constants/numeric_constants.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:marquee/marquee.dart';
 
 class OnboardingView extends StatefulWidget {
   const OnboardingView({super.key});
@@ -97,14 +98,36 @@ class _OnboardingViewState extends State<OnboardingView>
     );
   }
 
-  void _handleButtonTap() {
+  void _handleButtonTap(BuildContext context) {
     if (_currentPageIndex == _pageChildren.length - 1) {
       if ((_formKey.currentState?.validate() ?? false) &&
-          currencyValue != null &&
-          amountinSmallestUnitsValue != null &&
           languagesValue != null &&
           dateFormatValue != null) {
         context.go(walletPath);
+      } else if (languagesValue == null || dateFormatValue == null) {
+        ScaffoldMessenger.maybeOf(context)?.showSnackBar(
+          SnackBar(
+            content: Text(
+              "Please fill in ${languagesValue == null ? "your language" : ""}${dateFormatValue == null && languagesValue == null ? " and " : ""}${dateFormatValue == null ? "preferred date format" : ""} first",
+              style: GoogleFonts.montserratAlternates(
+                textStyle:
+                    _textTheme.bodyMedium?.copyWith(color: colorScheme.onError),
+              ),
+            ),
+            backgroundColor: colorScheme.error,
+            behavior: SnackBarBehavior.floating,
+            showCloseIcon: true,
+            closeIconColor: colorScheme.onError,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(cardBorderRadius / 2.0),
+            ),
+            margin: EdgeInsets.only(
+              bottom: 63 + 20 + blankSpacerSize,
+              left: 20,
+              right: 20,
+            ),
+          ),
+        );
       }
     } else {
       _updateCurrentPageIndex(++_currentPageIndex);
@@ -161,38 +184,42 @@ class _OnboardingViewState extends State<OnboardingView>
                     ),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 20.0),
-                      child: SelectableButton(
-                        tooltip: "Continue",
-                        onTap: _handleButtonTap,
-                        content: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          spacing: 5.0,
-                          children: <Widget>[
-                            SizedBox.square(
-                              dimension: _textTheme.bodyMedium?.fontSize,
-                              child: C1fraIcon(
-                                icon: arrowRight,
-                                color: colorScheme.onPrimaryContainer,
-                              ),
-                            ),
-                            Text(
-                              "Continue",
-                              style: GoogleFonts.montserratAlternates(
-                                textStyle: _textTheme.bodyMedium?.copyWith(
-                                  color: colorScheme.onPrimaryContainer,
+                      child: Builder(
+                          builder: (context) => SelectableButton(
+                                tooltip: "Continue",
+                                onTap: () => _handleButtonTap(context),
+                                content: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  spacing: 5.0,
+                                  children: <Widget>[
+                                    SizedBox.square(
+                                      dimension:
+                                          _textTheme.bodyMedium?.fontSize,
+                                      child: C1fraIcon(
+                                        icon: arrowRight,
+                                        color: colorScheme.onPrimaryContainer,
+                                      ),
+                                    ),
+                                    Text(
+                                      "Continue",
+                                      style: GoogleFonts.montserratAlternates(
+                                        textStyle:
+                                            _textTheme.bodyMedium?.copyWith(
+                                          color: colorScheme.onPrimaryContainer,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox.square(
+                                      dimension:
+                                          _textTheme.bodyMedium?.fontSize,
+                                      child: C1fraIcon(
+                                        icon: arrowRight,
+                                        color: colorScheme.onPrimaryContainer,
+                                      ),
+                                    )
+                                  ],
                                 ),
-                              ),
-                            ),
-                            SizedBox.square(
-                              dimension: _textTheme.bodyMedium?.fontSize,
-                              child: C1fraIcon(
-                                icon: arrowRight,
-                                color: colorScheme.onPrimaryContainer,
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
+                              )),
                     ),
                   ],
                 ),
@@ -711,150 +738,165 @@ class ThirdView extends StatelessWidget {
                     ),
                   ),
                 ),
-                Row(
-                  spacing: blankSpacerSize / 2.0,
-                  children: <Widget>[
-                    Expanded(
-                      child: DropdownButtonFormField2<Currency>(
-                        value: currencyValue,
-                        items: Currency.values
-                            .map<DropdownMenuItem<Currency>>(
-                              (currency) => DropdownMenuItem<Currency>(
-                                value: currency,
-                                child: Text(
-                                  "${currency.symbol} ${currency.name}",
+                IntrinsicHeight(
+                  child: Row(
+                    spacing: blankSpacerSize / 2.0,
+                    children: <Widget>[
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: DropdownButtonFormField2<Currency>(
+                            value: currencyValue,
+                            items: Currency.values
+                                .map<DropdownMenuItem<Currency>>(
+                                  (currency) => DropdownMenuItem<Currency>(
+                                    value: currency,
+                                    child: Text(
+                                      "${currency.symbol} ${currency.name}",
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                            validator: (value) =>
+                                value == null ? "choose one" : null,
+                            onChanged: (value) => onUpdate(
+                              value,
+                              amountinSmallestUnitsValue,
+                            ),
+                            style: GoogleFonts.montserratAlternates(
+                              textStyle: textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.onSurface,
+                              ),
+                            ),
+                            iconStyleData: IconStyleData(iconSize: 0),
+                            dropdownStyleData: DropdownStyleData(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(
+                                    cardBorderRadius / 2.0,
+                                  ),
+                                  color: colorScheme.surface),
+                            ),
+                            decoration: InputDecoration(
+                              labelText: " Currency",
+                              labelStyle: GoogleFonts.montserratAlternates(
+                                textStyle: textTheme.bodyMedium?.copyWith(
+                                  color: colorScheme.onSurface,
                                 ),
                               ),
-                            )
-                            .toList(),
-                        validator: (value) =>
-                            value == null ? "choose one" : null,
-                        onChanged: (value) => onUpdate(
-                          value,
-                          amountinSmallestUnitsValue,
-                        ),
-                        style: GoogleFonts.montserratAlternates(
-                          textStyle: textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurface,
-                          ),
-                        ),
-                        iconStyleData: IconStyleData(iconSize: 0),
-                        dropdownStyleData: DropdownStyleData(
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(
-                                cardBorderRadius / 2.0,
+                              floatingLabelBehavior:
+                                  FloatingLabelBehavior.never,
+                              contentPadding: EdgeInsets.zero,
+                              filled: true,
+                              fillColor: colorScheme.surface,
+                              border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.circular(cardBorderRadius / 2),
+                                borderSide: BorderSide.none,
                               ),
-                              color: colorScheme.surface),
-                        ),
-                        decoration: InputDecoration(
-                          labelText: " Currency",
-                          labelStyle: GoogleFonts.montserratAlternates(
-                            textStyle: textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onSurface,
-                            ),
-                          ),
-                          floatingLabelBehavior: FloatingLabelBehavior.never,
-                          contentPadding: EdgeInsets.zero,
-                          filled: true,
-                          fillColor: colorScheme.surface,
-                          border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(cardBorderRadius / 2),
-                            borderSide: BorderSide.none,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(cardBorderRadius / 2),
-                            borderSide: BorderSide.none,
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(cardBorderRadius / 2),
-                            borderSide: BorderSide(color: colorScheme.error),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(cardBorderRadius / 2),
-                            borderSide: BorderSide(color: colorScheme.error),
-                          ),
-                          errorStyle: GoogleFonts.montserratAlternates(
-                            textStyle: textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onPrimary,
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.circular(cardBorderRadius / 2),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.circular(cardBorderRadius / 2),
+                                borderSide:
+                                    BorderSide(color: colorScheme.error),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.circular(cardBorderRadius / 2),
+                                borderSide:
+                                    BorderSide(color: colorScheme.error),
+                              ),
+                              errorStyle: GoogleFonts.montserratAlternates(
+                                textStyle: textTheme.bodyMedium?.copyWith(
+                                  color: colorScheme.onPrimary,
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: TextFormField(
-                        initialValue: amountinSmallestUnitsValue != null
-                            ? "${amountinSmallestUnitsValue! / pow(10, currencyValue?.fractionDigits ?? 2)}"
-                            : "",
-                        keyboardType: TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        style: GoogleFonts.montserratAlternates(
-                          textStyle: textTheme.bodyMedium?.copyWith(
-                            color: colorScheme.onSurface,
-                            overflow: TextOverflow.visible,
-                          ),
-                        ),
-                        inputFormatters: [
-                          AutoDecimalTextInputFormatter(
-                            fractionDigits: currencyValue?.fractionDigits ?? 2,
-                          ),
-                        ],
-                        validator: (value) => value == null || value.isEmpty
-                            ? "enter someting"
-                            : null,
-                        onChanged: (value) => onUpdate(
-                          currencyValue,
-                          int.tryParse(
-                            value.replaceFirstMapped(".", (_) => ""),
-                          ),
-                        ),
-                        decoration: InputDecoration(
-                          labelText: "Monthly spendings",
-                          labelStyle: GoogleFonts.montserratAlternates(
-                            textStyle: textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onSurface,
+                      Expanded(
+                        flex: 2,
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: TextFormField(
+                            initialValue: amountinSmallestUnitsValue != null
+                                ? "${amountinSmallestUnitsValue! / pow(10, currencyValue?.fractionDigits ?? 2)}"
+                                : "",
+                            keyboardType: TextInputType.numberWithOptions(
+                              decimal: true,
                             ),
-                          ),
-                          floatingLabelBehavior: FloatingLabelBehavior.never,
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 10),
-                          filled: true,
-                          fillColor: colorScheme.surface,
-                          border: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(cardBorderRadius / 2),
-                            borderSide: BorderSide.none,
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(cardBorderRadius / 2),
-                            borderSide: BorderSide.none,
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(cardBorderRadius / 2),
-                            borderSide: BorderSide(color: colorScheme.error),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius:
-                                BorderRadius.circular(cardBorderRadius / 2),
-                            borderSide: BorderSide(color: colorScheme.error),
-                          ),
-                          errorStyle: GoogleFonts.montserratAlternates(
-                            textStyle: textTheme.bodyMedium?.copyWith(
-                              color: colorScheme.onPrimary,
+                            style: GoogleFonts.montserratAlternates(
+                              textStyle: textTheme.bodyMedium?.copyWith(
+                                color: colorScheme.onSurface,
+                                overflow: TextOverflow.visible,
+                              ),
+                            ),
+                            inputFormatters: [
+                              AutoDecimalTextInputFormatter(
+                                fractionDigits:
+                                    currencyValue?.fractionDigits ?? 2,
+                              ),
+                            ],
+                            validator: (value) => value == null || value.isEmpty
+                                ? "enter someting"
+                                : null,
+                            onChanged: (value) => onUpdate(
+                              currencyValue,
+                              int.tryParse(
+                                value.replaceFirstMapped(".", (_) => ""),
+                              ),
+                            ),
+                            decoration: InputDecoration(
+                              labelText: "Monthly spendings",
+                              labelStyle: GoogleFonts.montserratAlternates(
+                                textStyle: textTheme.bodyMedium?.copyWith(
+                                  color: colorScheme.onSurface,
+                                ),
+                              ),
+                              floatingLabelBehavior:
+                                  FloatingLabelBehavior.never,
+                              contentPadding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              filled: true,
+                              fillColor: colorScheme.surface,
+                              border: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.circular(cardBorderRadius / 2),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.circular(cardBorderRadius / 2),
+                                borderSide: BorderSide.none,
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.circular(cardBorderRadius / 2),
+                                borderSide:
+                                    BorderSide(color: colorScheme.error),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.circular(cardBorderRadius / 2),
+                                borderSide:
+                                    BorderSide(color: colorScheme.error),
+                              ),
+                              errorStyle: GoogleFonts.montserratAlternates(
+                                textStyle: textTheme.bodyMedium?.copyWith(
+                                  color: colorScheme.onPrimary,
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 Text(
                   "( you can change it in the settings later)",

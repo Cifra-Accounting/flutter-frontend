@@ -1,3 +1,4 @@
+import 'package:cifra_app/common/constants/enums.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:equatable/equatable.dart';
@@ -27,29 +28,44 @@ T? tryCall<T, V>({
 class User extends Equatable {
   const User({
     this.language,
+    this.dateFormat,
     this.dailyLimit,
   });
 
   final Money? dailyLimit;
-  final String? language;
+  final Languages? language;
+  final DateFormat? dateFormat;
 
-  bool get isIntroduced => dailyLimit != null && language != null;
+  bool get isIntroduced =>
+      dailyLimit != null && language != null && dateFormat != null;
 
   Map<String, dynamic> toMap() => <String, dynamic>{
-        if (language != null) languageColumn: language,
+        if (dateFormat != null) dateFormatColumn: dateFormat?.name,
+        if (language != null) languageColumn: language?.name,
         ...?dailyLimit?.toMap(),
       };
 
   User.fromMap(Map<String, dynamic> map)
-      : language = map[languageColumn],
+      : dateFormat = DateFormat.values
+            .where((format) => format.name == map[dateFormatColumn])
+            .firstOrNull,
+        language = Languages.values
+            .where((language) => language.name == map[languageColumn])
+            .firstOrNull,
         dailyLimit = tryCall<Money, Map<String, dynamic>>(
           function: Money.fromMap,
           argument: map,
           onCatch: () => null,
         );
 
-  User copyWith({String? language, Money? dailyLimit}) => User(
+  User copyWith({
+    Languages? language,
+    Money? dailyLimit,
+    DateFormat? dateFormat,
+  }) =>
+      User(
         language: language ?? this.language,
+        dateFormat: dateFormat ?? this.dateFormat,
         dailyLimit: dailyLimit ?? this.dailyLimit,
       );
 
@@ -57,11 +73,13 @@ class User extends Equatable {
   List<Object?> get props => [
         language,
         dailyLimit,
+        dateFormat,
       ];
 
   static Set<String> get columns => {
         currencyColumn,
         amountColumn,
         languageColumn,
+        dateFormatColumn,
       };
 }
