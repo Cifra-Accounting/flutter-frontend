@@ -1,6 +1,7 @@
 import 'package:cifra_app/common/constants/enums.dart';
 import 'package:cifra_app/common/navigation/routing_constants.dart';
 import 'package:cifra_app/features/home/views/home_view.dart';
+import 'package:cifra_app/features/onboarding/domain/intro_bloc/bloc.dart';
 import 'package:cifra_app/features/onboarding/views/onboarding_view.dart';
 import 'package:cifra_app/features/stats/views/stats_view.dart';
 import 'package:cifra_app/features/wallet/domain/bloc/history_bloc.dart/bloc.dart';
@@ -33,7 +34,12 @@ final GoRouter router = GoRouter(
   routes: <RouteBase>[
     GoRoute(
       path: onBoardingPath,
-      builder: (context, state) => OnboardingView(),
+      builder: (context, state) => BlocProvider<IntroBloc>(
+        create: (context) => IntroBloc(
+          userRepository: context.read<UserRepository>(),
+        ),
+        child: OnboardingView(),
+      ),
     ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) =>
