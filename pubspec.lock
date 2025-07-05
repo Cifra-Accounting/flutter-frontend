@@ -39,7 +39,7 @@ packages:
     source: hosted
     version: "2.12.0"
   bloc:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: bloc
       sha256: "52c10575f4445c61dd9e0cafcc6356fdd827c4c64dd7945ef3c4105f6b6ac189"
@@ -95,7 +95,7 @@ packages:
     source: hosted
     version: "2.4.4"
   build_runner:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       name: build_runner
       sha256: "058fe9dce1de7d69c4b84fada934df3e0153dd000758c4d65964d0166779aa99"
@@ -317,6 +317,22 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  freezed:
+    dependency: "direct dev"
+    description:
+      name: freezed
+      sha256: "6022db4c7bfa626841b2a10f34dd1e1b68e8f8f9650db6112dcdeeca45ca793c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.6"
+  freezed_annotation:
+    dependency: transitive
+    description:
+      name: freezed_annotation
+      sha256: "7294967ff0a6d98638e7acb774aac3af2550777accd8149c90af5b014e6d44d8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.0"
   frontend_server_client:
     dependency: transitive
     description:

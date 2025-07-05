@@ -5,10 +5,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 class UserRepository {
   late final SharedPreferencesWithCache _prefs;
 
-  Future init() async {
-    _prefs = await SharedPreferencesWithCache.create(
-      cacheOptions: SharedPreferencesWithCacheOptions(allowList: User.columns),
-    );
+  Future init({SharedPreferencesWithCache? prefs}) async {
+    _prefs = prefs ??
+        await SharedPreferencesWithCache.create(
+          sharedPreferencesOptions: SharedPreferencesOptions(),
+          cacheOptions:
+              SharedPreferencesWithCacheOptions(allowList: User.columns),
+        );
   }
 
   Future save(User user) => Future.wait(user.toMap().entries.map<Future>(

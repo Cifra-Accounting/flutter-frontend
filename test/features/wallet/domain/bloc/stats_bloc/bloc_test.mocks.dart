@@ -15,6 +15,7 @@ import 'package:cifra_app/repositories/user/models/user.dart' as _i5;
 import 'package:cifra_app/repositories/user/repository.dart' as _i11;
 import 'package:cv/cv.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
+import 'package:shared_preferences/shared_preferences.dart' as _i12;
 import 'package:sqflite/sqflite.dart' as _i3;
 
 // ignore_for_file: type=lint
@@ -288,8 +289,9 @@ class MockTransactionRepository extends _i1.Mock
 /// See the documentation for Mockito's code generation for more information.
 class MockUserRepository extends _i1.Mock implements _i11.UserRepository {
   @override
-  _i9.Future<dynamic> init() => (super.noSuchMethod(
-        Invocation.method(#init, []),
+  _i9.Future<dynamic> init({_i12.SharedPreferencesWithCache? prefs}) =>
+      (super.noSuchMethod(
+        Invocation.method(#init, [], {#prefs: prefs}),
         returnValue: _i9.Future<dynamic>.value(),
         returnValueForMissingStub: _i9.Future<dynamic>.value(),
       ) as _i9.Future<dynamic>);
