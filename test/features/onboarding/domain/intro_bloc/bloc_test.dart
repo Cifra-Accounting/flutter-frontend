@@ -18,7 +18,7 @@ import 'bloc_test.mocks.dart';
 void main() {
   group("Test the IntroBloc", () {
     final User testUser = User(
-      dailyLimit: Money(currency: Currency.rub, amountInSmallestUnits: 0),
+      limit: Money(currency: Currency.rub, amountInSmallestUnits: 0),
       dateFormat: DateFormat.ddmmyy,
       language: Languages.russian,
     );
@@ -51,8 +51,8 @@ void main() {
       ),
       build: () => IntroBloc(userRepository: userRepository!),
       seed: () => IntroState.initial(
-        currency: testUser.dailyLimit?.currency,
-        amountInSmallestUnits: testUser.dailyLimit?.amount.toInt(),
+        currency: testUser.limit?.currency,
+        amountInSmallestUnits: testUser.limit?.amount.toInt(),
         language: testUser.language,
         dateFormat: testUser.dateFormat,
       ),
@@ -62,22 +62,14 @@ void main() {
           (state) => [state.currency, state.language, state.dateFormat],
           "New state saves previous data",
           equals(
-            [
-              testUser.dailyLimit?.currency,
-              testUser.language,
-              testUser.dateFormat
-            ],
+            [testUser.limit?.currency, testUser.language, testUser.dateFormat],
           ),
         ),
         isA<Saved>().having(
           (state) => [state.currency, state.language, state.dateFormat],
           "New state saves previous data",
           equals(
-            [
-              testUser.dailyLimit?.currency,
-              testUser.language,
-              testUser.dateFormat
-            ],
+            [testUser.limit?.currency, testUser.language, testUser.dateFormat],
           ),
         ),
       ],
@@ -88,7 +80,7 @@ void main() {
       "Adds error if not all fields are filled correctly",
       build: () => IntroBloc(userRepository: userRepository!),
       seed: () => IntroState.initial(
-        currency: testUser.dailyLimit?.currency,
+        currency: testUser.limit?.currency,
         language: testUser.language,
         dateFormat: testUser.dateFormat,
       ),
@@ -111,7 +103,7 @@ void main() {
               equals(
                 [
                   [amountField],
-                  testUser.dailyLimit?.currency,
+                  testUser.limit?.currency,
                   testUser.language,
                   testUser.dateFormat
                 ],
@@ -125,8 +117,8 @@ void main() {
       setUp: () => when(userRepository?.save(any)).thenThrow("test"),
       build: () => IntroBloc(userRepository: userRepository!),
       seed: () => IntroState.initial(
-        currency: testUser.dailyLimit?.currency,
-        amountInSmallestUnits: testUser.dailyLimit?.amount.toInt(),
+        currency: testUser.limit?.currency,
+        amountInSmallestUnits: testUser.limit?.amount.toInt(),
         language: testUser.language,
         dateFormat: testUser.dateFormat,
       ),
@@ -136,11 +128,7 @@ void main() {
           (state) => [state.currency, state.language, state.dateFormat],
           "New state saves previous data",
           equals(
-            [
-              testUser.dailyLimit?.currency,
-              testUser.language,
-              testUser.dateFormat
-            ],
+            [testUser.limit?.currency, testUser.language, testUser.dateFormat],
           ),
         ),
         isA<Error>().having(
@@ -154,7 +142,7 @@ void main() {
           equals(
             [
               "test",
-              testUser.dailyLimit?.currency,
+              testUser.limit?.currency,
               testUser.language,
               testUser.dateFormat
             ],

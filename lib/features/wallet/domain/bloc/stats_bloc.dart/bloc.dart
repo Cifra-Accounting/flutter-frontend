@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:cifra_app/common/get_filters/type_filter.dart';
+import 'package:cifra_app/repositories/transactions/models/transaction.dart';
+import 'package:cifra_app/repositories/user/models/user.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:equatable/equatable.dart';
@@ -9,7 +12,6 @@ import 'package:cifra_app/common/constants/enums.dart';
 import 'package:cifra_app/common/get_filters/datetime_filter.dart';
 import 'package:cifra_app/common/models/money.dart';
 import 'package:cifra_app/features/wallet/domain/bloc/history_bloc.dart/bloc.dart';
-import 'package:cifra_app/features/wallet/domain/bloc/stats_bloc.dart/utils/extensions.dart';
 import 'package:cifra_app/repositories/transactions/repository.dart';
 import 'package:cifra_app/repositories/user/repository.dart';
 import 'package:cifra_app/repositories/utils/repository_exception.dart';
@@ -48,28 +50,43 @@ class StatsBloc extends Bloc<StatsEvent, StatsState> {
     PeriodPromptedStatsEvent event,
     Emitter<StatsState> emit,
   ) async {
-    if (!state.spendings.containsKey(event.period)) {
-      final DateTimeFilter filter =
-          DateTimeFilter.fromPeriod(period: event.period);
+    if (state.spendings.containsKey(event.period)) return;
 
-      final Money? outOf = userRepository.get().dailyLimit == null
-          ? null
-          : userRepository.get().dailyLimit! *
-              (filter.to.difference(filter.from).inDays);
+    final User user = userRepository.get();
+    final Currency currency = user.limit!.currency;
 
-      final Money? spent = (await transactionRepository.getList(filter: filter))
-          .reduceTransactions(baseCurrency: outOf?.currency ?? Currency.usd);
+    final (from, to) = event.period.calculatePeriodBoundaries();
+    final int daysInPeriod = to.difference(from).inDays + 1;
 
-      final MapEntry<Periods, (Money?, Money?)> newEntry =
-          MapEntry(event.period, (spent, outOf));
+    final (monthFrom, monthTo) = Periods.month.calculatePeriodBoundaries();
+    final int daysInMonth = monthTo.difference(monthFrom).inDays + 1;
 
-      Map<Periods, (Money?, Money?)> newSpendings = {}
-        ..addEntries([...state.spendings.entries, newEntry]);
+    final incomeFilter = DateTimeFilter.fromPeriod(period: Periods.month) &
+        const TypeFilter(type: TransactionType.income);
+    final expenseFilter = DateTimeFilter.fromPeriod(period: event.period) &
+        const TypeFilter(type: TransactionType.expence);
 
-      emit(state.copyWith(spendings: newSpendings));
-    }
+    final List<Transaction> incomeTransactions =
+        await transactionRepository.getList(filter: incomeFilter);
+    final List<Transaction> expenseTransactions =
+        await transactionRepository.getList(filter: expenseFilter);
 
-    emit(state);
+    Money sumTransactions(List<Transaction> txns) => txns.fold<Money>(
+          Money(currency: currency, amountInSmallestUnits: 0),
+          (acc, tx) => acc + tx.value.valueOrThrow,
+        );
+
+    final Money got = sumTransactions(incomeTransactions);
+    final Money spent = sumTransactions(expenseTransactions);
+
+    final Money limit = user.limit!;
+    final Money base = got > limit ? got : limit;
+
+    final Money outOf = base / daysInMonth * daysInPeriod;
+
+    emit(state.copyWith(
+      spendings: {...state.spendings, event.period: (spent, outOf)},
+    ));
   }
 
   @override

@@ -24,6 +24,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
     on<RemovedFilterHistoryEvent>(_onRemovedFilterHistoryEvent);
     on<ChangedOrderHistoryEvent>(_onChangedOrderHistoryEvent);
     on<HitBottomHistoryEvent>(_onHitBottomHistoryEvent);
+    on<RemoveEntryHistoryEvent>(_onRemoveEntryHistoryEvent);
     on<ErrorEvent>(_onErrorEvent);
 
     /// Create subscription to the [transactionRepository]
@@ -54,7 +55,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
     ShouldUpdateRepositoryHistoryEvent event,
     Emitter<HistoryState> emit,
   ) =>
-      emit(state.resetHistory());
+      state._skip <= 0 ? emit(state.resetHistory()) : null;
 
   /// Adds required by the [event] filter to the [state]
   /// and clears history in case new filter affects the current history
@@ -78,7 +79,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
       event.filter,
     };
 
-    emit(state.copyWith(currentFilters: currentFilters).resetHistory());
+    emit(state._copyWith(currentFilters: currentFilters).resetHistory());
   }
 
   /// Removes required by the [event] filter from the [state]
@@ -92,7 +93,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
     final Set<GetFilter> currentFilters = {...state.currentFilters}
       ..removeWhere((GetFilter filter) => filter.where == event.filter.where);
 
-    emit(state.copyWith(currentFilters: currentFilters).resetHistory());
+    emit(state._copyWith(currentFilters: currentFilters).resetHistory());
   }
 
   /// Changes [desc] flag in the [state] and
@@ -101,7 +102,7 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
     ChangedOrderHistoryEvent event,
     Emitter<HistoryState> emit,
   ) =>
-      emit(state.copyWith(desc: event.desc).resetHistory());
+      emit(state._copyWith(desc: event.desc).resetHistory());
 
   /// Prompts the [transactionRepository] to return the new set
   /// of transactions (number of returned transactions is determined
@@ -127,11 +128,29 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
 
     final int currentOffset = state._currentOffset + state._currentLimit;
 
-    emit(state.copyWith(
+    emit(state._copyWith(
       history: history,
       offset: currentOffset,
       reachedEnd: history.length == state.history.length,
     ));
+  }
+
+  void _onRemoveEntryHistoryEvent(
+    RemoveEntryHistoryEvent event,
+    Emitter<HistoryState> emit,
+  ) async {
+    emit(
+      state._copyWith(
+        skip: 1,
+        offset: state._currentOffset - 1,
+        history: [...state.history]..removeWhere(
+            (transaction) =>
+                transaction.id.valueOrThrow == event.entry.id.valueOrThrow,
+          ),
+      ),
+    );
+
+    await transactionRepository.delete(event.entry);
   }
 
   /// Checks whether [state] already has filter of the same type

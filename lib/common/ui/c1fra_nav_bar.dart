@@ -54,7 +54,7 @@ class C1fraNavigationBar extends StatelessWidget {
 
   void _onButtonTap(BuildContext context, int index) {
     if (index == this.index) {
-      PrimaryScrollController.of(context).animateTo(
+      PrimaryScrollController.maybeOf(context)?.animateTo(
         0.0,
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeIn,

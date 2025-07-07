@@ -29,20 +29,20 @@ class User extends Equatable {
   const User({
     this.language,
     this.dateFormat,
-    this.dailyLimit,
+    this.limit,
   });
 
-  final Money? dailyLimit;
+  final Money? limit;
   final Languages? language;
   final DateFormat? dateFormat;
 
   bool get isIntroduced =>
-      dailyLimit != null && language != null && dateFormat != null;
+      limit != null && language != null && dateFormat != null;
 
   Map<String, dynamic> toMap() => <String, dynamic>{
         if (dateFormat != null) dateFormatColumn: dateFormat?.name,
         if (language != null) languageColumn: language?.name,
-        ...?dailyLimit?.toMap(),
+        ...?limit?.toMap(),
       };
 
   User.fromMap(Map<String, dynamic> map)
@@ -52,7 +52,7 @@ class User extends Equatable {
         language = Languages.values
             .where((language) => language.name == map[languageColumn])
             .firstOrNull,
-        dailyLimit = tryCall<Money, Map<String, dynamic>>(
+        limit = tryCall<Money, Map<String, dynamic>>(
           function: Money.fromMap,
           argument: map,
           onCatch: () => null,
@@ -60,19 +60,19 @@ class User extends Equatable {
 
   User copyWith({
     Languages? language,
-    Money? dailyLimit,
+    Money? limit,
     DateFormat? dateFormat,
   }) =>
       User(
         language: language ?? this.language,
         dateFormat: dateFormat ?? this.dateFormat,
-        dailyLimit: dailyLimit ?? this.dailyLimit,
+        limit: limit ?? this.limit,
       );
 
   @override
   List<Object?> get props => [
         language,
-        dailyLimit,
+        limit,
         dateFormat,
       ];
 

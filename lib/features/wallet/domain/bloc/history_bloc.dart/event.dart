@@ -30,6 +30,12 @@ class ShouldUpdateRepositoryHistoryEvent extends HistoryEvent {
   const ShouldUpdateRepositoryHistoryEvent();
 }
 
+class RemoveEntryHistoryEvent extends HistoryEvent {
+  const RemoveEntryHistoryEvent({required this.entry});
+
+  final Transaction entry;
+}
+
 class ErrorEvent extends HistoryEvent {
   const ErrorEvent({this.e, this.st});
 

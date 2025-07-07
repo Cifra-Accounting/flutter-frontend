@@ -68,7 +68,7 @@ class IntroBloc extends Bloc<IntroEvent, IntroState> {
     ));
 
     final User user = User(
-      dailyLimit: Money(
+      limit: Money(
         currency: state.currency!,
         amountInSmallestUnits: state.amountInSmallestUnits!,
       ),

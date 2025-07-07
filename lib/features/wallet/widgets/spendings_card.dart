@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cifra_app/common/models/money.dart';
 import 'package:flutter/material.dart';
 
@@ -28,6 +30,7 @@ class SpendingsCard extends StatefulWidget {
 class _SpendingsCardState extends State<SpendingsCard>
     with TickerProviderStateMixin {
   late final TabController _tabController;
+
   late ColorScheme _colorScheme;
   late TextTheme _textTheme;
 
@@ -38,6 +41,12 @@ class _SpendingsCardState extends State<SpendingsCard>
     Periods.week,
     Periods.month,
   ];
+
+  double? get _percentage {
+    if (widget.spent == null || widget.outOf == null) return null;
+    if (widget.outOf!.amount == 0.0) return 1.0;
+    return max(widget.spent!.amount / widget.outOf!.amount, 0.0);
+  }
 
   @override
   void initState() {
@@ -80,7 +89,6 @@ class _SpendingsCardState extends State<SpendingsCard>
   @override
   void dispose() {
     _tabController.removeListener(_tabListener);
-
     _tabController.dispose();
 
     super.dispose();
@@ -161,10 +169,7 @@ class _SpendingsCardState extends State<SpendingsCard>
                               ),
                             ),
                             SpendingsIndicator(
-                              percentage: (widget.spent != null &&
-                                      widget.outOf != null)
-                                  ? widget.spent!.amount / widget.outOf!.amount
-                                  : null,
+                              percentage: _percentage?.clamp(0.0, 1.0),
                             ),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.baseline,
@@ -174,7 +179,8 @@ class _SpendingsCardState extends State<SpendingsCard>
                                 Text.rich(
                                   overflow: TextOverflow.fade,
                                   TextSpan(
-                                    text: widget.spent?.toString() ?? "\$0.0",
+                                    text: widget.spent?.formattedAmount ??
+                                        "\$0.0",
                                     style: GoogleFonts.montserratAlternates(
                                       textStyle:
                                           _textTheme.headlineLarge?.copyWith(
@@ -184,7 +190,7 @@ class _SpendingsCardState extends State<SpendingsCard>
                                     children: [
                                       TextSpan(
                                         text:
-                                            " / ${widget.outOf?.toString() ?? "\$0.0"}  ",
+                                            " / ${widget.outOf?.formattedAmount ?? "\$0.0"}  ",
                                         style: GoogleFonts.montserratAlternates(
                                           textStyle:
                                               _textTheme.bodyMedium?.copyWith(
@@ -197,9 +203,7 @@ class _SpendingsCardState extends State<SpendingsCard>
                                   ),
                                 ),
                                 Text(
-                                  (widget.spent != null && widget.outOf != null)
-                                      ? "( ${(widget.spent!.amount / widget.outOf!.amount).toInt()}% )"
-                                      : "( 0% )",
+                                  "( ${((_percentage ?? 0) * 100).toInt()}% )",
                                   style: GoogleFonts.montserratAlternates(
                                     textStyle: _textTheme.bodyMedium?.copyWith(
                                       color: _colorScheme.onPrimary

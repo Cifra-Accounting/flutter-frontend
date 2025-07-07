@@ -2,24 +2,20 @@ import 'package:cifra_app/repositories/utils/db_constants.dart';
 
 import 'dart:math';
 
-class Money {
+import 'package:equatable/equatable.dart';
+
+class Money extends Equatable {
   const Money({
     required this.currency,
     required int amountInSmallestUnits,
   }) : _amountInSmallestUnits = amountInSmallestUnits;
 
   final Currency currency;
-
-  // Stored in smallest currency units (e.g. cents for USD)
   final int _amountInSmallestUnits;
 
-  // Return as decimal (e.g. 12.34)
   double get amount => _amountInSmallestUnits / currency._scale;
-
-  // Return the string representation (e.g. $12.34)
   String get formattedAmount => currency.format(_amountInSmallestUnits);
 
-  // Example: store in DB as map
   Map<String, dynamic> toMap() => {
         currencyColumn: currency.name,
         amountColumn: _amountInSmallestUnits,
@@ -41,22 +37,87 @@ class Money {
         amountInSmallestUnits: amountInSmallestUnits ?? _amountInSmallestUnits,
       );
 
-  Money operator +(Object other) {
-    if (other is Money && currency == other.currency) {
-      return Money(
-        currency: currency,
-        amountInSmallestUnits:
-            _amountInSmallestUnits + other._amountInSmallestUnits,
-      );
-    }
-    if (other is num) {
-      return Money(
-        currency: currency,
-        amountInSmallestUnits: _amountInSmallestUnits + other as int,
-      );
-    }
-    throw TypeError();
-  }
+  bool operator >(Object other) => switch (other) {
+        Money _ => currency == other.currency
+            ? _amountInSmallestUnits > other._amountInSmallestUnits
+            : throw ArgumentError.value(
+                other,
+                "other",
+                "Currency missmatch",
+              ),
+        int _ => _amountInSmallestUnits > other,
+        _ => throw TypeError(),
+      };
+
+  bool operator >=(Object other) => switch (other) {
+        Money _ => currency == other.currency
+            ? _amountInSmallestUnits >= other._amountInSmallestUnits
+            : throw ArgumentError.value(
+                other,
+                "other",
+                "Currency missmatch",
+              ),
+        int _ => _amountInSmallestUnits > other,
+        _ => throw TypeError(),
+      };
+
+  bool operator <(Object other) => switch (other) {
+        Money _ => currency == other.currency
+            ? _amountInSmallestUnits < other._amountInSmallestUnits
+            : throw ArgumentError.value(
+                other,
+                "other",
+                "Currency missmatch",
+              ),
+        int _ => _amountInSmallestUnits < other,
+        _ => throw TypeError(),
+      };
+
+  bool operator <=(Object other) => switch (other) {
+        Money _ => currency == other.currency
+            ? _amountInSmallestUnits <= other._amountInSmallestUnits
+            : throw ArgumentError.value(
+                other,
+                "other",
+                "Currency missmatch",
+              ),
+        int _ => _amountInSmallestUnits <= other,
+        _ => throw TypeError(),
+      };
+
+  /// Note: Money objects that have different currency properties cant add up,
+  /// in that case will return l-value
+  Money operator +(Object other) => switch (other) {
+        Money _ => currency == other.currency
+            ? Money(
+                amountInSmallestUnits:
+                    _amountInSmallestUnits + other._amountInSmallestUnits,
+                currency: currency,
+              )
+            : this,
+        int _ => Money(
+            amountInSmallestUnits: _amountInSmallestUnits + other,
+            currency: currency,
+          ),
+        _ => throw TypeError(),
+      };
+
+  /// Note: Money objects that have different currency properties cant substract,
+  /// in that case will return l-value
+  Money operator -(Object other) => switch (other) {
+        Money _ => currency == other.currency
+            ? Money(
+                amountInSmallestUnits:
+                    _amountInSmallestUnits - other._amountInSmallestUnits,
+                currency: currency,
+              )
+            : this,
+        int _ => Money(
+            amountInSmallestUnits: _amountInSmallestUnits - other,
+            currency: currency,
+          ),
+        _ => throw TypeError(),
+      };
 
   Money operator *(int other) {
     return Money(
@@ -65,17 +126,15 @@ class Money {
     );
   }
 
-  @override
-  String toString() => formattedAmount;
+  Money operator /(int other) {
+    return Money(
+      currency: currency,
+      amountInSmallestUnits: (_amountInSmallestUnits / other).toInt(),
+    );
+  }
 
   @override
-  bool operator ==(Object other) =>
-      other is Money &&
-      other.currency == currency &&
-      other._amountInSmallestUnits == _amountInSmallestUnits;
-
-  @override
-  int get hashCode => currency.hashCode ^ _amountInSmallestUnits.hashCode;
+  List<Object?> get props => <Object?>[currency, _amountInSmallestUnits];
 }
 
 enum Currency {

@@ -17,7 +17,7 @@ void main() {
     MockSharedPreferencesWithCache? prefs;
 
     final User testUser1 = const User(
-      dailyLimit: Money(currency: Currency.usd, amountInSmallestUnits: 1000),
+      limit: Money(currency: Currency.usd, amountInSmallestUnits: 1000),
       language: Languages.english,
       dateFormat: DateFormat.ddmmyy,
     );

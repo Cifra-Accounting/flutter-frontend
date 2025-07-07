@@ -24,10 +24,13 @@ class WalletView extends StatefulWidget {
 }
 
 class _WalletViewState extends State<WalletView> {
-  final GlobalKey _spendingsCardKey = const GlobalObjectKey('spendingsCard');
+  Periods _currentPeriod = Periods.values.first;
 
   late ColorScheme _colorScheme;
   late TextTheme _textTheme;
+
+  HistoryBloc get _bloc => context.read<HistoryBloc>();
+  HistoryState get _state => _bloc.state;
 
   @override
   void didChangeDependencies() {
@@ -39,12 +42,7 @@ class _WalletViewState extends State<WalletView> {
     super.didChangeDependencies();
   }
 
-  Periods _currentPeriod = Periods.values.first;
-
-  List<Widget> _mappedTransactions(
-    BuildContext context,
-    List<Transaction> transactions,
-  ) {
+  List<Widget> _mappedTransactions(List<Transaction> transactions) {
     if (transactions.isEmpty) {
       return [
         Text(
@@ -57,52 +55,63 @@ class _WalletViewState extends State<WalletView> {
         )
       ];
     }
-    Transaction? previous;
-    final List<Widget> result = <Widget>[];
 
-    for (final Transaction transaction in transactions) {
-      if (previous == null ||
-          previous.date.value?.day != transaction.date.value?.day) {
-        result.add(
+    final List<Widget> result = transactions
+        .map<Widget>(
+          (transaction) => C1fraListTile(
+            key: ValueKey(transaction.id.valueOrThrow),
+            transaction: transaction,
+            outOf: context.read<UserRepository>().get().limit?.amount,
+            onSwiped: _onCardSwipe,
+            onTap: _onCardTap,
+          ),
+        )
+        .toList();
+
+    for (final (index, transaction) in transactions.indexed) {
+      final Transaction? previous =
+          index != 0 ? transactions.elementAtOrNull(index - 1) : null;
+
+      if (previous?.date.value?.day != transaction.date.value?.day) {
+        result.insert(
+          index,
           Padding(
             padding: const EdgeInsets.only(bottom: blankSpacerSize),
             child: Text(
               "${transaction.date.valueOrThrow.day}.${transaction.date.valueOrThrow.month}.${transaction.date.valueOrThrow.year}",
               style: GoogleFonts.montserratAlternates(
-                textStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: _colorScheme.onSurface,
-                    ),
+                textStyle: _textTheme.bodyMedium?.copyWith(
+                  color: _colorScheme.onSurface,
+                ),
               ),
             ),
           ),
         );
       }
-      result.add(
-        C1fraListTile(
-          key: ValueKey(transaction.id.valueOrThrow),
-          transaction: transaction,
-          outOf: context.read<UserRepository>().get().dailyLimit?.amount,
-          onSwiped: (key) {},
-          onTap: (key) => onCardTap(context, key),
-        ),
-      );
-
-      previous = transaction;
     }
 
     return result;
   }
 
-  void onCardTap(BuildContext context, Key key) => showModalBottomSheet(
+  void _onCardTap(Key key) => showModalBottomSheet(
         context: context,
         backgroundColor: Colors.transparent,
         builder: (_) => DetailsModalSheet(
-          transaction: context.read<HistoryBloc>().state.history.firstWhere(
-                (Transaction transacion) =>
-                    transacion.id.valueOrThrow == (key as ValueKey).value,
-              ),
+          transaction: _state.history.firstWhere(
+            (Transaction transacion) =>
+                transacion.id.valueOrThrow == (key as ValueKey).value,
+          ),
         ),
         useRootNavigator: true,
+      );
+
+  void _onCardSwipe(Key key) => _bloc.add(
+        RemoveEntryHistoryEvent(
+          entry: _state.history.firstWhere(
+            (Transaction transacion) =>
+                transacion.id.valueOrThrow == (key as ValueKey).value,
+          ),
+        ),
       );
 
   @override
@@ -116,44 +125,41 @@ class _WalletViewState extends State<WalletView> {
           borderRadius: const BorderRadius.vertical(
             top: Radius.circular(cardBorderRadius),
           ),
-          child: BlocBuilder<HistoryBloc, HistoryState>(
-            builder: (context, state) {
-              if (state.history.isEmpty && !state.reachedEnd) {
-                context.read<HistoryBloc>().add(HitBottomHistoryEvent());
-              }
-              return CustomScrollView(
-                primary: true,
-                slivers: <Widget>[
-                  FadingSliver(
-                    child: BlocBuilder<StatsBloc, StatsState>(
-                      builder: (context, state) => SpendingsCard(
-                        key: _spendingsCardKey,
-                        spent: state.spendings[_currentPeriod]?.$1,
-                        outOf: state.spendings[_currentPeriod]?.$2,
-                        onChanged: (period) {
-                          context
-                              .read<StatsBloc>()
-                              .add(PeriodPromptedStatsEvent(period: period));
-                          setState(() {
-                            _currentPeriod = period;
-                          });
-                        },
-                      ),
-                    ),
+          child: CustomScrollView(
+            slivers: <Widget>[
+              FadingSliver(
+                child: BlocBuilder<StatsBloc, StatsState>(
+                  builder: (context, state) => SpendingsCard(
+                    spent: state.spendings[_currentPeriod]?.$1,
+                    outOf: state.spendings[_currentPeriod]?.$2,
+                    onChanged: (period) {
+                      context
+                          .read<StatsBloc>()
+                          .add(PeriodPromptedStatsEvent(period: period));
+                      setState(() {
+                        _currentPeriod = period;
+                      });
+                    },
                   ),
-                  SliverToBoxAdapter(
-                    child: SizedBox(
-                      height: blankSpacerSize,
-                    ),
-                  ),
-                  DecoratedSliver(
-                    decoration: BoxDecoration(
-                      color: _colorScheme.surface,
-                      borderRadius: BorderRadius.circular(cardBorderRadius),
-                    ),
-                    sliver: SliverPadding(
-                      padding: EdgeInsets.all(20),
-                      sliver: SliverList(
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: SizedBox(height: blankSpacerSize),
+              ),
+              DecoratedSliver(
+                decoration: BoxDecoration(
+                  color: _colorScheme.surface,
+                  borderRadius: BorderRadius.circular(cardBorderRadius),
+                ),
+                sliver: SliverPadding(
+                  padding: EdgeInsets.all(20),
+                  sliver: BlocBuilder<HistoryBloc, HistoryState>(
+                    builder: (context, state) {
+                      if (state.history.isEmpty && !state.reachedEnd) {
+                        _bloc.add(HitBottomHistoryEvent());
+                      }
+
+                      return SliverList(
                         delegate: SliverChildListDelegate(
                           <Widget>[
                             Container(
@@ -186,20 +192,20 @@ class _WalletViewState extends State<WalletView> {
                                 color: _colorScheme.onSurface,
                               ),
                             ),
-                            ..._mappedTransactions(context, state.history),
+                            ..._mappedTransactions(state.history),
                           ],
                         ),
-                      ),
-                    ),
+                      );
+                    },
                   ),
-                  SliverToBoxAdapter(
-                    child: SizedBox(
-                      height: kBottomNavigationBarHeight,
-                    ),
-                  )
-                ],
-              );
-            },
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: SizedBox(
+                  height: kBottomNavigationBarHeight + blankSpacerSize,
+                ),
+              )
+            ],
           ),
         ),
       );
@@ -281,7 +287,7 @@ class C1fraListTile extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      "${transaction.type.valueOrThrow == TransactionType.income ? "+" : "-"} ${transaction.value.valueOrThrow}",
+                      "${transaction.type.valueOrThrow == TransactionType.income ? "+" : "-"} ${transaction.value.valueOrThrow.formattedAmount}",
                       style: GoogleFonts.montserratAlternates(
                         textStyle: textTheme.bodyLarge?.copyWith(
                           color: colorScheme.onSurface,
