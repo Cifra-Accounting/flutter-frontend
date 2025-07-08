@@ -1,3 +1,4 @@
+import 'package:cifra_app/common/ui/cirfa_swipable.dart';
 import 'package:cifra_app/features/wallet/widgets/period_selector.dart';
 import 'package:flutter/material.dart';
 
@@ -233,22 +234,13 @@ class C1fraListTile extends StatelessWidget {
     return Container(
       height: 63,
       margin: EdgeInsets.only(bottom: blankSpacerSize),
-      child: Swipable(
-        key: key,
-        onSwiped: onSwiped,
+      child: C1fraSwipable(
+        onSwiped: () {},
+        icon: Icons.delete_forever,
         spacing: blankSpacerSize,
-        borderRadius: BorderRadius.circular(cardBorderRadius / 2),
-        swiped: Container(
-          decoration: BoxDecoration(
-            color: colorScheme.error,
-            borderRadius: BorderRadius.circular(cardBorderRadius / 2),
-          ),
-          alignment: Alignment.center,
-          padding: const EdgeInsets.all(5.0),
-          child: Icon(
-            Icons.stop_circle,
-            color: colorScheme.onError,
-          ),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(cardBorderRadius / 2),
+          color: colorScheme.primary,
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(cardBorderRadius / 2),
