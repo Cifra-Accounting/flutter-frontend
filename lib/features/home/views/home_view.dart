@@ -43,7 +43,15 @@ class HomeView extends StatelessWidget {
         leading: const Icon(C1fraIcons.wallet, size: 25),
         trailing: const Icon(C1fraIcons.stats, size: 25),
         onTap: (index) => navigationShell.goBranch(index),
-        onPlusTap: () {},
+        onPlusTap: () => showModalBottomSheet(
+          context: context,
+          backgroundColor: Colors.transparent,
+          isDismissible: true,
+          showDragHandle: true,
+          useRootNavigator: true,
+          useSafeArea: true,
+          builder: (_) => Placeholder(),
+        ),
       ),
     );
   }

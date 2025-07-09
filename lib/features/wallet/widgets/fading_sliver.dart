@@ -117,11 +117,11 @@ class _FadingRenderSliver extends RenderSliver
 
   @override
   void setupParentData(covariant RenderObject child) {
-    child.parentData = SliverPhysicalParentData();
-    final SliverPhysicalParentData childParentData =
-        child.parentData as SliverPhysicalParentData;
-
-    childParentData.paintOffset = Offset.zero;
+    if (child.parentData is! SliverPhysicalParentData) {
+      child.parentData = SliverPhysicalParentData()..paintOffset = Offset.zero;
+    } else {
+      (child.parentData as SliverPhysicalParentData).paintOffset = Offset.zero;
+    }
   }
 
   void _updateParentData(RenderObject child, SliverGeometry geometry) {

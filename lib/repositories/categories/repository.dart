@@ -45,7 +45,8 @@ class CategoryRepository implements Repository<Category> {
       return Category()..fromMap(list.first);
     } catch (e) {
       _updateController.addError(
-          RepositoryException("Failed to get category: $e", runtimeType));
+        RepositoryException("Failed to get category: $e", runtimeType),
+      );
       return null;
     }
   }

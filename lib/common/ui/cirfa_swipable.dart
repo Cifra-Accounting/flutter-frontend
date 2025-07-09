@@ -8,23 +8,38 @@ class C1fraSwipable extends SingleChildRenderObjectWidget {
   const C1fraSwipable({
     super.key,
     required this.icon,
+    required this.iconColor,
+    this.iconSize,
     this.spacing = 0.0,
     this.decoration,
+    this.color,
     this.onSwiped,
+    this.threshold = 0.5,
     required super.child,
-  });
+  }) : assert(
+          color != null || decoration != null,
+          "Either color or decoration should be set",
+        );
 
   final IconData icon;
+  final Color iconColor;
+  final double? iconSize;
   final double spacing;
   final VoidCallback? onSwiped;
   final BoxDecoration? decoration;
+  final Color? color;
+  final double threshold;
 
   @override
   RenderObject createRenderObject(BuildContext context) =>
       _C1fraSwipableRenderObject(
         icon,
+        iconColor,
+        iconSize,
         spacing,
         decoration,
+        color,
+        threshold,
         onSwiped,
       );
 
@@ -38,15 +53,24 @@ class C1fraSwipable extends SingleChildRenderObjectWidget {
     if (renderObject.icon != icon) {
       renderObject.icon = icon;
     }
+    if (renderObject.iconColor != iconColor) {
+      renderObject.iconColor = iconColor;
+    }
+    if (renderObject.iconSize != iconSize) {
+      renderObject.iconSize = iconSize;
+    }
     if (renderObject.spacing != spacing) {
       renderObject.spacing = spacing;
     }
     if (renderObject.decoration != decoration) {
       renderObject.decoration = decoration;
     }
-    if (renderObject.onSwiped != onSwiped) {
-      renderObject.onSwiped = onSwiped;
+    if (renderObject.color != color) {
+      renderObject.color = color;
     }
+    renderObject
+      ..threshold = threshold
+      ..onSwiped = onSwiped;
   }
 }
 
@@ -54,27 +78,27 @@ class _C1fraSwipableRenderObject extends RenderProxyBox
     implements TickerProvider {
   _C1fraSwipableRenderObject(
     IconData icon,
+    Color iconColor,
+    double? iconSize,
     double spacing,
     BoxDecoration? decoration,
+    Color? color,
+    this.threshold,
     this.onSwiped,
   )   : _icon = icon,
+        _iconColor = iconColor,
         _spacing = spacing,
+        _color = color,
         _decoration = decoration;
 
   final LayerHandle<ClipPathLayer> _clipPathLayer =
       LayerHandle<ClipPathLayer>();
-  late final TextPainter _textPainter = TextPainter(
-    text: TextSpan(
-      text: String.fromCharCode(_icon.codePoint),
-      style: TextStyle(
-        fontFamily: _icon.fontFamily,
-        package: _icon.fontPackage,
-        color: Colors.white,
-      ),
-    ),
+  final TextPainter _textPainter = TextPainter(
     textAlign: TextAlign.center,
     textDirection: TextDirection.ltr,
   );
+
+  TextStyle? _lastTextStyle;
 
   HorizontalDragGestureRecognizer? _recognizer;
 
@@ -83,6 +107,8 @@ class _C1fraSwipableRenderObject extends RenderProxyBox
   Animation? _animation;
 
   VoidCallback? onSwiped;
+  double threshold;
+
   IconData _icon;
 
   set icon(IconData icon) {
@@ -91,6 +117,24 @@ class _C1fraSwipableRenderObject extends RenderProxyBox
   }
 
   IconData get icon => _icon;
+
+  Color _iconColor;
+
+  set iconColor(Color iconColor) {
+    _iconColor = iconColor;
+    markNeedsPaint();
+  }
+
+  Color get iconColor => _iconColor;
+
+  double? _iconSize;
+
+  set iconSize(double? iconSize) {
+    _iconSize = iconSize;
+    markNeedsPaint();
+  }
+
+  double? get iconSize => _iconSize;
 
   double _spacing;
 
@@ -110,17 +154,23 @@ class _C1fraSwipableRenderObject extends RenderProxyBox
 
   BoxDecoration? get decoration => _decoration;
 
+  Color? _color;
+
+  set color(Color? color) {
+    _color = color;
+    markNeedsPaint();
+  }
+
+  Color? get color => _color;
+
   @override
   void attach(PipelineOwner owner) {
     super.attach(owner);
 
-    _controller = AnimationController(vsync: this, duration: Durations.short4);
-
-    _animation = _controller?.drive(
-      Tween(begin: 1.0, end: 0.0).chain(
-        CurveTween(curve: Curves.easeIn),
-      ),
-    )?..addListener(_animationListener);
+    _controller = AnimationController(
+      vsync: this,
+      duration: Durations.short4,
+    );
 
     _recognizer = HorizontalDragGestureRecognizer()
       ..onStart = _handleOnStart
@@ -132,6 +182,7 @@ class _C1fraSwipableRenderObject extends RenderProxyBox
   void detach() {
     _controller?.dispose();
     _recognizer?.dispose();
+    _textPainter.dispose();
 
     super.detach();
   }
@@ -147,7 +198,6 @@ class _C1fraSwipableRenderObject extends RenderProxyBox
   void performLayout() {
     child?.layout(constraints, parentUsesSize: true);
     size = child?.size ?? Size.zero;
-    _textPainter.layout(maxWidth: size.width);
 
     final ParentData? parentData = child?.parentData;
     if (parentData is SwipableParentData) {
@@ -191,21 +241,38 @@ class _C1fraSwipableRenderObject extends RenderProxyBox
   }
 
   @override
+  void applyPaintTransform(covariant RenderObject child, Matrix4 transform) {
+    final ParentData? parentData = child.parentData;
+    if (parentData is SwipableParentData) {
+      final Offset offset = parentData.offset;
+      final Matrix4 transalte = Matrix4.translationValues(
+        offset.dx,
+        offset.dy,
+        0.0,
+      );
+
+      transform.multiply(transalte);
+    }
+  }
+
+  @override
   void paint(PaintingContext context, Offset offset) {
+    final BorderRadius? resolvedRadius = decoration?.borderRadius?.resolve(
+      TextDirection.ltr,
+    );
+    final RRect rrect = RRect.fromRectAndCorners(
+      offset & size,
+      topLeft: resolvedRadius?.topLeft ?? Radius.zero,
+      bottomLeft: resolvedRadius?.bottomLeft ?? Radius.zero,
+      topRight: Radius.zero,
+      bottomRight: Radius.zero,
+    );
+
     _clipPathLayer.layer = context.pushClipPath(
       needsCompositing,
       offset,
       offset & size,
-      Path()
-        ..addRRect(
-          decoration?.borderRadius
-                  ?.resolve(TextDirection.ltr)
-                  .toRRect(offset & size) ??
-              RRect.fromRectAndRadius(
-                offset & size,
-                Radius.zero,
-              ),
-        ),
+      Path()..addRRect(rrect),
       _childPainter,
       clipBehavior: Clip.antiAliasWithSaveLayer,
       oldLayer: _clipPathLayer.layer,
@@ -221,23 +288,51 @@ class _C1fraSwipableRenderObject extends RenderProxyBox
         offset.dy,
       );
 
+      final BorderRadius? resolvedRadius = decoration?.borderRadius?.resolve(
+        TextDirection.ltr,
+      );
+      final RRect rrect = RRect.fromRectAndCorners(
+        swipedRect,
+        topLeft: resolvedRadius?.topLeft ?? Radius.zero,
+        topRight: resolvedRadius?.topRight ?? Radius.zero,
+        bottomRight: resolvedRadius?.bottomRight ?? Radius.zero,
+        bottomLeft: resolvedRadius?.bottomLeft ?? Radius.zero,
+      );
+
       child?.paint(context, childOffset);
 
       context.canvas.drawPath(
-        Path()
-          ..addRRect(
-            decoration?.borderRadius
-                    ?.resolve(TextDirection.ltr)
-                    .toRRect(swipedRect) ??
-                RRect.fromRectAndRadius(
-                  swipedRect,
-                  Radius.zero,
-                ),
-          ),
-        Paint()..color = decoration?.color ?? Colors.red,
+        Path()..addRRect(rrect),
+        Paint()..color = decoration?.color ?? _color!,
       );
 
-      _textPainter.paint(context.canvas, swipedRect.center);
+      final double alpha = (swipedRect.width / (size.width * threshold)).clamp(
+        0.0,
+        1.0,
+      );
+
+      if (_lastTextStyle?.color?.a != alpha || _lastTextStyle == null) {
+        _lastTextStyle = TextStyle(
+          fontSize: _iconSize,
+          fontFamily: _icon.fontFamily,
+          package: _icon.fontPackage,
+          color: _iconColor.withValues(alpha: alpha),
+        );
+
+        _textPainter.text = TextSpan(
+          text: String.fromCharCode(_icon.codePoint),
+          style: _lastTextStyle,
+        );
+        _textPainter.layout(maxWidth: size.width);
+      }
+
+      final Size textSize = _textPainter.size;
+      final double dx =
+          swipedRect.left + (swipedRect.width - textSize.width) / 2;
+      final double dy =
+          swipedRect.top + (swipedRect.height - textSize.height) / 2;
+
+      _textPainter.paint(context.canvas, Offset(dx, dy));
     }
   }
 
@@ -251,11 +346,11 @@ class _C1fraSwipableRenderObject extends RenderProxyBox
     final ParentData? parentData = child?.parentData;
     if (parentData is SwipableParentData) {
       final Offset offset = Offset(
-        parentData.offset.dx * (_animation?.value ?? 1.0),
+        -(size.width + _spacing) * (_animation?.value ?? 1.0),
         0.0,
       );
       final Rect swipedRect = parentData.swipedRect.copyWith(
-        left: (size.width + offset.dx + spacing).clamp(0.0, size.width),
+        left: (offset.dx + size.width + _spacing).clamp(0.0, size.width),
       );
       child?.parentData = SwipableParentData(offset, swipedRect);
     }
@@ -263,21 +358,29 @@ class _C1fraSwipableRenderObject extends RenderProxyBox
     markNeedsPaint();
   }
 
-  void _handleOnStart(DragStartDetails details) => _controller?.reset();
+  void _handleOnStart(DragStartDetails details) {
+    _animation?.removeListener(_animationListener);
+    _animation = null;
+    _controller?.reset();
+  }
 
   void _handleOnUpdate(DragUpdateDetails details) {
     final ParentData? parentData = child?.parentData;
     if (parentData is SwipableParentData) {
       final Offset offset = Offset(
-        (parentData.offset.dx + details.delta.dx)
-            .clamp(-size.width - _spacing, 0.0),
+        (parentData.offset.dx + details.delta.dx).clamp(
+          -size.width - _spacing,
+          0.0,
+        ),
         0.0,
       );
       final Rect swipedRect = parentData.swipedRect.copyWith(
-        left: (size.width + offset.dx + spacing).clamp(0.0, size.width),
+        left: (size.width + offset.dx + _spacing).clamp(0.0, size.width),
       );
 
-      if (offset.dx.abs() > size.width * 0.3) HapticFeedback.selectionClick();
+      if (offset.dx.abs() + _spacing / 2 > size.width * threshold) {
+        HapticFeedback.selectionClick();
+      }
 
       child?.parentData = SwipableParentData(offset, swipedRect);
     }
@@ -287,12 +390,24 @@ class _C1fraSwipableRenderObject extends RenderProxyBox
 
   void _handleOnEnd(DragEndDetails details) {
     final ParentData? parentData = child?.parentData;
-    if (parentData is SwipableParentData &&
-        parentData.offset.dx.abs() >= size.width * 0.4) {
-      onSwiped?.call();
-      _controller?.reverse();
+    if (parentData is! SwipableParentData) return;
+
+    if (parentData.offset.dx.abs() + _spacing / 2 >= size.width * threshold) {
+      final current = parentData.offset.dx.abs() / (size.width + _spacing);
+      final target = 1.0;
+
+      _animation = _controller?.drive(Tween(begin: current, end: target))
+        ?..addListener(_animationListener);
+
+      _controller?.fling().then((_) => onSwiped?.call());
     } else {
-      _controller?.forward();
+      final current = parentData.offset.dx.abs() / (size.width + _spacing);
+      final target = 0.0;
+
+      _animation = _controller?.drive(Tween(begin: current, end: target))
+        ?..addListener(_animationListener);
+
+      _controller?.fling();
     }
   }
 }

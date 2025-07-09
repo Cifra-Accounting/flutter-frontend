@@ -1,8 +1,8 @@
-import 'package:cifra_app/common/ui/cirfa_swipable.dart';
-import 'package:cifra_app/features/wallet/widgets/period_selector.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:marquee/marquee.dart';
 
 import 'package:cifra_app/common/ui/ui.dart';
 import 'package:cifra_app/features/wallet/widgets/spendings_card.dart';
@@ -10,12 +10,12 @@ import 'package:cifra_app/common/constants/enums.dart';
 import 'package:cifra_app/features/wallet/domain/bloc/history_bloc.dart/bloc.dart';
 import 'package:cifra_app/features/wallet/domain/bloc/stats_bloc.dart/bloc.dart';
 import 'package:cifra_app/features/wallet/widgets/fading_sliver.dart';
+import 'package:cifra_app/common/ui/cirfa_swipable.dart';
+import 'package:cifra_app/features/wallet/widgets/period_selector.dart';
 import 'package:cifra_app/repositories/transactions/models/transaction.dart';
 import 'package:cifra_app/repositories/user/repository.dart';
 
 import 'package:cifra_app/common/constants/numeric_constants.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:marquee/marquee.dart';
 
 class WalletView extends StatefulWidget {
   const WalletView({super.key});
@@ -97,13 +97,16 @@ class _WalletViewState extends State<WalletView> {
   void _onCardTap(Key key) => showModalBottomSheet(
         context: context,
         backgroundColor: Colors.transparent,
+        isDismissible: true,
+        showDragHandle: true,
+        useRootNavigator: true,
+        useSafeArea: true,
         builder: (_) => DetailsModalSheet(
           transaction: _state.history.firstWhere(
             (Transaction transacion) =>
                 transacion.id.valueOrThrow == (key as ValueKey).value,
           ),
         ),
-        useRootNavigator: true,
       );
 
   void _onCardSwipe(Key key) => _bloc.add(
@@ -212,7 +215,7 @@ class _WalletViewState extends State<WalletView> {
       );
 }
 
-class C1fraListTile extends StatelessWidget {
+class C1fraListTile extends StatefulWidget {
   const C1fraListTile({
     required super.key,
     required this.transaction,
@@ -227,27 +230,48 @@ class C1fraListTile extends StatelessWidget {
   final void Function(Key key) onTap;
 
   @override
-  Widget build(BuildContext context) {
-    final ColorScheme colorScheme = Theme.of(context).colorScheme;
-    final TextTheme textTheme = Theme.of(context).textTheme;
+  State<C1fraListTile> createState() => _C1fraListTileState();
+}
 
-    return Container(
-      height: 63,
-      margin: EdgeInsets.only(bottom: blankSpacerSize),
+class _C1fraListTileState extends State<C1fraListTile> {
+  bool _deleting = false;
+
+  late ColorScheme colorScheme;
+  late TextTheme textTheme;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final ThemeData theme = Theme.of(context);
+
+    colorScheme = theme.colorScheme;
+    textTheme = theme.textTheme;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: Durations.short4,
+      height: _deleting ? 0 : 63,
+      onEnd: () => _deleting ? widget.onSwiped(widget.key!) : null,
+      margin: EdgeInsets.only(bottom: _deleting ? 0 : blankSpacerSize),
       child: C1fraSwipable(
-        onSwiped: () {},
+        onSwiped: _handleSwipe,
         icon: Icons.delete_forever,
+        iconColor: colorScheme.onPrimary,
+        iconSize: 63 - 20,
         spacing: blankSpacerSize,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(cardBorderRadius / 2),
-          color: colorScheme.primary,
+          color: colorScheme.primaryContainer,
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(cardBorderRadius / 2),
           child: Material(
             color: colorScheme.surfaceContainerHigh,
             child: InkWell(
-              onTap: () => onTap(key!),
+              onTap: () => widget.onTap(widget.key!),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   vertical: 10,
@@ -263,13 +287,13 @@ class C1fraListTile extends StatelessWidget {
                         SizedBox.square(
                           dimension: 30,
                           child: C1fraIcon(
-                            icon: transaction
-                                .category.valueOrThrow.icon.valueOrThrow,
+                            icon: widget.transaction.category.valueOrThrow.icon
+                                .valueOrThrow,
                             color: colorScheme.inverseSurface,
                           ),
                         ),
                         Text(
-                          transaction.title.valueOrThrow,
+                          widget.transaction.title.valueOrThrow,
                           style: GoogleFonts.montserratAlternates(
                             textStyle: textTheme.bodyLarge?.copyWith(
                               color: colorScheme.onSurface,
@@ -279,7 +303,7 @@ class C1fraListTile extends StatelessWidget {
                       ],
                     ),
                     Text(
-                      "${transaction.type.valueOrThrow == TransactionType.income ? "+" : "-"} ${transaction.value.valueOrThrow.formattedAmount}",
+                      "${widget.transaction.type.valueOrThrow == TransactionType.income ? "+" : "-"} ${widget.transaction.value.valueOrThrow.formattedAmount}",
                       style: GoogleFonts.montserratAlternates(
                         textStyle: textTheme.bodyLarge?.copyWith(
                           color: colorScheme.onSurface,
@@ -295,6 +319,10 @@ class C1fraListTile extends StatelessWidget {
       ),
     );
   }
+
+  void _handleSwipe() => setState(() {
+        _deleting = true;
+      });
 }
 
 class DetailsModalSheet extends StatelessWidget {
