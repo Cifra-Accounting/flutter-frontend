@@ -3,7 +3,7 @@ description: "Accounting app designed to be among the best"
 
 publish_to: "none"
 
-version: 1.0.0+1
+version: 1.0.0-dev
 
 environment:
   sdk: ^3.5.2
@@ -26,15 +26,17 @@ dependencies:
   google_fonts: ^6.2.1
   marquee: ^2.3.0
   dropdown_button2: ^2.3.9
+  retrofit: ^4.6.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
   freezed: ^3.0.6
+  retrofit_generator: ^9.6.0
+  mockito: ^5.4.6
   flutter_lints: ^5.0.0
   bloc_test: ^10.0.0
-  mockito: ^5.4.5
   build_runner: ^2.4.15
 
 flutter:

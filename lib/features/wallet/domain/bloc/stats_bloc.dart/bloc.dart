@@ -80,9 +80,9 @@ class StatsBloc extends Bloc<StatsEvent, StatsState> {
     final Money spent = sumTransactions(expenseTransactions);
 
     final Money limit = user.limit!;
-    final Money base = got > limit ? got : limit;
+    final Money base = got < limit ? got : limit;
 
-    final Money outOf = base / daysInMonth * daysInPeriod;
+    final Money outOf = base * (daysInPeriod / daysInMonth);
 
     emit(state.copyWith(
       spendings: {...state.spendings, event.period: (spent, outOf)},

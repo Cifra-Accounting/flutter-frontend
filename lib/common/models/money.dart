@@ -119,14 +119,14 @@ class Money extends Equatable {
         _ => throw TypeError(),
       };
 
-  Money operator *(int other) {
+  Money operator *(num other) {
     return Money(
       currency: currency,
-      amountInSmallestUnits: _amountInSmallestUnits * other,
+      amountInSmallestUnits: (_amountInSmallestUnits * other).toInt(),
     );
   }
 
-  Money operator /(int other) {
+  Money operator /(num other) {
     return Money(
       currency: currency,
       amountInSmallestUnits: (_amountInSmallestUnits / other).toInt(),
@@ -169,4 +169,7 @@ enum Currency {
   int parseAmount(double value) => (value * _scale).round();
 
   int get _scale => (pow(10, fractionDigits)).clamp(1, 1000000).toInt();
+
+  @override
+  String toString() => name;
 }
