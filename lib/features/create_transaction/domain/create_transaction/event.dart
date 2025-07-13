@@ -10,11 +10,13 @@ part "event.freezed.dart";
 @freezed
 abstract class CreateTransactionEvent with _$CreateTransactionEvent {
   const factory CreateTransactionEvent.update({
-    Category? category,
-    Money? amount,
-    TransactionType? type,
     String? title,
     String? description,
+    Category? category,
+    int? amountInSmallestUnits,
+    Currency? currency,
+    TransactionType? type,
+    @Default(false) bool shouldConvertToBase,
   }) = Update;
   const factory CreateTransactionEvent.submit() = Submit;
   const factory CreateTransactionEvent.error({

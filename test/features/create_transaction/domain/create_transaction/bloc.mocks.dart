@@ -3,18 +3,23 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i7;
+import 'dart:async' as _i8;
 
-import 'package:cifra_app/common/models/get_filter.dart' as _i10;
-import 'package:cifra_app/repositories/categories/models/category.dart' as _i5;
-import 'package:cifra_app/repositories/categories/repository.dart' as _i11;
+import 'package:cifra_app/common/models/get_filter.dart' as _i11;
+import 'package:cifra_app/common/models/money.dart' as _i13;
+import 'package:cifra_app/repositories/categories/models/category.dart' as _i6;
+import 'package:cifra_app/repositories/categories/repository.dart' as _i14;
+import 'package:cifra_app/repositories/currency_exchange/exchange_rate_repository.dart'
+    as _i12;
+import 'package:cifra_app/repositories/currency_exchange/models/exchage_rate.dart'
+    as _i5;
 import 'package:cifra_app/repositories/transactions/models/transaction.dart'
     as _i4;
-import 'package:cifra_app/repositories/transactions/repository.dart' as _i9;
+import 'package:cifra_app/repositories/transactions/repository.dart' as _i10;
 import 'package:cifra_app/repositories/user/models/user.dart' as _i2;
-import 'package:cifra_app/repositories/user/repository.dart' as _i6;
+import 'package:cifra_app/repositories/user/repository.dart' as _i7;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:shared_preferences/shared_preferences.dart' as _i8;
+import 'package:shared_preferences/shared_preferences.dart' as _i9;
 import 'package:sqflite/sqflite.dart' as _i3;
 
 // ignore_for_file: type=lint
@@ -61,8 +66,18 @@ class _FakeTransaction_2 extends _i1.SmartFake implements _i4.Transaction {
         );
 }
 
-class _FakeCategory_3 extends _i1.SmartFake implements _i5.Category {
-  _FakeCategory_3(
+class _FakeExchangeRate_3 extends _i1.SmartFake implements _i5.ExchangeRate {
+  _FakeExchangeRate_3(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+}
+
+class _FakeCategory_4 extends _i1.SmartFake implements _i6.Category {
+  _FakeCategory_4(
     Object parent,
     Invocation parentInvocation,
   ) : super(
@@ -74,28 +89,28 @@ class _FakeCategory_3 extends _i1.SmartFake implements _i5.Category {
 /// A class which mocks [UserRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockUserRepository extends _i1.Mock implements _i6.UserRepository {
+class MockUserRepository extends _i1.Mock implements _i7.UserRepository {
   @override
-  _i7.Future<dynamic> init({_i8.SharedPreferencesWithCache? prefs}) =>
+  _i8.Future<dynamic> init({_i9.SharedPreferencesWithCache? prefs}) =>
       (super.noSuchMethod(
         Invocation.method(
           #init,
           [],
           {#prefs: prefs},
         ),
-        returnValue: _i7.Future<dynamic>.value(),
-        returnValueForMissingStub: _i7.Future<dynamic>.value(),
-      ) as _i7.Future<dynamic>);
+        returnValue: _i8.Future<dynamic>.value(),
+        returnValueForMissingStub: _i8.Future<dynamic>.value(),
+      ) as _i8.Future<dynamic>);
 
   @override
-  _i7.Future<dynamic> save(_i2.User? user) => (super.noSuchMethod(
+  _i8.Future<dynamic> save(_i2.User? user) => (super.noSuchMethod(
         Invocation.method(
           #save,
           [user],
         ),
-        returnValue: _i7.Future<dynamic>.value(),
-        returnValueForMissingStub: _i7.Future<dynamic>.value(),
-      ) as _i7.Future<dynamic>);
+        returnValue: _i8.Future<dynamic>.value(),
+        returnValueForMissingStub: _i8.Future<dynamic>.value(),
+      ) as _i8.Future<dynamic>);
 
   @override
   _i2.User get() => (super.noSuchMethod(
@@ -120,21 +135,21 @@ class MockUserRepository extends _i1.Mock implements _i6.UserRepository {
       ) as _i2.User);
 
   @override
-  _i7.Future<dynamic> reset() => (super.noSuchMethod(
+  _i8.Future<dynamic> reset() => (super.noSuchMethod(
         Invocation.method(
           #reset,
           [],
         ),
-        returnValue: _i7.Future<dynamic>.value(),
-        returnValueForMissingStub: _i7.Future<dynamic>.value(),
-      ) as _i7.Future<dynamic>);
+        returnValue: _i8.Future<dynamic>.value(),
+        returnValueForMissingStub: _i8.Future<dynamic>.value(),
+      ) as _i8.Future<dynamic>);
 }
 
 /// A class which mocks [TransactionRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockTransactionRepository extends _i1.Mock
-    implements _i9.TransactionRepository {
+    implements _i10.TransactionRepository {
   @override
   _i3.Database get db => (super.noSuchMethod(
         Invocation.getter(#db),
@@ -149,28 +164,28 @@ class MockTransactionRepository extends _i1.Mock
       ) as _i3.Database);
 
   @override
-  _i7.Stream<bool> get shouldUpdateTransactions => (super.noSuchMethod(
+  _i8.Stream<bool> get shouldUpdateTransactions => (super.noSuchMethod(
         Invocation.getter(#shouldUpdateTransactions),
-        returnValue: _i7.Stream<bool>.empty(),
-        returnValueForMissingStub: _i7.Stream<bool>.empty(),
-      ) as _i7.Stream<bool>);
+        returnValue: _i8.Stream<bool>.empty(),
+        returnValueForMissingStub: _i8.Stream<bool>.empty(),
+      ) as _i8.Stream<bool>);
 
   @override
-  _i7.Future<_i4.Transaction?> getById(int? id) => (super.noSuchMethod(
+  _i8.Future<_i4.Transaction?> getById(int? id) => (super.noSuchMethod(
         Invocation.method(
           #getById,
           [id],
         ),
-        returnValue: _i7.Future<_i4.Transaction?>.value(),
-        returnValueForMissingStub: _i7.Future<_i4.Transaction?>.value(),
-      ) as _i7.Future<_i4.Transaction?>);
+        returnValue: _i8.Future<_i4.Transaction?>.value(),
+        returnValueForMissingStub: _i8.Future<_i4.Transaction?>.value(),
+      ) as _i8.Future<_i4.Transaction?>);
 
   @override
-  _i7.Future<List<_i4.Transaction>> getList({
+  _i8.Future<List<_i4.Transaction>> getList({
     int? offset,
     int? limit,
     bool? desc = false,
-    _i10.GetFilter? filter,
+    _i11.GetFilter? filter,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -184,19 +199,19 @@ class MockTransactionRepository extends _i1.Mock
           },
         ),
         returnValue:
-            _i7.Future<List<_i4.Transaction>>.value(<_i4.Transaction>[]),
+            _i8.Future<List<_i4.Transaction>>.value(<_i4.Transaction>[]),
         returnValueForMissingStub:
-            _i7.Future<List<_i4.Transaction>>.value(<_i4.Transaction>[]),
-      ) as _i7.Future<List<_i4.Transaction>>);
+            _i8.Future<List<_i4.Transaction>>.value(<_i4.Transaction>[]),
+      ) as _i8.Future<List<_i4.Transaction>>);
 
   @override
-  _i7.Future<_i4.Transaction> save(_i4.Transaction? transaction) =>
+  _i8.Future<_i4.Transaction> save(_i4.Transaction? transaction) =>
       (super.noSuchMethod(
         Invocation.method(
           #save,
           [transaction],
         ),
-        returnValue: _i7.Future<_i4.Transaction>.value(_FakeTransaction_2(
+        returnValue: _i8.Future<_i4.Transaction>.value(_FakeTransaction_2(
           this,
           Invocation.method(
             #save,
@@ -204,17 +219,17 @@ class MockTransactionRepository extends _i1.Mock
           ),
         )),
         returnValueForMissingStub:
-            _i7.Future<_i4.Transaction>.value(_FakeTransaction_2(
+            _i8.Future<_i4.Transaction>.value(_FakeTransaction_2(
           this,
           Invocation.method(
             #save,
             [transaction],
           ),
         )),
-      ) as _i7.Future<_i4.Transaction>);
+      ) as _i8.Future<_i4.Transaction>);
 
   @override
-  _i7.Future<List<_i4.Transaction>> saveAll(
+  _i8.Future<List<_i4.Transaction>> saveAll(
           List<_i4.Transaction>? transacions) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -222,37 +237,82 @@ class MockTransactionRepository extends _i1.Mock
           [transacions],
         ),
         returnValue:
-            _i7.Future<List<_i4.Transaction>>.value(<_i4.Transaction>[]),
+            _i8.Future<List<_i4.Transaction>>.value(<_i4.Transaction>[]),
         returnValueForMissingStub:
-            _i7.Future<List<_i4.Transaction>>.value(<_i4.Transaction>[]),
-      ) as _i7.Future<List<_i4.Transaction>>);
+            _i8.Future<List<_i4.Transaction>>.value(<_i4.Transaction>[]),
+      ) as _i8.Future<List<_i4.Transaction>>);
 
   @override
-  _i7.Future<int> delete(_i4.Transaction? transaction) => (super.noSuchMethod(
+  _i8.Future<int> delete(_i4.Transaction? transaction) => (super.noSuchMethod(
         Invocation.method(
           #delete,
           [transaction],
         ),
-        returnValue: _i7.Future<int>.value(0),
-        returnValueForMissingStub: _i7.Future<int>.value(0),
-      ) as _i7.Future<int>);
+        returnValue: _i8.Future<int>.value(0),
+        returnValueForMissingStub: _i8.Future<int>.value(0),
+      ) as _i8.Future<int>);
 
   @override
-  _i7.Future<dynamic> dispose() => (super.noSuchMethod(
+  _i8.Future<dynamic> dispose() => (super.noSuchMethod(
         Invocation.method(
           #dispose,
           [],
         ),
-        returnValue: _i7.Future<dynamic>.value(),
-        returnValueForMissingStub: _i7.Future<dynamic>.value(),
-      ) as _i7.Future<dynamic>);
+        returnValue: _i8.Future<dynamic>.value(),
+        returnValueForMissingStub: _i8.Future<dynamic>.value(),
+      ) as _i8.Future<dynamic>);
+}
+
+/// A class which mocks [ExchangeRateRepository].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockExchangeRateRepository extends _i1.Mock
+    implements _i12.ExchangeRateRepository {
+  @override
+  _i8.Future<_i5.ExchangeRate> getRate({
+    String? date = 'latest',
+    required _i13.Currency? currency,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #getRate,
+          [],
+          {
+            #date: date,
+            #currency: currency,
+          },
+        ),
+        returnValue: _i8.Future<_i5.ExchangeRate>.value(_FakeExchangeRate_3(
+          this,
+          Invocation.method(
+            #getRate,
+            [],
+            {
+              #date: date,
+              #currency: currency,
+            },
+          ),
+        )),
+        returnValueForMissingStub:
+            _i8.Future<_i5.ExchangeRate>.value(_FakeExchangeRate_3(
+          this,
+          Invocation.method(
+            #getRate,
+            [],
+            {
+              #date: date,
+              #currency: currency,
+            },
+          ),
+        )),
+      ) as _i8.Future<_i5.ExchangeRate>);
 }
 
 /// A class which mocks [CategoryRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockCategoryRepository extends _i1.Mock
-    implements _i11.CategoryRepository {
+    implements _i14.CategoryRepository {
   @override
   _i3.Database get db => (super.noSuchMethod(
         Invocation.getter(#db),
@@ -267,39 +327,39 @@ class MockCategoryRepository extends _i1.Mock
       ) as _i3.Database);
 
   @override
-  _i7.Stream<bool> get shouldUpdateCategories => (super.noSuchMethod(
+  _i8.Stream<bool> get shouldUpdateCategories => (super.noSuchMethod(
         Invocation.getter(#shouldUpdateCategories),
-        returnValue: _i7.Stream<bool>.empty(),
-        returnValueForMissingStub: _i7.Stream<bool>.empty(),
-      ) as _i7.Stream<bool>);
+        returnValue: _i8.Stream<bool>.empty(),
+        returnValueForMissingStub: _i8.Stream<bool>.empty(),
+      ) as _i8.Stream<bool>);
 
   @override
-  _i7.Future<_i5.Category?> getById(int? id) => (super.noSuchMethod(
+  _i8.Future<_i6.Category?> getById(int? id) => (super.noSuchMethod(
         Invocation.method(
           #getById,
           [id],
         ),
-        returnValue: _i7.Future<_i5.Category?>.value(),
-        returnValueForMissingStub: _i7.Future<_i5.Category?>.value(),
-      ) as _i7.Future<_i5.Category?>);
+        returnValue: _i8.Future<_i6.Category?>.value(),
+        returnValueForMissingStub: _i8.Future<_i6.Category?>.value(),
+      ) as _i8.Future<_i6.Category?>);
 
   @override
-  _i7.FutureOr<List<_i5.Category>> getAll() => (super.noSuchMethod(
+  _i8.FutureOr<List<_i6.Category>> getAll() => (super.noSuchMethod(
         Invocation.method(
           #getAll,
           [],
         ),
-        returnValue: _i7.Future<List<_i5.Category>>.value(<_i5.Category>[]),
+        returnValue: _i8.Future<List<_i6.Category>>.value(<_i6.Category>[]),
         returnValueForMissingStub:
-            _i7.Future<List<_i5.Category>>.value(<_i5.Category>[]),
-      ) as _i7.FutureOr<List<_i5.Category>>);
+            _i8.Future<List<_i6.Category>>.value(<_i6.Category>[]),
+      ) as _i8.FutureOr<List<_i6.Category>>);
 
   @override
-  _i7.FutureOr<List<_i5.Category>> getList({
+  _i8.FutureOr<List<_i6.Category>> getList({
     int? offset,
     int? limit,
     bool? desc = false,
-    _i10.GetFilter? filter,
+    _i11.GetFilter? filter,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -312,18 +372,18 @@ class MockCategoryRepository extends _i1.Mock
             #filter: filter,
           },
         ),
-        returnValue: _i7.Future<List<_i5.Category>>.value(<_i5.Category>[]),
+        returnValue: _i8.Future<List<_i6.Category>>.value(<_i6.Category>[]),
         returnValueForMissingStub:
-            _i7.Future<List<_i5.Category>>.value(<_i5.Category>[]),
-      ) as _i7.FutureOr<List<_i5.Category>>);
+            _i8.Future<List<_i6.Category>>.value(<_i6.Category>[]),
+      ) as _i8.FutureOr<List<_i6.Category>>);
 
   @override
-  _i7.Future<_i5.Category> save(_i5.Category? value) => (super.noSuchMethod(
+  _i8.Future<_i6.Category> save(_i6.Category? value) => (super.noSuchMethod(
         Invocation.method(
           #save,
           [value],
         ),
-        returnValue: _i7.Future<_i5.Category>.value(_FakeCategory_3(
+        returnValue: _i8.Future<_i6.Category>.value(_FakeCategory_4(
           this,
           Invocation.method(
             #save,
@@ -331,44 +391,44 @@ class MockCategoryRepository extends _i1.Mock
           ),
         )),
         returnValueForMissingStub:
-            _i7.Future<_i5.Category>.value(_FakeCategory_3(
+            _i8.Future<_i6.Category>.value(_FakeCategory_4(
           this,
           Invocation.method(
             #save,
             [value],
           ),
         )),
-      ) as _i7.Future<_i5.Category>);
+      ) as _i8.Future<_i6.Category>);
 
   @override
-  _i7.Future<List<_i5.Category>> saveAll(List<_i5.Category>? values) =>
+  _i8.Future<List<_i6.Category>> saveAll(List<_i6.Category>? values) =>
       (super.noSuchMethod(
         Invocation.method(
           #saveAll,
           [values],
         ),
-        returnValue: _i7.Future<List<_i5.Category>>.value(<_i5.Category>[]),
+        returnValue: _i8.Future<List<_i6.Category>>.value(<_i6.Category>[]),
         returnValueForMissingStub:
-            _i7.Future<List<_i5.Category>>.value(<_i5.Category>[]),
-      ) as _i7.Future<List<_i5.Category>>);
+            _i8.Future<List<_i6.Category>>.value(<_i6.Category>[]),
+      ) as _i8.Future<List<_i6.Category>>);
 
   @override
-  _i7.Future<int> delete(_i5.Category? value) => (super.noSuchMethod(
+  _i8.Future<int> delete(_i6.Category? value) => (super.noSuchMethod(
         Invocation.method(
           #delete,
           [value],
         ),
-        returnValue: _i7.Future<int>.value(0),
-        returnValueForMissingStub: _i7.Future<int>.value(0),
-      ) as _i7.Future<int>);
+        returnValue: _i8.Future<int>.value(0),
+        returnValueForMissingStub: _i8.Future<int>.value(0),
+      ) as _i8.Future<int>);
 
   @override
-  _i7.Future<dynamic> dispose() => (super.noSuchMethod(
+  _i8.Future<dynamic> dispose() => (super.noSuchMethod(
         Invocation.method(
           #dispose,
           [],
         ),
-        returnValue: _i7.Future<dynamic>.value(),
-        returnValueForMissingStub: _i7.Future<dynamic>.value(),
-      ) as _i7.Future<dynamic>);
+        returnValue: _i8.Future<dynamic>.value(),
+        returnValueForMissingStub: _i8.Future<dynamic>.value(),
+      ) as _i8.Future<dynamic>);
 }

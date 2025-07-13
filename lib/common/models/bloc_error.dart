@@ -1,5 +1,3 @@
-part of 'bloc.dart';
-
 class BlocError extends Error {
   BlocError([this.message]);
 

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cifra_app/common/models/bloc_error.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -13,7 +14,6 @@ import 'package:cifra_app/repositories/transactions/repository.dart';
 
 part 'event.dart';
 part 'state.dart';
-part 'error.dart';
 
 class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
   HistoryBloc({required this.transactionRepository})

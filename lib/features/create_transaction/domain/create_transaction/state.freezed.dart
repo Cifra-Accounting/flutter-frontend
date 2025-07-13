@@ -15,14 +15,19 @@ T _$identity<T>(T value) => value;
 
 /// @nodoc
 mixin _$CreateTransactionState {
-  Category? get category;
-  Money? get amount;
-  Currency? get baseCurrency;
-  TransactionType? get type;
   String? get title;
   String? get description;
-  CreateTransactionBlocState get blocState;
+  Category? get category;
+  int? get amountInSmallestUnits;
+  Currency? get currency;
+  int? get amountInSmallestUnitsBase;
+  Currency get baseCurrency;
+  TransactionType? get type;
+  CreateTransactionStatus get status;
   List<Category> get categories;
+  Map<Currency, double>? get exchangeRates;
+  Object? get e;
+  StackTrace? get st;
 
   /// Create a copy of CreateTransactionState
   /// with the given fields replaced by the non-null parameter values.
@@ -37,36 +42,50 @@ mixin _$CreateTransactionState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is CreateTransactionState &&
-            (identical(other.category, category) ||
-                other.category == category) &&
-            (identical(other.amount, amount) || other.amount == amount) &&
-            (identical(other.baseCurrency, baseCurrency) ||
-                other.baseCurrency == baseCurrency) &&
-            (identical(other.type, type) || other.type == type) &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.description, description) ||
                 other.description == description) &&
-            (identical(other.blocState, blocState) ||
-                other.blocState == blocState) &&
+            (identical(other.category, category) ||
+                other.category == category) &&
+            (identical(other.amountInSmallestUnits, amountInSmallestUnits) ||
+                other.amountInSmallestUnits == amountInSmallestUnits) &&
+            (identical(other.currency, currency) ||
+                other.currency == currency) &&
+            (identical(other.amountInSmallestUnitsBase,
+                    amountInSmallestUnitsBase) ||
+                other.amountInSmallestUnitsBase == amountInSmallestUnitsBase) &&
+            (identical(other.baseCurrency, baseCurrency) ||
+                other.baseCurrency == baseCurrency) &&
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.status, status) || other.status == status) &&
             const DeepCollectionEquality()
-                .equals(other.categories, categories));
+                .equals(other.categories, categories) &&
+            const DeepCollectionEquality()
+                .equals(other.exchangeRates, exchangeRates) &&
+            const DeepCollectionEquality().equals(other.e, e) &&
+            (identical(other.st, st) || other.st == st));
   }
 
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      category,
-      amount,
-      baseCurrency,
-      type,
       title,
       description,
-      blocState,
-      const DeepCollectionEquality().hash(categories));
+      category,
+      amountInSmallestUnits,
+      currency,
+      amountInSmallestUnitsBase,
+      baseCurrency,
+      type,
+      status,
+      const DeepCollectionEquality().hash(categories),
+      const DeepCollectionEquality().hash(exchangeRates),
+      const DeepCollectionEquality().hash(e),
+      st);
 
   @override
   String toString() {
-    return 'CreateTransactionState(category: $category, amount: $amount, baseCurrency: $baseCurrency, type: $type, title: $title, description: $description, blocState: $blocState, categories: $categories)';
+    return 'CreateTransactionState(title: $title, description: $description, category: $category, amountInSmallestUnits: $amountInSmallestUnits, currency: $currency, amountInSmallestUnitsBase: $amountInSmallestUnitsBase, baseCurrency: $baseCurrency, type: $type, status: $status, categories: $categories, exchangeRates: $exchangeRates, e: $e, st: $st)';
   }
 }
 
@@ -77,14 +96,19 @@ abstract mixin class $CreateTransactionStateCopyWith<$Res> {
       _$CreateTransactionStateCopyWithImpl;
   @useResult
   $Res call(
-      {Category? category,
-      Money? amount,
-      Currency? baseCurrency,
-      TransactionType? type,
-      String? title,
+      {String? title,
       String? description,
-      CreateTransactionBlocState blocState,
-      List<Category> categories});
+      Category? category,
+      int? amountInSmallestUnits,
+      Currency? currency,
+      int? amountInSmallestUnitsBase,
+      Currency baseCurrency,
+      TransactionType? type,
+      CreateTransactionStatus status,
+      List<Category> categories,
+      Map<Currency, double>? exchangeRates,
+      Object? e,
+      StackTrace? st});
 }
 
 /// @nodoc
@@ -100,32 +124,21 @@ class _$CreateTransactionStateCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? category = freezed,
-    Object? amount = freezed,
-    Object? baseCurrency = freezed,
-    Object? type = freezed,
     Object? title = freezed,
     Object? description = freezed,
-    Object? blocState = null,
+    Object? category = freezed,
+    Object? amountInSmallestUnits = freezed,
+    Object? currency = freezed,
+    Object? amountInSmallestUnitsBase = freezed,
+    Object? baseCurrency = null,
+    Object? type = freezed,
+    Object? status = null,
     Object? categories = null,
+    Object? exchangeRates = freezed,
+    Object? e = freezed,
+    Object? st = freezed,
   }) {
     return _then(_self.copyWith(
-      category: freezed == category
-          ? _self.category
-          : category // ignore: cast_nullable_to_non_nullable
-              as Category?,
-      amount: freezed == amount
-          ? _self.amount
-          : amount // ignore: cast_nullable_to_non_nullable
-              as Money?,
-      baseCurrency: freezed == baseCurrency
-          ? _self.baseCurrency
-          : baseCurrency // ignore: cast_nullable_to_non_nullable
-              as Currency?,
-      type: freezed == type
-          ? _self.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as TransactionType?,
       title: freezed == title
           ? _self.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -134,14 +147,47 @@ class _$CreateTransactionStateCopyWithImpl<$Res>
           ? _self.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
-      blocState: null == blocState
-          ? _self.blocState
-          : blocState // ignore: cast_nullable_to_non_nullable
-              as CreateTransactionBlocState,
+      category: freezed == category
+          ? _self.category
+          : category // ignore: cast_nullable_to_non_nullable
+              as Category?,
+      amountInSmallestUnits: freezed == amountInSmallestUnits
+          ? _self.amountInSmallestUnits
+          : amountInSmallestUnits // ignore: cast_nullable_to_non_nullable
+              as int?,
+      currency: freezed == currency
+          ? _self.currency
+          : currency // ignore: cast_nullable_to_non_nullable
+              as Currency?,
+      amountInSmallestUnitsBase: freezed == amountInSmallestUnitsBase
+          ? _self.amountInSmallestUnitsBase
+          : amountInSmallestUnitsBase // ignore: cast_nullable_to_non_nullable
+              as int?,
+      baseCurrency: null == baseCurrency
+          ? _self.baseCurrency
+          : baseCurrency // ignore: cast_nullable_to_non_nullable
+              as Currency,
+      type: freezed == type
+          ? _self.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as TransactionType?,
+      status: null == status
+          ? _self.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as CreateTransactionStatus,
       categories: null == categories
           ? _self.categories
           : categories // ignore: cast_nullable_to_non_nullable
               as List<Category>,
+      exchangeRates: freezed == exchangeRates
+          ? _self.exchangeRates
+          : exchangeRates // ignore: cast_nullable_to_non_nullable
+              as Map<Currency, double>?,
+      e: freezed == e ? _self.e : e,
+      st: freezed == st
+          ? _self.st
+          : st // ignore: cast_nullable_to_non_nullable
+              as StackTrace?,
     ));
   }
 }
@@ -150,32 +196,42 @@ class _$CreateTransactionStateCopyWithImpl<$Res>
 
 class _CreateTransactionState extends CreateTransactionState {
   const _CreateTransactionState(
-      {this.category,
-      this.amount,
-      this.baseCurrency,
-      this.type,
-      this.title,
+      {this.title,
       this.description,
-      this.blocState = CreateTransactionBlocState.notSubmited,
-      final List<Category> categories = const <Category>[]})
+      this.category,
+      this.amountInSmallestUnits,
+      this.currency,
+      this.amountInSmallestUnitsBase,
+      required this.baseCurrency,
+      this.type,
+      this.status = CreateTransactionStatus.initial,
+      final List<Category> categories = const <Category>[],
+      final Map<Currency, double>? exchangeRates,
+      this.e,
+      this.st})
       : _categories = categories,
+        _exchangeRates = exchangeRates,
         super._();
 
-  @override
-  final Category? category;
-  @override
-  final Money? amount;
-  @override
-  final Currency? baseCurrency;
-  @override
-  final TransactionType? type;
   @override
   final String? title;
   @override
   final String? description;
   @override
+  final Category? category;
+  @override
+  final int? amountInSmallestUnits;
+  @override
+  final Currency? currency;
+  @override
+  final int? amountInSmallestUnitsBase;
+  @override
+  final Currency baseCurrency;
+  @override
+  final TransactionType? type;
+  @override
   @JsonKey()
-  final CreateTransactionBlocState blocState;
+  final CreateTransactionStatus status;
   final List<Category> _categories;
   @override
   @JsonKey()
@@ -184,6 +240,21 @@ class _CreateTransactionState extends CreateTransactionState {
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_categories);
   }
+
+  final Map<Currency, double>? _exchangeRates;
+  @override
+  Map<Currency, double>? get exchangeRates {
+    final value = _exchangeRates;
+    if (value == null) return null;
+    if (_exchangeRates is EqualUnmodifiableMapView) return _exchangeRates;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
+
+  @override
+  final Object? e;
+  @override
+  final StackTrace? st;
 
   /// Create a copy of CreateTransactionState
   /// with the given fields replaced by the non-null parameter values.
@@ -199,36 +270,50 @@ class _CreateTransactionState extends CreateTransactionState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _CreateTransactionState &&
-            (identical(other.category, category) ||
-                other.category == category) &&
-            (identical(other.amount, amount) || other.amount == amount) &&
-            (identical(other.baseCurrency, baseCurrency) ||
-                other.baseCurrency == baseCurrency) &&
-            (identical(other.type, type) || other.type == type) &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.description, description) ||
                 other.description == description) &&
-            (identical(other.blocState, blocState) ||
-                other.blocState == blocState) &&
+            (identical(other.category, category) ||
+                other.category == category) &&
+            (identical(other.amountInSmallestUnits, amountInSmallestUnits) ||
+                other.amountInSmallestUnits == amountInSmallestUnits) &&
+            (identical(other.currency, currency) ||
+                other.currency == currency) &&
+            (identical(other.amountInSmallestUnitsBase,
+                    amountInSmallestUnitsBase) ||
+                other.amountInSmallestUnitsBase == amountInSmallestUnitsBase) &&
+            (identical(other.baseCurrency, baseCurrency) ||
+                other.baseCurrency == baseCurrency) &&
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.status, status) || other.status == status) &&
             const DeepCollectionEquality()
-                .equals(other._categories, _categories));
+                .equals(other._categories, _categories) &&
+            const DeepCollectionEquality()
+                .equals(other._exchangeRates, _exchangeRates) &&
+            const DeepCollectionEquality().equals(other.e, e) &&
+            (identical(other.st, st) || other.st == st));
   }
 
   @override
   int get hashCode => Object.hash(
       runtimeType,
-      category,
-      amount,
-      baseCurrency,
-      type,
       title,
       description,
-      blocState,
-      const DeepCollectionEquality().hash(_categories));
+      category,
+      amountInSmallestUnits,
+      currency,
+      amountInSmallestUnitsBase,
+      baseCurrency,
+      type,
+      status,
+      const DeepCollectionEquality().hash(_categories),
+      const DeepCollectionEquality().hash(_exchangeRates),
+      const DeepCollectionEquality().hash(e),
+      st);
 
   @override
   String toString() {
-    return 'CreateTransactionState(category: $category, amount: $amount, baseCurrency: $baseCurrency, type: $type, title: $title, description: $description, blocState: $blocState, categories: $categories)';
+    return 'CreateTransactionState(title: $title, description: $description, category: $category, amountInSmallestUnits: $amountInSmallestUnits, currency: $currency, amountInSmallestUnitsBase: $amountInSmallestUnitsBase, baseCurrency: $baseCurrency, type: $type, status: $status, categories: $categories, exchangeRates: $exchangeRates, e: $e, st: $st)';
   }
 }
 
@@ -241,14 +326,19 @@ abstract mixin class _$CreateTransactionStateCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {Category? category,
-      Money? amount,
-      Currency? baseCurrency,
-      TransactionType? type,
-      String? title,
+      {String? title,
       String? description,
-      CreateTransactionBlocState blocState,
-      List<Category> categories});
+      Category? category,
+      int? amountInSmallestUnits,
+      Currency? currency,
+      int? amountInSmallestUnitsBase,
+      Currency baseCurrency,
+      TransactionType? type,
+      CreateTransactionStatus status,
+      List<Category> categories,
+      Map<Currency, double>? exchangeRates,
+      Object? e,
+      StackTrace? st});
 }
 
 /// @nodoc
@@ -264,32 +354,21 @@ class __$CreateTransactionStateCopyWithImpl<$Res>
   @override
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? category = freezed,
-    Object? amount = freezed,
-    Object? baseCurrency = freezed,
-    Object? type = freezed,
     Object? title = freezed,
     Object? description = freezed,
-    Object? blocState = null,
+    Object? category = freezed,
+    Object? amountInSmallestUnits = freezed,
+    Object? currency = freezed,
+    Object? amountInSmallestUnitsBase = freezed,
+    Object? baseCurrency = null,
+    Object? type = freezed,
+    Object? status = null,
     Object? categories = null,
+    Object? exchangeRates = freezed,
+    Object? e = freezed,
+    Object? st = freezed,
   }) {
     return _then(_CreateTransactionState(
-      category: freezed == category
-          ? _self.category
-          : category // ignore: cast_nullable_to_non_nullable
-              as Category?,
-      amount: freezed == amount
-          ? _self.amount
-          : amount // ignore: cast_nullable_to_non_nullable
-              as Money?,
-      baseCurrency: freezed == baseCurrency
-          ? _self.baseCurrency
-          : baseCurrency // ignore: cast_nullable_to_non_nullable
-              as Currency?,
-      type: freezed == type
-          ? _self.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as TransactionType?,
       title: freezed == title
           ? _self.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -298,196 +377,47 @@ class __$CreateTransactionStateCopyWithImpl<$Res>
           ? _self.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
-      blocState: null == blocState
-          ? _self.blocState
-          : blocState // ignore: cast_nullable_to_non_nullable
-              as CreateTransactionBlocState,
+      category: freezed == category
+          ? _self.category
+          : category // ignore: cast_nullable_to_non_nullable
+              as Category?,
+      amountInSmallestUnits: freezed == amountInSmallestUnits
+          ? _self.amountInSmallestUnits
+          : amountInSmallestUnits // ignore: cast_nullable_to_non_nullable
+              as int?,
+      currency: freezed == currency
+          ? _self.currency
+          : currency // ignore: cast_nullable_to_non_nullable
+              as Currency?,
+      amountInSmallestUnitsBase: freezed == amountInSmallestUnitsBase
+          ? _self.amountInSmallestUnitsBase
+          : amountInSmallestUnitsBase // ignore: cast_nullable_to_non_nullable
+              as int?,
+      baseCurrency: null == baseCurrency
+          ? _self.baseCurrency
+          : baseCurrency // ignore: cast_nullable_to_non_nullable
+              as Currency,
+      type: freezed == type
+          ? _self.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as TransactionType?,
+      status: null == status
+          ? _self.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as CreateTransactionStatus,
       categories: null == categories
           ? _self._categories
           : categories // ignore: cast_nullable_to_non_nullable
               as List<Category>,
-    ));
-  }
-}
-
-/// @nodoc
-
-class _ErrorCreateTransactionState extends CreateTransactionState {
-  const _ErrorCreateTransactionState(
-      {this.e,
-      this.st,
-      this.category,
-      this.amount,
-      this.baseCurrency,
-      this.type,
-      this.title,
-      this.description,
-      this.blocState = CreateTransactionBlocState.notSubmited,
-      final List<Category> categories = const <Category>[]})
-      : _categories = categories,
-        super._();
-
-  final Object? e;
-  final StackTrace? st;
-  @override
-  final Category? category;
-  @override
-  final Money? amount;
-  @override
-  final Currency? baseCurrency;
-  @override
-  final TransactionType? type;
-  @override
-  final String? title;
-  @override
-  final String? description;
-  @override
-  @JsonKey()
-  final CreateTransactionBlocState blocState;
-  final List<Category> _categories;
-  @override
-  @JsonKey()
-  List<Category> get categories {
-    if (_categories is EqualUnmodifiableListView) return _categories;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_categories);
-  }
-
-  /// Create a copy of CreateTransactionState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  _$ErrorCreateTransactionStateCopyWith<_ErrorCreateTransactionState>
-      get copyWith => __$ErrorCreateTransactionStateCopyWithImpl<
-          _ErrorCreateTransactionState>(this, _$identity);
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _ErrorCreateTransactionState &&
-            const DeepCollectionEquality().equals(other.e, e) &&
-            (identical(other.st, st) || other.st == st) &&
-            (identical(other.category, category) ||
-                other.category == category) &&
-            (identical(other.amount, amount) || other.amount == amount) &&
-            (identical(other.baseCurrency, baseCurrency) ||
-                other.baseCurrency == baseCurrency) &&
-            (identical(other.type, type) || other.type == type) &&
-            (identical(other.title, title) || other.title == title) &&
-            (identical(other.description, description) ||
-                other.description == description) &&
-            (identical(other.blocState, blocState) ||
-                other.blocState == blocState) &&
-            const DeepCollectionEquality()
-                .equals(other._categories, _categories));
-  }
-
-  @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(e),
-      st,
-      category,
-      amount,
-      baseCurrency,
-      type,
-      title,
-      description,
-      blocState,
-      const DeepCollectionEquality().hash(_categories));
-
-  @override
-  String toString() {
-    return 'CreateTransactionState.error(e: $e, st: $st, category: $category, amount: $amount, baseCurrency: $baseCurrency, type: $type, title: $title, description: $description, blocState: $blocState, categories: $categories)';
-  }
-}
-
-/// @nodoc
-abstract mixin class _$ErrorCreateTransactionStateCopyWith<$Res>
-    implements $CreateTransactionStateCopyWith<$Res> {
-  factory _$ErrorCreateTransactionStateCopyWith(
-          _ErrorCreateTransactionState value,
-          $Res Function(_ErrorCreateTransactionState) _then) =
-      __$ErrorCreateTransactionStateCopyWithImpl;
-  @override
-  @useResult
-  $Res call(
-      {Object? e,
-      StackTrace? st,
-      Category? category,
-      Money? amount,
-      Currency? baseCurrency,
-      TransactionType? type,
-      String? title,
-      String? description,
-      CreateTransactionBlocState blocState,
-      List<Category> categories});
-}
-
-/// @nodoc
-class __$ErrorCreateTransactionStateCopyWithImpl<$Res>
-    implements _$ErrorCreateTransactionStateCopyWith<$Res> {
-  __$ErrorCreateTransactionStateCopyWithImpl(this._self, this._then);
-
-  final _ErrorCreateTransactionState _self;
-  final $Res Function(_ErrorCreateTransactionState) _then;
-
-  /// Create a copy of CreateTransactionState
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? e = freezed,
-    Object? st = freezed,
-    Object? category = freezed,
-    Object? amount = freezed,
-    Object? baseCurrency = freezed,
-    Object? type = freezed,
-    Object? title = freezed,
-    Object? description = freezed,
-    Object? blocState = null,
-    Object? categories = null,
-  }) {
-    return _then(_ErrorCreateTransactionState(
+      exchangeRates: freezed == exchangeRates
+          ? _self._exchangeRates
+          : exchangeRates // ignore: cast_nullable_to_non_nullable
+              as Map<Currency, double>?,
       e: freezed == e ? _self.e : e,
       st: freezed == st
           ? _self.st
           : st // ignore: cast_nullable_to_non_nullable
               as StackTrace?,
-      category: freezed == category
-          ? _self.category
-          : category // ignore: cast_nullable_to_non_nullable
-              as Category?,
-      amount: freezed == amount
-          ? _self.amount
-          : amount // ignore: cast_nullable_to_non_nullable
-              as Money?,
-      baseCurrency: freezed == baseCurrency
-          ? _self.baseCurrency
-          : baseCurrency // ignore: cast_nullable_to_non_nullable
-              as Currency?,
-      type: freezed == type
-          ? _self.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as TransactionType?,
-      title: freezed == title
-          ? _self.title
-          : title // ignore: cast_nullable_to_non_nullable
-              as String?,
-      description: freezed == description
-          ? _self.description
-          : description // ignore: cast_nullable_to_non_nullable
-              as String?,
-      blocState: null == blocState
-          ? _self.blocState
-          : blocState // ignore: cast_nullable_to_non_nullable
-              as CreateTransactionBlocState,
-      categories: null == categories
-          ? _self._categories
-          : categories // ignore: cast_nullable_to_non_nullable
-              as List<Category>,
     ));
   }
 }

@@ -12,59 +12,25 @@ abstract class CreateTransactionState with _$CreateTransactionState {
   const CreateTransactionState._();
 
   const factory CreateTransactionState({
-    Category? category,
-    Money? amount,
-    Currency? baseCurrency,
-    TransactionType? type,
     String? title,
     String? description,
-    @Default(CreateTransactionBlocState.notSubmited)
-    CreateTransactionBlocState blocState,
+    Category? category,
+    int? amountInSmallestUnits,
+    Currency? currency,
+    int? amountInSmallestUnitsBase,
+    required Currency baseCurrency,
+    TransactionType? type,
+    @Default(CreateTransactionStatus.initial) CreateTransactionStatus status,
     @Default(<Category>[]) List<Category> categories,
-  }) = _CreateTransactionState;
-
-  const factory CreateTransactionState.error({
+    Map<Currency, double>? exchangeRates,
     Object? e,
     StackTrace? st,
-    Category? category,
-    Money? amount,
-    Currency? baseCurrency,
-    TransactionType? type,
-    String? title,
-    String? description,
-    @Default(CreateTransactionBlocState.notSubmited)
-    CreateTransactionBlocState blocState,
-    @Default(<Category>[]) List<Category> categories,
-  }) = _ErrorCreateTransactionState;
-
-  CreateTransactionState toError(Object? e, StackTrace? st) =>
-      CreateTransactionState.error(
-        e: e,
-        st: st,
-        category: category,
-        amount: amount,
-        baseCurrency: baseCurrency,
-        type: type,
-        title: title,
-        description: description,
-        blocState: blocState,
-        categories: categories,
-      );
-
-  CreateTransactionState toInitial() => CreateTransactionState(
-        category: category,
-        amount: amount,
-        baseCurrency: baseCurrency,
-        type: type,
-        title: title,
-        description: description,
-        blocState: blocState,
-        categories: categories,
-      );
+  }) = _CreateTransactionState;
 }
 
-enum CreateTransactionBlocState {
-  notSubmited,
+enum CreateTransactionStatus {
+  initial,
   loading,
   loaded,
+  error;
 }

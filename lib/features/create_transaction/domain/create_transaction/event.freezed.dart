@@ -40,13 +40,22 @@ class $CreateTransactionEventCopyWith<$Res> {
 
 class Update implements CreateTransactionEvent {
   const Update(
-      {this.category, this.amount, this.type, this.title, this.description});
+      {this.title,
+      this.description,
+      this.category,
+      this.amountInSmallestUnits,
+      this.currency,
+      this.type,
+      this.shouldConvertToBase = false});
 
-  final Category? category;
-  final Money? amount;
-  final TransactionType? type;
   final String? title;
   final String? description;
+  final Category? category;
+  final int? amountInSmallestUnits;
+  final Currency? currency;
+  final TransactionType? type;
+  @JsonKey()
+  final bool shouldConvertToBase;
 
   /// Create a copy of CreateTransactionEvent
   /// with the given fields replaced by the non-null parameter values.
@@ -60,22 +69,27 @@ class Update implements CreateTransactionEvent {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is Update &&
-            (identical(other.category, category) ||
-                other.category == category) &&
-            (identical(other.amount, amount) || other.amount == amount) &&
-            (identical(other.type, type) || other.type == type) &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.description, description) ||
-                other.description == description));
+                other.description == description) &&
+            (identical(other.category, category) ||
+                other.category == category) &&
+            (identical(other.amountInSmallestUnits, amountInSmallestUnits) ||
+                other.amountInSmallestUnits == amountInSmallestUnits) &&
+            (identical(other.currency, currency) ||
+                other.currency == currency) &&
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.shouldConvertToBase, shouldConvertToBase) ||
+                other.shouldConvertToBase == shouldConvertToBase));
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, category, amount, type, title, description);
+  int get hashCode => Object.hash(runtimeType, title, description, category,
+      amountInSmallestUnits, currency, type, shouldConvertToBase);
 
   @override
   String toString() {
-    return 'CreateTransactionEvent.update(category: $category, amount: $amount, type: $type, title: $title, description: $description)';
+    return 'CreateTransactionEvent.update(title: $title, description: $description, category: $category, amountInSmallestUnits: $amountInSmallestUnits, currency: $currency, type: $type, shouldConvertToBase: $shouldConvertToBase)';
   }
 }
 
@@ -86,11 +100,13 @@ abstract mixin class $UpdateCopyWith<$Res>
       _$UpdateCopyWithImpl;
   @useResult
   $Res call(
-      {Category? category,
-      Money? amount,
+      {String? title,
+      String? description,
+      Category? category,
+      int? amountInSmallestUnits,
+      Currency? currency,
       TransactionType? type,
-      String? title,
-      String? description});
+      bool shouldConvertToBase});
 }
 
 /// @nodoc
@@ -104,25 +120,15 @@ class _$UpdateCopyWithImpl<$Res> implements $UpdateCopyWith<$Res> {
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   $Res call({
-    Object? category = freezed,
-    Object? amount = freezed,
-    Object? type = freezed,
     Object? title = freezed,
     Object? description = freezed,
+    Object? category = freezed,
+    Object? amountInSmallestUnits = freezed,
+    Object? currency = freezed,
+    Object? type = freezed,
+    Object? shouldConvertToBase = null,
   }) {
     return _then(Update(
-      category: freezed == category
-          ? _self.category
-          : category // ignore: cast_nullable_to_non_nullable
-              as Category?,
-      amount: freezed == amount
-          ? _self.amount
-          : amount // ignore: cast_nullable_to_non_nullable
-              as Money?,
-      type: freezed == type
-          ? _self.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as TransactionType?,
       title: freezed == title
           ? _self.title
           : title // ignore: cast_nullable_to_non_nullable
@@ -131,6 +137,26 @@ class _$UpdateCopyWithImpl<$Res> implements $UpdateCopyWith<$Res> {
           ? _self.description
           : description // ignore: cast_nullable_to_non_nullable
               as String?,
+      category: freezed == category
+          ? _self.category
+          : category // ignore: cast_nullable_to_non_nullable
+              as Category?,
+      amountInSmallestUnits: freezed == amountInSmallestUnits
+          ? _self.amountInSmallestUnits
+          : amountInSmallestUnits // ignore: cast_nullable_to_non_nullable
+              as int?,
+      currency: freezed == currency
+          ? _self.currency
+          : currency // ignore: cast_nullable_to_non_nullable
+              as Currency?,
+      type: freezed == type
+          ? _self.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as TransactionType?,
+      shouldConvertToBase: null == shouldConvertToBase
+          ? _self.shouldConvertToBase
+          : shouldConvertToBase // ignore: cast_nullable_to_non_nullable
+              as bool,
     ));
   }
 }

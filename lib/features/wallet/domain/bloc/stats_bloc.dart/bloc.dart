@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:cifra_app/common/get_filters/type_filter.dart';
+import 'package:cifra_app/common/models/bloc_error.dart';
 import 'package:cifra_app/repositories/transactions/models/transaction.dart';
 import 'package:cifra_app/repositories/user/models/user.dart';
 import 'package:flutter/foundation.dart';
@@ -11,7 +12,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:cifra_app/common/constants/enums.dart';
 import 'package:cifra_app/common/get_filters/datetime_filter.dart';
 import 'package:cifra_app/common/models/money.dart';
-import 'package:cifra_app/features/wallet/domain/bloc/history_bloc.dart/bloc.dart';
 import 'package:cifra_app/repositories/transactions/repository.dart';
 import 'package:cifra_app/repositories/user/repository.dart';
 import 'package:cifra_app/repositories/utils/repository_exception.dart';
