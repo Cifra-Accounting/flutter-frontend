@@ -119,20 +119,18 @@ class _SpendingsCardState extends State<SpendingsCard>
           color: _colorScheme.primaryContainer,
           borderRadius: BorderRadius.circular(cardBorderRadius),
         ),
-        padding: const EdgeInsets.symmetric(vertical: cardVerticalPadding),
+        padding: const EdgeInsets.symmetric(vertical: 20),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: blankSpacerSize * 1.5,
+          spacing: blankSpacerSize,
           children: <Widget>[
             Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: cardHorizontalPadding,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: blankSpacerSize * 1.5,
+                spacing: blankSpacerSize,
                 children: [
                   PeriodSelector(
                     controller: _tabController,
@@ -153,12 +151,10 @@ class _SpendingsCardState extends State<SpendingsCard>
                 children: _periods
                     .map(
                       (period) => Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: horizontalPadding,
-                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: blankSpacerSize * .5,
+                          spacing: blankSpacerSize / 2,
                           children: [
                             Text(
                               "Spent this ${period.name}:",

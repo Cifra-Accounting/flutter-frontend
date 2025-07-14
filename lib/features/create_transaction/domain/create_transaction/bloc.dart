@@ -36,12 +36,12 @@ class CreateTransactionBloc
       onError: (e, st) => add(CreateTransactionEvent.error(e: e, st: st)),
     );
 
-    add(CreateTransactionEvent.shouldUpdateCategories());
-
     on<Update>(_onUpdateEvent);
     on<Submit>(_onSubmitEvent);
     on<ShouldUpdateCategories>(_onShouldUpdateCategoriesEvent);
     on<ErrorEvent>(_onErrorEvent);
+
+    add(CreateTransactionEvent.shouldUpdateCategories());
   }
 
   final UserRepository userRepository;
@@ -63,7 +63,8 @@ class CreateTransactionBloc
         category: event.category,
         currency: event.currency,
         amountInSmallestUnits: event.amountInSmallestUnits,
-        type: event.type,
+        type: event.type ?? TransactionType.expence,
+        shouldConvertToBase: event.shouldConvertToBase,
       ));
       return;
     }
@@ -76,7 +77,8 @@ class CreateTransactionBloc
         currency: event.currency,
         amountInSmallestUnits: event.amountInSmallestUnits,
         amountInSmallestUnitsBase: null,
-        type: event.type,
+        type: event.type ?? TransactionType.expence,
+        shouldConvertToBase: event.shouldConvertToBase,
       ));
       return;
     }
@@ -98,26 +100,30 @@ class CreateTransactionBloc
           category: event.category,
           currency: event.currency,
           amountInSmallestUnits: event.amountInSmallestUnits,
-          type: event.type,
+          type: event.type ?? TransactionType.expence,
+          shouldConvertToBase: event.shouldConvertToBase,
         ));
         return;
-      } finally {
-        final double? exchangeRate = rates.convertRates[event.currency];
-        final double convertation = (exchangeRate ?? 1.0) *
-            pow(10, event.currency!.fractionDigits) /
-            pow(10, state.baseCurrency.fractionDigits);
-        final int amountInSmallestUnitsBase =
-            (event.amountInSmallestUnits! / convertation).toInt();
-        emit(state.copyWith(
-          title: event.title,
-          description: event.description,
-          category: event.category,
-          currency: event.currency,
-          amountInSmallestUnits: event.amountInSmallestUnits,
-          amountInSmallestUnitsBase: amountInSmallestUnitsBase,
-          type: event.type,
-        ));
       }
+
+      final double? exchangeRate = rates.convertRates[event.currency];
+      final double convertation = (exchangeRate ?? 1.0) *
+          pow(10, event.currency!.fractionDigits) /
+          pow(10, state.baseCurrency.fractionDigits);
+      final int amountInSmallestUnitsBase =
+          (event.amountInSmallestUnits! / convertation).toInt();
+      emit(state.copyWith(
+        title: event.title,
+        description: event.description,
+        category: event.category,
+        currency: event.currency,
+        amountInSmallestUnits: event.amountInSmallestUnits,
+        amountInSmallestUnitsBase: amountInSmallestUnitsBase,
+        type: event.type ?? TransactionType.expence,
+        exchangeRates: rates.convertRates,
+        shouldConvertToBase: event.shouldConvertToBase,
+      ));
+      return;
     }
 
     final double? exchangeRate = state.exchangeRates![event.currency];
@@ -133,7 +139,8 @@ class CreateTransactionBloc
       currency: event.currency,
       amountInSmallestUnits: event.amountInSmallestUnits,
       amountInSmallestUnitsBase: amountInSmallestUnitsBase,
-      type: event.type,
+      type: event.type ?? TransactionType.expence,
+      shouldConvertToBase: event.shouldConvertToBase,
     ));
   }
 
@@ -143,7 +150,6 @@ class CreateTransactionBloc
   ) async {
     if (![
       state.title,
-      state.type,
       state.category,
       state.amountInSmallestUnitsBase,
       state.amountInSmallestUnits,
@@ -178,16 +184,17 @@ class CreateTransactionBloc
           e: e,
           st: st,
         ));
-      } finally {
-        emit(state.copyWith(
-          status: CreateTransactionStatus.loaded,
-        ));
+        return;
       }
+
+      emit(state.copyWith(
+        status: CreateTransactionStatus.loaded,
+      ));
+      return;
     }
 
     if (![
       state.title,
-      state.type,
       state.category,
       state.amountInSmallestUnits,
       state.currency,
@@ -215,11 +222,13 @@ class CreateTransactionBloc
           e: e,
           st: st,
         ));
-      } finally {
-        emit(state.copyWith(
-          status: CreateTransactionStatus.loaded,
-        ));
+        return;
       }
+
+      emit(state.copyWith(
+        status: CreateTransactionStatus.loaded,
+      ));
+      return;
     }
 
     final BlocError error = BlocError(

@@ -132,7 +132,14 @@ class _WalletViewState extends State<WalletView> {
           child: CustomScrollView(
             slivers: <Widget>[
               FadingSliver(
-                child: BlocBuilder<StatsBloc, StatsState>(
+                child: BlocConsumer<StatsBloc, StatsState>(
+                  listener: (context, state) {
+                    if (state.spendings.isEmpty) {
+                      context.read<StatsBloc>().add(
+                            PeriodPromptedStatsEvent(period: _currentPeriod),
+                          );
+                    }
+                  },
                   builder: (context, state) => SpendingsCard(
                     spent: state.spendings[_currentPeriod]?.$1,
                     outOf: state.spendings[_currentPeriod]?.$2,
@@ -148,7 +155,7 @@ class _WalletViewState extends State<WalletView> {
                 ),
               ),
               SliverToBoxAdapter(
-                child: SizedBox(height: blankSpacerSize),
+                child: SizedBox(height: blankSpacerSize / 2),
               ),
               DecoratedSliver(
                 decoration: BoxDecoration(
@@ -166,30 +173,21 @@ class _WalletViewState extends State<WalletView> {
                       return SliverList(
                         delegate: SliverChildListDelegate(
                           <Widget>[
-                            Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(
-                                  cardBorderRadius / 2,
+                            PixelText(
+                              "history",
+                              settings: PixelTextSettings(
+                                style: GoogleFonts.pixelifySans(
+                                  textStyle:
+                                      Theme.of(context).textTheme.headlineLarge,
                                 ),
-                                color: _colorScheme.shadow,
-                              ),
-                              child: PixelText(
-                                "history",
-                                settings: PixelTextSettings(
-                                  style: GoogleFonts.pixelifySans(
-                                    textStyle: Theme.of(context)
-                                        .textTheme
-                                        .headlineLarge,
-                                  ),
-                                  pixelSize: pixelSize / 2,
-                                  pixelSpacerSize: pixelSpacerSize / 2,
-                                  pixelColor: _colorScheme.onPrimary,
-                                  backroungColor: Colors.transparent,
-                                ),
+                                pixelSize: pixelSize / 2,
+                                pixelSpacerSize: pixelSpacerSize / 2,
+                                pixelColor: _colorScheme.onSurface,
+                                backroungColor: Colors.transparent,
                               ),
                             ),
                             SizedBox(
-                              height: 40,
+                              height: 20,
                               child: Divider(
                                 thickness: 2.0,
                                 height: 0.0,
@@ -255,7 +253,7 @@ class _C1fraListTileState extends State<C1fraListTile> {
       duration: Durations.short4,
       height: _deleting ? 0 : 63,
       onEnd: () => _deleting ? widget.onSwiped(widget.key!) : null,
-      margin: EdgeInsets.only(bottom: _deleting ? 0 : blankSpacerSize),
+      margin: EdgeInsets.only(bottom: _deleting ? 0 : blankSpacerSize / 2),
       child: C1fraSwipable(
         onSwiped: _handleSwipe,
         icon: Icons.delete_forever,

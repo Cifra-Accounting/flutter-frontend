@@ -22,9 +22,10 @@ mixin _$CreateTransactionState {
   Currency? get currency;
   int? get amountInSmallestUnitsBase;
   Currency get baseCurrency;
-  TransactionType? get type;
+  TransactionType get type;
   CreateTransactionStatus get status;
   List<Category> get categories;
+  bool get shouldConvertToBase;
   Map<Currency, double>? get exchangeRates;
   Object? get e;
   StackTrace? get st;
@@ -60,6 +61,8 @@ mixin _$CreateTransactionState {
             (identical(other.status, status) || other.status == status) &&
             const DeepCollectionEquality()
                 .equals(other.categories, categories) &&
+            (identical(other.shouldConvertToBase, shouldConvertToBase) ||
+                other.shouldConvertToBase == shouldConvertToBase) &&
             const DeepCollectionEquality()
                 .equals(other.exchangeRates, exchangeRates) &&
             const DeepCollectionEquality().equals(other.e, e) &&
@@ -79,13 +82,14 @@ mixin _$CreateTransactionState {
       type,
       status,
       const DeepCollectionEquality().hash(categories),
+      shouldConvertToBase,
       const DeepCollectionEquality().hash(exchangeRates),
       const DeepCollectionEquality().hash(e),
       st);
 
   @override
   String toString() {
-    return 'CreateTransactionState(title: $title, description: $description, category: $category, amountInSmallestUnits: $amountInSmallestUnits, currency: $currency, amountInSmallestUnitsBase: $amountInSmallestUnitsBase, baseCurrency: $baseCurrency, type: $type, status: $status, categories: $categories, exchangeRates: $exchangeRates, e: $e, st: $st)';
+    return 'CreateTransactionState(title: $title, description: $description, category: $category, amountInSmallestUnits: $amountInSmallestUnits, currency: $currency, amountInSmallestUnitsBase: $amountInSmallestUnitsBase, baseCurrency: $baseCurrency, type: $type, status: $status, categories: $categories, shouldConvertToBase: $shouldConvertToBase, exchangeRates: $exchangeRates, e: $e, st: $st)';
   }
 }
 
@@ -103,9 +107,10 @@ abstract mixin class $CreateTransactionStateCopyWith<$Res> {
       Currency? currency,
       int? amountInSmallestUnitsBase,
       Currency baseCurrency,
-      TransactionType? type,
+      TransactionType type,
       CreateTransactionStatus status,
       List<Category> categories,
+      bool shouldConvertToBase,
       Map<Currency, double>? exchangeRates,
       Object? e,
       StackTrace? st});
@@ -131,9 +136,10 @@ class _$CreateTransactionStateCopyWithImpl<$Res>
     Object? currency = freezed,
     Object? amountInSmallestUnitsBase = freezed,
     Object? baseCurrency = null,
-    Object? type = freezed,
+    Object? type = null,
     Object? status = null,
     Object? categories = null,
+    Object? shouldConvertToBase = null,
     Object? exchangeRates = freezed,
     Object? e = freezed,
     Object? st = freezed,
@@ -167,10 +173,10 @@ class _$CreateTransactionStateCopyWithImpl<$Res>
           ? _self.baseCurrency
           : baseCurrency // ignore: cast_nullable_to_non_nullable
               as Currency,
-      type: freezed == type
+      type: null == type
           ? _self.type
           : type // ignore: cast_nullable_to_non_nullable
-              as TransactionType?,
+              as TransactionType,
       status: null == status
           ? _self.status
           : status // ignore: cast_nullable_to_non_nullable
@@ -179,6 +185,10 @@ class _$CreateTransactionStateCopyWithImpl<$Res>
           ? _self.categories
           : categories // ignore: cast_nullable_to_non_nullable
               as List<Category>,
+      shouldConvertToBase: null == shouldConvertToBase
+          ? _self.shouldConvertToBase
+          : shouldConvertToBase // ignore: cast_nullable_to_non_nullable
+              as bool,
       exchangeRates: freezed == exchangeRates
           ? _self.exchangeRates
           : exchangeRates // ignore: cast_nullable_to_non_nullable
@@ -203,9 +213,10 @@ class _CreateTransactionState extends CreateTransactionState {
       this.currency,
       this.amountInSmallestUnitsBase,
       required this.baseCurrency,
-      this.type,
+      this.type = TransactionType.expence,
       this.status = CreateTransactionStatus.initial,
       final List<Category> categories = const <Category>[],
+      this.shouldConvertToBase = false,
       final Map<Currency, double>? exchangeRates,
       this.e,
       this.st})
@@ -228,7 +239,8 @@ class _CreateTransactionState extends CreateTransactionState {
   @override
   final Currency baseCurrency;
   @override
-  final TransactionType? type;
+  @JsonKey()
+  final TransactionType type;
   @override
   @JsonKey()
   final CreateTransactionStatus status;
@@ -241,6 +253,9 @@ class _CreateTransactionState extends CreateTransactionState {
     return EqualUnmodifiableListView(_categories);
   }
 
+  @override
+  @JsonKey()
+  final bool shouldConvertToBase;
   final Map<Currency, double>? _exchangeRates;
   @override
   Map<Currency, double>? get exchangeRates {
@@ -288,6 +303,8 @@ class _CreateTransactionState extends CreateTransactionState {
             (identical(other.status, status) || other.status == status) &&
             const DeepCollectionEquality()
                 .equals(other._categories, _categories) &&
+            (identical(other.shouldConvertToBase, shouldConvertToBase) ||
+                other.shouldConvertToBase == shouldConvertToBase) &&
             const DeepCollectionEquality()
                 .equals(other._exchangeRates, _exchangeRates) &&
             const DeepCollectionEquality().equals(other.e, e) &&
@@ -307,13 +324,14 @@ class _CreateTransactionState extends CreateTransactionState {
       type,
       status,
       const DeepCollectionEquality().hash(_categories),
+      shouldConvertToBase,
       const DeepCollectionEquality().hash(_exchangeRates),
       const DeepCollectionEquality().hash(e),
       st);
 
   @override
   String toString() {
-    return 'CreateTransactionState(title: $title, description: $description, category: $category, amountInSmallestUnits: $amountInSmallestUnits, currency: $currency, amountInSmallestUnitsBase: $amountInSmallestUnitsBase, baseCurrency: $baseCurrency, type: $type, status: $status, categories: $categories, exchangeRates: $exchangeRates, e: $e, st: $st)';
+    return 'CreateTransactionState(title: $title, description: $description, category: $category, amountInSmallestUnits: $amountInSmallestUnits, currency: $currency, amountInSmallestUnitsBase: $amountInSmallestUnitsBase, baseCurrency: $baseCurrency, type: $type, status: $status, categories: $categories, shouldConvertToBase: $shouldConvertToBase, exchangeRates: $exchangeRates, e: $e, st: $st)';
   }
 }
 
@@ -333,9 +351,10 @@ abstract mixin class _$CreateTransactionStateCopyWith<$Res>
       Currency? currency,
       int? amountInSmallestUnitsBase,
       Currency baseCurrency,
-      TransactionType? type,
+      TransactionType type,
       CreateTransactionStatus status,
       List<Category> categories,
+      bool shouldConvertToBase,
       Map<Currency, double>? exchangeRates,
       Object? e,
       StackTrace? st});
@@ -361,9 +380,10 @@ class __$CreateTransactionStateCopyWithImpl<$Res>
     Object? currency = freezed,
     Object? amountInSmallestUnitsBase = freezed,
     Object? baseCurrency = null,
-    Object? type = freezed,
+    Object? type = null,
     Object? status = null,
     Object? categories = null,
+    Object? shouldConvertToBase = null,
     Object? exchangeRates = freezed,
     Object? e = freezed,
     Object? st = freezed,
@@ -397,10 +417,10 @@ class __$CreateTransactionStateCopyWithImpl<$Res>
           ? _self.baseCurrency
           : baseCurrency // ignore: cast_nullable_to_non_nullable
               as Currency,
-      type: freezed == type
+      type: null == type
           ? _self.type
           : type // ignore: cast_nullable_to_non_nullable
-              as TransactionType?,
+              as TransactionType,
       status: null == status
           ? _self.status
           : status // ignore: cast_nullable_to_non_nullable
@@ -409,6 +429,10 @@ class __$CreateTransactionStateCopyWithImpl<$Res>
           ? _self._categories
           : categories // ignore: cast_nullable_to_non_nullable
               as List<Category>,
+      shouldConvertToBase: null == shouldConvertToBase
+          ? _self.shouldConvertToBase
+          : shouldConvertToBase // ignore: cast_nullable_to_non_nullable
+              as bool,
       exchangeRates: freezed == exchangeRates
           ? _self._exchangeRates
           : exchangeRates // ignore: cast_nullable_to_non_nullable

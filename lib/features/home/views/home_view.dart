@@ -1,4 +1,11 @@
+import 'package:cifra_app/features/create_transaction/domain/create_transaction/bloc.dart';
+import 'package:cifra_app/features/create_transaction/views/create_transaction_view.dart';
+import 'package:cifra_app/repositories/categories/repository.dart';
+import 'package:cifra_app/repositories/currency_exchange/exchange_rate_repository.dart';
+import 'package:cifra_app/repositories/transactions/repository.dart';
+import 'package:cifra_app/repositories/user/repository.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -50,7 +57,16 @@ class HomeView extends StatelessWidget {
           showDragHandle: true,
           useRootNavigator: true,
           useSafeArea: true,
-          builder: (_) => Placeholder(),
+          isScrollControlled: true,
+          builder: (context) => BlocProvider(
+            create: (context) => CreateTransactionBloc(
+              userRepository: context.read<UserRepository>(),
+              exchangeRateRepository: context.read<ExchangeRateRepository>(),
+              transactionRepository: context.read<TransactionRepository>(),
+              categoryRepository: context.read<CategoryRepository>(),
+            ),
+            child: CreateTransactionView(),
+          ),
         ),
       ),
     );

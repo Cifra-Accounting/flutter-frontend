@@ -13,7 +13,11 @@ enum Periods {
           currentDate.month,
           currentDate.day,
         ),
-      Periods.week => currentDate.subtract(
+      Periods.week => DateTime(
+          currentDate.year,
+          currentDate.month,
+          currentDate.day,
+        ).subtract(
           Duration(days: currentDate.weekday - 1),
         ),
       Periods.month => DateTime(currentDate.year, currentDate.month),

@@ -63,26 +63,20 @@ class _PeriodSelectorState extends State<PeriodSelector> {
   }
 
   @override
-  Widget build(BuildContext context) => Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(consts.cardBorderRadius / 2),
-          color: Theme.of(context).colorScheme.shadow,
-        ),
-        child: TabBar.secondary(
-          controller: widget.controller,
-          padding: EdgeInsets.zero,
-          isScrollable: true,
-          enableFeedback: true,
-          tabs: _effectiveTabs,
-          tabAlignment: TabAlignment.start,
-          indicator: null,
-          indicatorColor: Colors.transparent,
-          dividerColor: Colors.transparent,
-          dividerHeight: 0.0,
-          overlayColor: const WidgetStatePropertyAll<Color>(Colors.transparent),
-          labelPadding: const EdgeInsets.only(
-            right: consts.cardHorizontalPadding * 1.5,
-          ),
+  Widget build(BuildContext context) => TabBar.secondary(
+        controller: widget.controller,
+        padding: EdgeInsets.zero,
+        isScrollable: true,
+        enableFeedback: true,
+        tabs: _effectiveTabs,
+        tabAlignment: TabAlignment.start,
+        indicator: null,
+        indicatorColor: Colors.transparent,
+        dividerColor: Colors.transparent,
+        dividerHeight: 0.0,
+        overlayColor: const WidgetStatePropertyAll<Color>(Colors.transparent),
+        labelPadding: const EdgeInsets.only(
+          right: consts.cardHorizontalPadding * 1.5,
         ),
       );
 }

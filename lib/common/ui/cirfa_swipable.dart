@@ -196,15 +196,18 @@ class _C1fraSwipableRenderObject extends RenderProxyBox
 
   @override
   void performLayout() {
+    final Size oldSize = size;
     child?.layout(constraints, parentUsesSize: true);
     size = child?.size ?? Size.zero;
 
     final ParentData? parentData = child?.parentData;
     if (parentData is SwipableParentData) {
-      child?.parentData = SwipableParentData(
-        Offset.zero,
-        Offset(size.width, 0.0) & Size(0.0, size.height),
-      );
+      if (oldSize.width != size.width) {
+        child?.parentData = SwipableParentData(
+          Offset.zero,
+          Offset(size.width, 0.0) & Size(0.0, size.height),
+        );
+      }
     }
 
     super.performLayout();

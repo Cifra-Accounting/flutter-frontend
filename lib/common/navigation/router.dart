@@ -1,4 +1,12 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+
 import 'package:cifra_app/common/constants/enums.dart';
+import 'package:cifra_app/common/constants/numeric_constants.dart';
 import 'package:cifra_app/common/navigation/routing_constants.dart';
 import 'package:cifra_app/features/home/views/home_view.dart';
 import 'package:cifra_app/features/onboarding/domain/intro_bloc/bloc.dart';
@@ -9,25 +17,37 @@ import 'package:cifra_app/features/wallet/domain/bloc/stats_bloc.dart/bloc.dart'
 import 'package:cifra_app/features/wallet/views/wallet_view.dart';
 import 'package:cifra_app/repositories/transactions/repository.dart';
 import 'package:cifra_app/repositories/user/repository.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 final GoRouter router = GoRouter(
-  onException: (context, state, router) =>
-      ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
+  onException: (context, state, router) {
+    final TextTheme textTheme = Theme.of(context).textTheme;
+    final ColorScheme colorScheme = Theme.of(context).colorScheme;
+
+    final String? snackBarContent =
+        !kDebugMode ? "Something went wrong" : state.error?.message.toString();
+
+    final SnackBar snackBar = SnackBar(
       content: Text(
-        kDebugMode
-            ? state.error?.message ?? 'Что-то пошло не так'
-            : 'Что-то пошло не так',
+        snackBarContent ?? "",
+        style: GoogleFonts.montserratAlternates(
+          textStyle: textTheme.bodyMedium?.copyWith(
+            color: colorScheme.onError,
+            overflow: TextOverflow.visible,
+          ),
+        ),
       ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(cardBorderRadius / 2),
+      ),
+      backgroundColor: colorScheme.error,
       showCloseIcon: true,
+      closeIconColor: colorScheme.onError,
       behavior: SnackBarBehavior.floating,
-      backgroundColor: Theme.of(context).colorScheme.error,
-    ),
-  ),
+      margin: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+    );
+
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(snackBar);
+  },
   redirect: (context, state) =>
       context.read<UserRepository>().get().isIntroduced ? null : onBoardingPath,
   initialLocation: walletPath,
@@ -42,10 +62,9 @@ final GoRouter router = GoRouter(
       ),
     ),
     StatefulShellRoute.indexedStack(
-      builder: (context, state, navigationShell) =>
-          HomeView(navigationShell: navigationShell),
-      redirect: (context, state) =>
-          context.read<UserRepository>().get().isIntroduced ? null : null,
+      builder: (context, state, navigationShell) => HomeView(
+        navigationShell: navigationShell,
+      ),
       branches: <StatefulShellBranch>[
         StatefulShellBranch(
           routes: <RouteBase>[
