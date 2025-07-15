@@ -25,4 +25,5 @@ abstract class CreateTransactionEvent with _$CreateTransactionEvent {
   }) = ErrorEvent;
   const factory CreateTransactionEvent.shouldUpdateCategories() =
       ShouldUpdateCategories;
+  const factory CreateTransactionEvent.init() = Init;
 }

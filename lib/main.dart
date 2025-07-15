@@ -20,6 +20,16 @@ void main() async {
     responseType: ResponseType.json,
     contentType: 'application/json',
   ));
+  // ..interceptors.add(InterceptorsWrapper(
+  //   onRequest: (options, handler) {
+  //     print("REQUEST => ${options.uri}");
+  //     return handler.next(options);
+  //   },
+  //   onResponse: (response, handler) {
+  //     print("RESPONSE => ${response.data}");
+  //     return handler.next(response);
+  //   },
+  // ));
   final UserRepository userRepository = UserRepository();
   await userRepository.init();
 

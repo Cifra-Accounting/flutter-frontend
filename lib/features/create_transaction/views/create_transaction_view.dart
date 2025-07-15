@@ -1,16 +1,17 @@
-import 'package:cifra_app/common/models/money.dart';
-import 'package:cifra_app/common/ui/selectable_button.dart';
-import 'package:cifra_app/features/onboarding/views/onboarding_view.dart';
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:marquee/marquee.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:cifra_app/common/constants/numeric_constants.dart';
+import 'package:cifra_app/common/models/money.dart';
+import 'package:cifra_app/common/ui/selectable_button.dart';
+import 'package:cifra_app/features/onboarding/views/onboarding_view.dart';
 import 'package:cifra_app/common/ui/c1fra_icon.dart';
 import 'package:cifra_app/features/create_transaction/domain/create_transaction/bloc.dart';
 import 'package:cifra_app/features/create_transaction/domain/create_transaction/state.dart';
@@ -18,7 +19,6 @@ import 'package:cifra_app/features/create_transaction/domain/create_transaction/
 import 'package:cifra_app/repositories/transactions/models/transaction.dart';
 import 'package:cifra_app/repositories/categories/models/category.dart'
     as model;
-import 'package:marquee/marquee.dart';
 
 class CreateTransactionView extends StatefulWidget {
   const CreateTransactionView({super.key});
@@ -83,6 +83,17 @@ class _CreateTransactionViewState extends State<CreateTransactionView> {
       _bloc.add(CreateTransactionEvent.update(
         title: title,
         description: _state.description,
+        category: _state.category,
+        amountInSmallestUnits: _state.amountInSmallestUnits,
+        currency: _state.currency,
+        type: _state.type,
+        shouldConvertToBase: _state.shouldConvertToBase,
+      ));
+
+  void _handleDescriptionChange(String description) =>
+      _bloc.add(CreateTransactionEvent.update(
+        title: _state.title,
+        description: description,
         category: _state.category,
         amountInSmallestUnits: _state.amountInSmallestUnits,
         currency: _state.currency,
@@ -562,7 +573,7 @@ class _CreateTransactionViewState extends State<CreateTransactionView> {
                       expands: true,
                       textAlignVertical: TextAlignVertical.top,
                       scrollPadding: EdgeInsets.all(blankSpacerSize / 2),
-                      onChanged: _handleTitleChange,
+                      onChanged: _handleDescriptionChange,
                       decoration: InputDecoration(
                         labelText: "Transaction description",
                         labelStyle: GoogleFonts.montserratAlternates(

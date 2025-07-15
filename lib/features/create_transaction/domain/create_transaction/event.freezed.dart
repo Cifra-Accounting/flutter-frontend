@@ -269,4 +269,24 @@ class ShouldUpdateCategories implements CreateTransactionEvent {
   }
 }
 
+/// @nodoc
+
+class Init implements CreateTransactionEvent {
+  const Init();
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is Init);
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+
+  @override
+  String toString() {
+    return 'CreateTransactionEvent.init()';
+  }
+}
+
 // dart format on

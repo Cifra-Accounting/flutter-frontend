@@ -55,7 +55,9 @@ class HistoryBloc extends Bloc<HistoryEvent, HistoryState> {
     ShouldUpdateRepositoryHistoryEvent event,
     Emitter<HistoryState> emit,
   ) =>
-      state._skip <= 0 ? emit(state.resetHistory()) : null;
+      state._skip <= 0
+          ? emit(state.resetHistory())
+          : emit(state._copyWith(skip: state._skip - 1));
 
   /// Adds required by the [event] filter to the [state]
   /// and clears history in case new filter affects the current history

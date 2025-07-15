@@ -23,6 +23,7 @@ class CreateTransactionBloc
     required this.transactionRepository,
     required this.categoryRepository,
   }) : super(CreateTransactionState(
+          currency: userRepository.get().limit!.currency,
           baseCurrency: userRepository.get().limit!.currency,
         )) {
     _categoryUpdateSubscription =
@@ -52,12 +53,13 @@ class CreateTransactionBloc
   late final StreamSubscription<bool> _categoryUpdateSubscription;
   late final StreamSubscription<bool> _transactionUpdateSubscriptiion;
 
-  void _onUpdateEvent(
+  Future _onUpdateEvent(
     Update event,
     Emitter<CreateTransactionState> emit,
   ) async {
     if (!event.shouldConvertToBase) {
       emit(state.copyWith(
+        status: CreateTransactionStatus.initial,
         title: event.title,
         description: event.description,
         category: event.category,
@@ -71,6 +73,7 @@ class CreateTransactionBloc
 
     if (event.currency == null || event.amountInSmallestUnits == null) {
       emit(state.copyWith(
+        status: CreateTransactionStatus.initial,
         title: event.title,
         description: event.description,
         category: event.category,
@@ -84,6 +87,17 @@ class CreateTransactionBloc
     }
 
     if (state.exchangeRates == null) {
+      emit(state.copyWith(
+        status: CreateTransactionStatus.initial,
+        title: event.title,
+        description: event.description,
+        category: event.category,
+        currency: event.currency,
+        amountInSmallestUnits: event.amountInSmallestUnits,
+        type: event.type ?? TransactionType.expence,
+        shouldConvertToBase: event.shouldConvertToBase,
+      ));
+
       late final ExchangeRate rates;
 
       try {
@@ -113,6 +127,7 @@ class CreateTransactionBloc
       final int amountInSmallestUnitsBase =
           (event.amountInSmallestUnits! / convertation).toInt();
       emit(state.copyWith(
+        status: CreateTransactionStatus.initial,
         title: event.title,
         description: event.description,
         category: event.category,
@@ -133,6 +148,7 @@ class CreateTransactionBloc
     final int amountInSmallestUnitsBase =
         (event.amountInSmallestUnits! / convertation).toInt();
     emit(state.copyWith(
+      status: CreateTransactionStatus.initial,
       title: event.title,
       description: event.description,
       category: event.category,
@@ -247,6 +263,7 @@ class CreateTransactionBloc
     Emitter<CreateTransactionState> emit,
   ) async =>
       emit(state.copyWith(
+        status: CreateTransactionStatus.initial,
         categories: await categoryRepository.getAll(),
       ));
 

@@ -290,21 +290,25 @@ class _C1fraListTileState extends State<C1fraListTile> {
                             color: colorScheme.inverseSurface,
                           ),
                         ),
-                        Text(
-                          widget.transaction.title.valueOrThrow,
-                          style: GoogleFonts.montserratAlternates(
-                            textStyle: textTheme.bodyLarge?.copyWith(
-                              color: colorScheme.onSurface,
+                        SizedBox(
+                          child: Text(
+                            widget.transaction.title.valueOrThrow,
+                            style: GoogleFonts.montserratAlternates(
+                              textStyle: textTheme.bodyLarge?.copyWith(
+                                color: colorScheme.onSurface,
+                              ),
                             ),
                           ),
                         ),
                       ],
                     ),
-                    Text(
-                      "${widget.transaction.type.valueOrThrow == TransactionType.income ? "+" : "-"} ${widget.transaction.value.valueOrThrow.formattedAmount}",
-                      style: GoogleFonts.montserratAlternates(
-                        textStyle: textTheme.bodyLarge?.copyWith(
-                          color: colorScheme.onSurface,
+                    SizedBox(
+                      child: Text(
+                        "${widget.transaction.type.valueOrThrow == TransactionType.income ? "+" : "-"} ${widget.transaction.value.valueOrThrow.formattedAmount}",
+                        style: GoogleFonts.montserratAlternates(
+                          textStyle: textTheme.bodyLarge?.copyWith(
+                            color: colorScheme.onSurface,
+                          ),
                         ),
                       ),
                     ),

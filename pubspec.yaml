@@ -27,6 +27,7 @@ dependencies:
   marquee: ^2.3.0
   dropdown_button2: ^2.3.9
   retrofit: ^4.6.0
+  rxdart: ^0.28.0
 
 dev_dependencies:
   flutter_test:

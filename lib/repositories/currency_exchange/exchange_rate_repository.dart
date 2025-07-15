@@ -15,7 +15,7 @@ abstract class ExchangeRateRepository {
   }) = _ExchangeRateRepository;
 
   /// To call please convert the desired date to YYYY-MM-DD format
-  @GET("currency-api@{date}/v1/{currency}.json")
+  @GET("/currency-api@{date}/v1/currencies/{currency}.json")
   Future<ExchangeRate> getRate({
     @Path("date") String date = "latest",
     @Path("currency") required Currency currency,

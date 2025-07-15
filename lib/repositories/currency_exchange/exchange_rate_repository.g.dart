@@ -30,7 +30,7 @@ class _ExchangeRateRepository implements ExchangeRateRepository {
       Options(method: 'GET', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            'currency-api@${date}/v1/${currency}.json',
+            '/currency-api@${date}/v1/currencies/${currency}.json',
             queryParameters: queryParameters,
             data: _data,
           )
