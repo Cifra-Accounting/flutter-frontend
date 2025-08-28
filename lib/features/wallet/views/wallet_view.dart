@@ -69,13 +69,15 @@ class _WalletViewState extends State<WalletView> {
         )
         .toList();
 
+    int offset = 0;
+
     for (final (index, transaction) in transactions.indexed) {
       final Transaction? previous =
           index != 0 ? transactions.elementAtOrNull(index - 1) : null;
 
       if (previous?.date.value?.day != transaction.date.value?.day) {
         result.insert(
-          index,
+          index + offset,
           Padding(
             padding: const EdgeInsets.only(bottom: blankSpacerSize),
             child: Text(
@@ -88,6 +90,7 @@ class _WalletViewState extends State<WalletView> {
             ),
           ),
         );
+        ++offset;
       }
     }
 
@@ -258,7 +261,7 @@ class _C1fraListTileState extends State<C1fraListTile> {
         onSwiped: _handleSwipe,
         icon: Icons.delete_forever,
         iconColor: colorScheme.onPrimary,
-        iconSize: 63 - 20,
+        iconSize: 63 - 40,
         spacing: blankSpacerSize,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(cardBorderRadius / 2),
@@ -278,29 +281,31 @@ class _C1fraListTileState extends State<C1fraListTile> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: 10,
-                      children: <Widget>[
-                        SizedBox.square(
-                          dimension: 30,
-                          child: C1fraIcon(
-                            icon: widget.transaction.category.valueOrThrow.icon
-                                .valueOrThrow,
-                            color: colorScheme.inverseSurface,
+                    Expanded(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: 10,
+                        children: <Widget>[
+                          SizedBox.square(
+                            dimension: 30,
+                            child: C1fraIcon(
+                              icon: widget.transaction.category.valueOrThrow
+                                  .icon.valueOrThrow,
+                              color: colorScheme.inverseSurface,
+                            ),
                           ),
-                        ),
-                        SizedBox(
-                          child: Text(
-                            widget.transaction.title.valueOrThrow,
-                            style: GoogleFonts.montserratAlternates(
-                              textStyle: textTheme.bodyLarge?.copyWith(
-                                color: colorScheme.onSurface,
+                          Expanded(
+                            child: Text(
+                              widget.transaction.title.valueOrThrow,
+                              style: GoogleFonts.montserratAlternates(
+                                textStyle: textTheme.bodyLarge?.copyWith(
+                                  color: colorScheme.onSurface,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                     SizedBox(
                       child: Text(
@@ -423,3 +428,5 @@ class DetailsModalSheet extends StatelessWidget {
     );
   }
 }
+
+// class CreateCategoryModalSheet extends StatelessWidget {}

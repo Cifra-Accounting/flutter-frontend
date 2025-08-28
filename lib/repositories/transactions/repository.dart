@@ -51,8 +51,6 @@ class TransactionRepository implements Repository<models.Transaction> {
   Map<String, dynamic> _parseMap(Map<String, dynamic> map) {
     final Map<String, dynamic> newMap = <String, dynamic>{};
 
-    map.forEach((key, value) {});
-
     for (final MapEntry<String, dynamic> entry in map.entries) {
       switch (entry.key) {
         case categoryIdColumn:
